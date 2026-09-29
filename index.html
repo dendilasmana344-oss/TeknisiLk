@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<title>Lakso Global Ticket - Teknisi</title>
+
+<!-- ═══════════ CRITICAL CSS (SEBELUM Tailwind) ═══════════ -->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; min-height: 100%; }
+  body { background: #0a0e1a; color: #e5e7eb; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+  button { cursor: pointer; border: none; background: none; color: inherit; font: inherit; }
+  input, textarea, select { font: inherit; color: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  .view { display: none !important; }
+  .view.active { display: block !important; }
+  .hidden-important { display: none !important; }
+
+  #splashLoader { display: flex; }
+  #loginPage, #waModal, #mainApp, #notifPanel, #acceptModal, #etaModal, #finishModal, #pendingModal, #logoutModal, #successModal, #toast, #rejectModal { display: none; }
+</style>
+
+<!-- ═══════════ FONTS ═══════════ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ═══════════ FONT AWESOME ═══════════ -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- ═══════════ FIREBASE SDK ═══════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<!-- ═══════════ CUSTOM CSS ═══════════ -->
+<style>
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #111827; }
+  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+
+  .glass {
+    background: rgba(17, 24, 39, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .glow { box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
+  .gradient-text {
+    background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .btn-primary { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 600; transition: transform 0.2s; }
+  .btn-success:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn-success:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 600; transition: transform 0.2s; }
+  .btn-warn:hover:not(:disabled) { transform: translateY(-2px); }
+
+  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 600; transition: transform 0.2s; }
+  .btn-danger:hover:not(:disabled) { transform: translateY(-2px); }
+
+  .fade-in { animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .pulse-red { animation: pulseRed 1.8s infinite; }
+  @keyframes pulseRed {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+    50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  }
+  .pulse-green { animation: pulseGreen 1.8s infinite; }
+  @keyframes pulseGreen {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+    50% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+  }
+
+  .spin {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  .modal-overlay.show { display: flex; }
+
+  #toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90;
+    background: rgba(17, 24, 39, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 20px;
+    border-radius: 12px;
+    max-width: 92vw;
+    font-size: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  #toast.hidden-important { display: none !important; }
+  #toast.toast-info { border-left: 4px solid #00d4ff; }
+  #toast.toast-success { border-left: 4px solid #10b981; }
+  #toast.toast-error { border-left: 4px solid #ef4444; }
+  #toast.toast-warn { border-left: 4px solid #f59e0b; }
+
+  .timeline-wrap { position: relative; padding-left: 28px; }
+  .timeline-wrap::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: #1f2937; }
+  .timeline-item { position: relative; padding-bottom: 20px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 4px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #374151;
+    border: 3px solid #0a0e1a;
+    z-index: 2;
+  }
+  .timeline-item.done::before { background: #10b981; }
+  .timeline-item.active::before {
+    background: #00d4ff;
+    box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.25);
+    animation: pulseDot 1.6s infinite;
+  }
+  @keyframes pulseDot {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.25); }
+    50% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0.08); }
+  }
+
+  .sidebar-item.active { background: rgba(0, 212, 255, 0.14); color: #00d4ff; border-right: 3px solid #00d4ff; }
+  .bottom-nav-item.active { color: #00d4ff; }
+  .chat-bubble { word-wrap: break-word; word-break: break-word; overflow-wrap: anywhere; }
+
+  #splashLoader {
+    position: fixed;
+    inset: 0;
+    background: #0a0e1a;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #splashLoader.hidden-important { display: none !important; }
+
+  .progress-track { width: 120px; height: 4px; background: #1f2937; border-radius: 999px; overflow: hidden; margin: 20px auto 0; }
+  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff, #7c3aed); transition: width 0.3s; }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+
+  .badge-pulse { animation: badgePulse 0.6s ease-out; }
+  @keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+
+  .photo-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .photo-item { position: relative; aspect-ratio: 1; }
+  .photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #1f2937; }
+  .photo-remove {
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 24px; height: 24px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    border: 2px solid #0a0e1a;
+  }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+  .badge-purple { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
+  .badge-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3); }
+  .badge-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+  .badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+  .badge-gray { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border-color: rgba(107, 114, 128, 0.3); }
+  .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+  .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+
+  .prio-badge-Low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+  .prio-badge-Medium { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+  .prio-badge-High { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+  .prio-badge-Critical { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+  /* Filter chips */
+  .filter-chip {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid #1f2937;
+    color: #9ca3af;
+    background: rgba(17, 24, 39, 0.5);
+    transition: all 0.2s;
+  }
+  .filter-chip.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
+
+  .eta-opt {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+    font-size: 13px;
+    transition: all 0.2s;
+    background: rgba(17, 24, 39, 0.5);
+  }
+  .eta-opt.selected { border: 2px solid #00d4ff; background: rgba(0, 212, 255, 0.12); color: #00d4ff; }
+
+  .stat-card {
+    border-radius: 12px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.08;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SPLASH ═══════════ -->
+<div id="splashLoader">
+  <div style="text-align: center; padding: 20px;">
+    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 20px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,212,255,0.2);">
+      <i class="fas fa-tools" style="font-size: 32px; color: #fff;"></i>
+    </div>
+    <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;" class="gradient-text">Lakso Global</h1>
+    <p style="color: #6b7280; font-size: 13px;">Teknisi Portal</p>
+    <div class="progress-track"><div id="splashProgress" class="progress-bar-fill"></div></div>
+    <p id="splashText" style="color: #6b7280; font-size: 12px; margin-top: 16px;">Memuat sistem...</p>
+  </div>
+</div>
+
+<!-- ═══════════ LOGIN PAGE ═══════════ -->
+<div id="loginPage" style="min-height: 100vh; padding: 20px; align-items: center; justify-content: center;">
+  <div style="width: 100%; max-width: 440px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 28px;" class="fade-in">
+      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 20px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,212,255,0.2);">
+        <i class="fas fa-tools" style="font-size: 32px; color: #fff;"></i>
+      </div>
+      <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.5px;" class="gradient-text">Lakso Global</h1>
+      <p style="color: #9ca3af; margin-top: 6px; font-size: 14px;">Teknisi Portal</p>
+    </div>
+
+    <div class="glass slide-up" style="border-radius: 20px; padding: 24px;">
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <i class="fas fa-id-badge" style="color: #00d4ff;"></i>
+          <label style="font-size: 14px; font-weight: 600;">Login dengan UID Teknisi</label>
+        </div>
+        <p style="font-size: 12px; color: #6b7280; margin-left: 26px;">UID dibuat oleh Admin. Hubungi NOC jika belum punya.</p>
+      </div>
+
+      <form id="loginForm">
+        <input type="text" id="loginUid" required autocomplete="off" spellcheck="false" maxlength="20"
+          style="width: 100%; background: #0a0e1a; border: 2px solid #1f2937; border-radius: 12px; padding: 16px; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 18px; letter-spacing: 0.08em; color: #fff; outline: none; transition: border-color 0.2s;"
+          placeholder="TEKNISI01">
+        <p style="font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center;">
+          <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Min 8 karakter, wajib ada 2 angka
+        </p>
+
+        <div id="loginError" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; font-size: 13px; color: #f87171; margin-top: 14px;">
+          <i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i><span id="loginErrorText"></span>
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; margin-top: 16px;">
+          <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Masuk Sistem
+        </button>
+      </form>
+
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #1f2937;">
+        <div style="display: flex; gap: 12px; font-size: 12px; color: #6b7280; line-height: 1.5;">
+          <i class="fas fa-shield-alt" style="color: #00d4ff; margin-top: 2px; flex-shrink: 0;"></i>
+          <div>
+            <p style="font-weight: 600; color: #9ca3af; margin-bottom: 4px;">Device Terdaftar</p>
+            <p>UID teknisi tersimpan di device ini. Login otomatis di device yang sama.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align: center; color: #4b5563; font-size: 12px; margin-top: 24px;">© 2026 Lakso Global Akses</p>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN APP ═══════════ -->
+<div id="mainApp" style="min-height: 100vh; padding-bottom: 80px;">
+
+  <!-- HEADER -->
+  <header class="glass" style="position: sticky; top: 0; z-index: 40; border-bottom: 1px solid #1f2937; border-left: none; border-right: none; border-top: none;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fas fa-tools" style="color: #fff;"></i>
+        </div>
+        <div style="min-width: 0;">
+          <h1 style="font-size: 15px; font-weight: 800; line-height: 1.1;" class="gradient-text">Lakso Global</h1>
+          <p id="headerSubtitle" style="font-size: 11px; color: #6b7280; line-height: 1.1;">Teknisi Portal</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button onclick="toggleAvailability()" id="availBtn" style="padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.15); color: #34d399;">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span>
+          <span id="availText">Tersedia</span>
+        </button>
+        <button onclick="toggleNotif()" style="position: relative; padding: 8px; color: #9ca3af; border-radius: 8px;">
+          <i class="fas fa-bell" style="font-size: 18px;"></i>
+          <span id="notifBadge" style="display: none; position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
+        </button>
+        <div style="position: relative;">
+          <button onclick="toggleUserMenu()" style="display: flex; align-items: center;">
+            <div id="userAvatar" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px;">?</div>
+          </button>
+          <div id="userMenu" class="glass slide-up" style="display: none; position: absolute; right: 0; top: 46px; width: 240px; border-radius: 12px; padding: 8px; z-index: 50; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <div style="padding: 10px 12px; border-bottom: 1px solid #1f2937;">
+              <p id="menuName" style="font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+              <p id="menuUid" style="font-size: 11px; color: #6b7280; font-family: ui-monospace, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+              <p id="menuArea" style="font-size: 11px; color: #00d4ff; margin-top: 4px;"></p>
+            </div>
+            <button onclick="showView('Profile')" style="width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; color: #e5e7eb;">
+              <i class="fas fa-user" style="color: #00d4ff;"></i>Profil Saya
+            </button>
+            <button onclick="showView('Performance')" style="width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; color: #e5e7eb;">
+              <i class="fas fa-chart-line" style="color: #00d4ff;"></i>Performa Saya
+            </button>
+            <button onclick="logout()" style="width: 100%; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; color: #f87171;">
+              <i class="fas fa-sign-out-alt"></i>Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- LAYOUT -->
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: flex-start;">
+
+    <!-- SIDEBAR DESKTOP -->
+    <aside id="sidebar" style="display: none; width: 240px; flex-shrink: 0; position: sticky; top: 65px; height: calc(100vh - 65px); border-right: 1px solid #1f2937; overflow-y: auto;">
+      <nav style="padding: 16px; display: flex; flex-direction: column; gap: 4px;">
+        <button onclick="showView('Dashboard')" class="sidebar-item" data-sidebar="Dashboard" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px;">
+          <i class="fas fa-home" style="width: 20px;"></i><span style="font-weight: 500;">Beranda</span>
+        </button>
+        <button onclick="openLastChat()" class="sidebar-item" data-sidebar="Chat" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px; position: relative;">
+          <i class="fas fa-comments" style="width: 20px;"></i><span style="font-weight: 500;">Chat</span>
+          <span id="sidebarChatBadge" style="display: none; margin-left: auto; background: #ef4444; color: #fff; font-size: 11px; border-radius: 999px; min-width: 20px; height: 20px; padding: 0 6px; align-items: center; justify-content: center; font-weight: 700;">0</span>
+        </button>
+        <button onclick="showView('Performance')" class="sidebar-item" data-sidebar="Performance" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px;">
+          <i class="fas fa-chart-line" style="width: 20px;"></i><span style="font-weight: 500;">Performa</span>
+        </button>
+        <button onclick="showView('Profile')" class="sidebar-item" data-sidebar="Profile" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px;">
+          <i class="fas fa-user" style="width: 20px;"></i><span style="font-weight: 500;">Profil</span>
+        </button>
+      </nav>
+      <div style="padding: 16px; border-top: 1px solid #1f2937; margin-top: 8px;">
+        <div class="glass" style="border-radius: 10px; padding: 12px;">
+          <p style="font-size: 11px; color: #6b7280; margin-bottom: 6px;">UID Teknisi</p>
+          <p id="sidebarUid" style="font-family: ui-monospace, monospace; font-size: 13px; color: #00d4ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+          <button onclick="copyText(currentUid)" style="margin-top: 8px; font-size: 11px; color: #6b7280; display: flex; align-items: center; gap: 4px;">
+            <i class="fas fa-copy"></i>Copy
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main style="flex: 1; min-width: 0; padding: 20px 16px 24px;">
+
+      <!-- ═══════ VIEW: DASHBOARD ═══════ -->
+      <div id="viewDashboard" class="view active">
+        <div class="glass slide-up" style="border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 0;">
+              <p style="color: #9ca3af; font-size: 13px;">Selamat bekerja,</p>
+              <h2 id="dashName" style="font-size: 22px; font-weight: 700; margin-top: 4px;"></h2>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <span id="dashArea" class="badge badge-blue"></span>
+                <span id="dashShift" class="badge badge-purple"></span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <p style="font-size: 11px; color: #6b7280;">Rating Anda</p>
+              <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 4px;">
+                <i class="fas fa-star" style="color: #facc15;"></i>
+                <span id="dashRating" style="font-size: 22px; font-weight: 700;">-</span>
+              </div>
+              <p style="font-size: 11px; color: #6b7280;"><span id="dashRatingCount">0</span> ulasan</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
+          <div class="glass stat-card" style="color: #60a5fa;">
+            <i class="fas fa-inbox" style="font-size: 22px;"></i>
+            <p id="statNew" style="font-size: 24px; font-weight: 700; margin-top: 6px; color: #fff;">0</p>
+            <p style="font-size: 11px; color: #6b7280;">Tiket Baru</p>
+          </div>
+          <div class="glass stat-card" style="color: #facc15;">
+            <i class="fas fa-spinner" style="font-size: 22px;"></i>
+            <p id="statProgress" style="font-size: 24px; font-weight: 700; margin-top: 6px; color: #fff;">0</p>
+            <p style="font-size: 11px; color: #6b7280;">Dikerjakan</p>
+          </div>
+          <div class="glass stat-card" style="color: #34d399;">
+            <i class="fas fa-check-circle" style="font-size: 22px;"></i>
+            <p id="statDoneToday" style="font-size: 24px; font-weight: 700; margin-top: 6px; color: #fff;">0</p>
+            <p style="font-size: 11px; color: #6b7280;">Selesai Hari Ini</p>
+          </div>
+          <div class="glass stat-card" style="color: #f87171;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 22px;"></i>
+            <p id="statEmergency" style="font-size: 24px; font-weight: 700; margin-top: 6px; color: #fff;">0</p>
+            <p style="font-size: 11px; color: #6b7280;">SOS Aktif</p>
+          </div>
+        </div>
+
+        <!-- FILTER CHIPS -->
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 12px;">
+          <button onclick="setFilter('all')" data-filter="all" class="filter-chip active">Semua</button>
+          <button onclick="setFilter('new')" data-filter="new" class="filter-chip">Tiket Baru</button>
+          <button onclick="setFilter('otw')" data-filter="otw" class="filter-chip">OTW</button>
+          <button onclick="setFilter('working')" data-filter="working" class="filter-chip">Dikerjakan</button>
+          <button onclick="setFilter('pending')" data-filter="pending" class="filter-chip">Pending</button>
+          <button onclick="setFilter('done')" data-filter="done" class="filter-chip">Selesai</button>
+        </div>
+
+        <!-- SEARCH -->
+        <div style="position: relative; margin-bottom: 14px;">
+          <i class="fas fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #4b5563; pointer-events: none;"></i>
+          <input type="text" id="searchTicket" oninput="applyFilter()" placeholder="Cari tiket, customer, alamat..."
+            style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px 12px 42px; color: #e5e7eb; outline: none; font-size: 14px;">
+        </div>
+
+        <div id="ticketList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="emptyTickets" style="display: none; text-align: center; padding: 40px 20px; border-radius: 14px;" class="glass">
+          <i class="fas fa-inbox" style="font-size: 40px; color: #374151;"></i>
+          <p style="color: #9ca3af; margin-top: 12px;">Tidak ada tiket</p>
+        </div>
+      </div>
+
+      <!-- ═══════ VIEW: TICKET DETAIL ═══════ -->
+      <div id="viewTicketDetail" class="view">
+        <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+          <i class="fas fa-arrow-left"></i>Kembali
+        </button>
+        <div id="ticketDetailContent"></div>
+      </div>
+
+      <!-- ═══════ VIEW: CHAT ═══════ -->
+      <div id="viewChat" class="view">
+        <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+          <i class="fas fa-arrow-left"></i>Kembali
+        </button>
+        <div class="glass" style="border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 400px;">
+          <div style="padding: 14px 16px; border-bottom: 1px solid #1f2937; display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff;">
+              <i class="fas fa-comments"></i>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <p id="chatTicketTitle" style="font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Live Chat</p>
+              <p id="chatTicketInfo" style="font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></p>
+            </div>
+            <span style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #34d399;">
+              <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399;"></span>Online
+            </span>
+          </div>
+          <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px;"></div>
+          <div style="padding: 12px; border-top: 1px solid #1f2937;">
+            <div style="display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 4px;">
+              <button onclick="sendQuickMsg('Saya sedang dalam perjalanan ke lokasi Anda.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                <i class="fas fa-truck" style="color: #facc15; margin-right: 4px;"></i>OTW
+              </button>
+              <button onclick="sendQuickMsg('Saya sudah tiba di lokasi.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                <i class="fas fa-map-marker-alt" style="color: #34d399; margin-right: 4px;"></i>Tiba
+              </button>
+              <button onclick="sendQuickMsg('Sedang saya kerjakan, mohon tunggu.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                <i class="fas fa-tools" style="color: #fb923c; margin-right: 4px;"></i>Dikerjakan
+              </button>
+            </div>
+            <div id="chatCooldown" style="display: none; font-size: 12px; color: #facc15; margin-bottom: 8px; text-align: center;">
+              <i class="fas fa-clock" style="margin-right: 4px;"></i>Tunggu <span id="cooldownSec">10</span> detik sebelum kirim lagi
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="chatInput" placeholder="Tulis pesan..." maxlength="500"
+                style="flex: 1; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none;">
+              <button onclick="sendChat()" id="sendChatBtn" class="btn-primary" style="padding: 0 16px; border-radius: 10px;">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ VIEW: PERFORMANCE ═══════ -->
+      <div id="viewPerformance" class="view">
+        <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+          <i class="fas fa-arrow-left"></i>Kembali
+        </button>
+
+        <div class="glass" style="border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+          <h2 style="font-size: 19px; font-weight: 700; margin-bottom: 16px;"><i class="fas fa-chart-line" style="color: #00d4ff; margin-right: 8px;"></i>Performa Saya</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div class="glass" style="border-radius: 12px; padding: 16px; text-align: center;">
+              <p id="perfTotalDone" style="font-size: 30px; font-weight: 700; color: #34d399;">0</p>
+              <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Total Selesai</p>
+            </div>
+            <div class="glass" style="border-radius: 12px; padding: 16px; text-align: center;">
+              <p id="perfTodayDone" style="font-size: 30px; font-weight: 700; color: #00d4ff;">0</p>
+              <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Hari Ini</p>
+            </div>
+            <div class="glass" style="border-radius: 12px; padding: 16px; text-align: center;">
+              <p id="perfAvgRating" style="font-size: 30px; font-weight: 700; color: #facc15;">-</p>
+              <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Rating Rata²</p>
+            </div>
+            <div class="glass" style="border-radius: 12px; padding: 16px; text-align: center;">
+              <p id="perfAvgTime" style="font-size: 30px; font-weight: 700; color: #c084fc;">-</p>
+              <p style="font-size: 11px; color: #6b7280; margin-top: 4px;">Rata² Jam</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass" style="border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+          <h3 style="font-weight: 700; margin-bottom: 16px;"><i class="fas fa-calendar-week" style="color: #00d4ff; margin-right: 8px;"></i>Selesai 7 Hari Terakhir</h3>
+          <div id="perfChart" style="display: flex; align-items: flex-end; gap: 8px; height: 160px;"></div>
+        </div>
+
+        <div class="glass" style="border-radius: 16px; padding: 20px;">
+          <h3 style="font-weight: 700; margin-bottom: 12px;"><i class="fas fa-star" style="color: #facc15; margin-right: 8px;"></i>Ulasan Customer</h3>
+          <div id="perfReviews" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+      </div>
+
+      <!-- ═══════ VIEW: PROFILE ═══════ -->
+      <div id="viewProfile" class="view">
+        <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 16px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+          <i class="fas fa-arrow-left"></i>Kembali
+        </button>
+        <div class="glass" style="border-radius: 16px; padding: 20px;">
+          <h2 style="font-size: 19px; font-weight: 700; margin-bottom: 16px;"><i class="fas fa-user" style="color: #00d4ff; margin-right: 8px;"></i>Profil Teknisi</h2>
+          <form id="profileForm">
+            <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">UID (tidak bisa diubah)</label>
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+              <input type="text" id="profUid" disabled style="flex: 1; background: rgba(10, 14, 26, 0.5); border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #6b7280; font-family: ui-monospace, monospace; outline: none;">
+              <button type="button" onclick="copyText(currentUid)" style="padding: 0 14px; background: rgba(0, 212, 255, 0.15); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 10px; color: #00d4ff;">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+
+            <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Nama Lengkap <span style="color: #f87171;">*</span></label>
+            <input type="text" id="profNama" required style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px;">
+
+            <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">No HP</label>
+            <input type="tel" id="profHp" inputmode="numeric" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; font-family: ui-monospace, monospace;">
+
+            <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Area Kerja</label>
+            <input type="text" id="profArea" placeholder="Contoh: Jakarta Selatan" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px;">
+
+            <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Shift Kerja</label>
+            <select id="profShift" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 18px;">
+              <option value="Pagi (07:00 - 15:00)">Pagi (07:00 - 15:00)</option>
+              <option value="Sore (15:00 - 23:00)">Sore (15:00 - 23:00)</option>
+              <option value="Malam (23:00 - 07:00)">Malam (23:00 - 07:00)</option>
+              <option value="On Call">On Call</option>
+            </select>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 13px; border-radius: 12px; font-size: 14px;">
+              <i class="fas fa-save" style="margin-right: 8px;"></i>Simpan Perubahan
+            </button>
+          </form>
+
+          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #1f2937;">
+            <h3 style="font-size: 14px; font-weight: 700; color: #f87171; margin-bottom: 12px;">
+              <i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i>Zona Bahaya
+            </h3>
+            <button onclick="logoutDevice()" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 13px; font-weight: 600;">
+              <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Logout & Hapus Device Ini
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- BOTTOM NAV MOBILE -->
+  <nav class="glass" id="bottomNav" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; border-top: 1px solid #1f2937; border-bottom: none; border-left: none; border-right: none;">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr);">
+      <button onclick="showView('Dashboard')" class="bottom-nav-item active" data-nav="Dashboard" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #00d4ff;">
+        <i class="fas fa-home" style="font-size: 18px;"></i><span style="font-size: 11px;">Beranda</span>
+      </button>
+      <button onclick="openLastChat()" class="bottom-nav-item" data-nav="Chat" style="position: relative; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+        <i class="fas fa-comments" style="font-size: 18px;"></i><span style="font-size: 11px;">Chat</span>
+        <span id="chatBadge" style="display: none; position: absolute; top: 4px; right: 25%; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 10px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
+      </button>
+      <button onclick="showView('Performance')" class="bottom-nav-item" data-nav="Performance" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+        <i class="fas fa-chart-line" style="font-size: 18px;"></i><span style="font-size: 11px;">Performa</span>
+      </button>
+      <button onclick="showView('Profile')" class="bottom-nav-item" data-nav="Profile" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+        <i class="fas fa-user" style="font-size: 18px;"></i><span style="font-size: 11px;">Profil</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- ═══════════ NOTIF PANEL ═══════════ -->
+<div id="notifPanel" class="modal-overlay" onclick="toggleNotif()" style="padding: 0;">
+  <div class="glass slide-up" onclick="event.stopPropagation()" style="position: absolute; right: 0; top: 0; bottom: 0; width: 100%; max-width: 380px; padding: 16px; overflow-y: auto;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <h3 style="font-size: 17px; font-weight: 700;"><i class="fas fa-bell" style="color: #00d4ff; margin-right: 8px;"></i>Notifikasi</h3>
+      <div style="display: flex; gap: 12px;">
+        <button onclick="clearAllNotif()" style="font-size: 12px; color: #9ca3af;">Hapus semua</button>
+        <button onclick="toggleNotif()" style="color: #9ca3af;"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div id="notifList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: TERIMA TIKET ═══════════ -->
+<div id="acceptModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px; text-align: center;">
+    <div style="width: 64px; height: 64px; background: rgba(0, 212, 255, 0.15); border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-hand-holding-heart" style="color: #00d4ff; font-size: 28px;"></i>
+    </div>
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Terima Tiket Ini?</h3>
+    <p id="acceptInfo" style="font-size: 13px; color: #9ca3af; margin-bottom: 18px; line-height: 1.6;"></p>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeAcceptModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="confirmAccept()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-check" style="margin-right: 6px;"></i>Ya, Terima
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: ETA / OTW ═══════════ -->
+<div id="etaModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 440px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-truck" style="color: #facc15; margin-right: 8px;"></i>Konfirmasi OTW</h3>
+    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 16px;">Berapa lama estimasi Anda sampai ke lokasi customer?</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
+      <button onclick="selectETA('15 menit', this)" class="eta-opt">15 menit</button>
+      <button onclick="selectETA('30 menit', this)" class="eta-opt">30 menit</button>
+      <button onclick="selectETA('45 menit', this)" class="eta-opt">45 menit</button>
+      <button onclick="selectETA('1 jam', this)" class="eta-opt">1 jam</button>
+      <button onclick="selectETA('1.5 jam', this)" class="eta-opt">1.5 jam</button>
+      <button onclick="selectETA('2 jam', this)" class="eta-opt">2 jam</button>
+    </div>
+    <input type="text" id="etaCustom" placeholder="Atau custom (contoh: 25 menit)"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px;">
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeETAModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="submitOTA()" class="btn-warn" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-truck" style="margin-right: 6px;"></i>Mulai OTW
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: FINISH / LAPORAN ═══════════ -->
+<div id="finishModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 500px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+      <h3 style="font-size: 18px; font-weight: 700;"><i class="fas fa-clipboard-check" style="color: #34d399; margin-right: 8px;"></i>Selesaikan Tiket</h3>
+      <button onclick="closeFinishModal()" style="color: #9ca3af;"><i class="fas fa-times"></i></button>
+    </div>
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sebelum Pengerjaan <span style="color: #f87171;">*</span></label>
+    <div onclick="document.getElementById('beforeInput').click()"
+      style="border: 2px dashed #1f2937; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 8px;">
+      <i class="fas fa-camera" style="font-size: 22px; color: #6b7280;"></i>
+      <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">Klik untuk upload</p>
+    </div>
+    <input type="file" id="beforeInput" accept="image/*" multiple style="display: none;">
+    <div id="beforePreview" class="photo-preview" style="margin-bottom: 16px;"></div>
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sesudah Pengerjaan <span style="color: #f87171;">*</span></label>
+    <div onclick="document.getElementById('afterInput').click()"
+      style="border: 2px dashed #1f2937; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 8px;">
+      <i class="fas fa-camera" style="font-size: 22px; color: #6b7280;"></i>
+      <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">Klik untuk upload</p>
+    </div>
+    <input type="file" id="afterInput" accept="image/*" multiple style="display: none;">
+    <div id="afterPreview" class="photo-preview" style="margin-bottom: 16px;"></div>
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Penyebab Masalah <span style="color: #f87171;">*</span></label>
+    <input type="text" id="lapPenyebab" placeholder="Contoh: Kabel fiber tertekuk"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px;">
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Tindakan / Solusi <span style="color: #f87171;">*</span></label>
+    <textarea id="lapTindakan" rows="3" placeholder="Contoh: Ganti kabel fiber 50m, re-splicing"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit;"></textarea>
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Peralatan / Sparepart Diganti (Opsional)</label>
+    <input type="text" id="lapSparepart" placeholder="Contoh: Patchcord SC/APC 10m"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 18px;">
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeFinishModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="submitFinish()" id="submitFinishBtn" class="btn-success" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-check" style="margin-right: 6px;"></i>Tandai Selesai
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: PENDING ═══════════ -->
+<div id="pendingModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-pause-circle" style="color: #facc15; margin-right: 8px;"></i>Tandai Pending</h3>
+    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px;">Tiket ini akan ditandai pending. Berikan alasan:</p>
+    <textarea id="pendingReason" rows="3" placeholder="Contoh: Butuh sparepart ODP, menunggu konfirmasi admin"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; resize: vertical; font-family: inherit;"></textarea>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closePendingModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="submitPending()" class="btn-warn" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Tandai Pending</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: LOGOUT ═══════════ -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Konfirmasi Logout</h3>
+    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 16px;">Pilih jenis logout:</p>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <button onclick="confirmLogout(false)" style="padding: 14px; border-radius: 10px; border: 1px solid #1f2937; text-align: left; color: #e5e7eb;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-sign-out-alt" style="color: #00d4ff; font-size: 18px;"></i>
+          <div>
+            <p style="font-size: 14px; font-weight: 600;">Logout biasa</p>
+            <p style="font-size: 11px; color: #6b7280; margin-top: 2px;">Device tetap terdaftar</p>
+          </div>
+        </div>
+      </button>
+      <button onclick="confirmLogout(true)" style="padding: 14px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3); text-align: left; color: #e5e7eb;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-trash" style="color: #f87171; font-size: 18px;"></i>
+          <div>
+            <p style="font-size: 14px; font-weight: 600;">Logout & Hapus Device</p>
+            <p style="font-size: 11px; color: #6b7280; margin-top: 2px;">Perlu login manual lagi</p>
+          </div>
+        </div>
+      </button>
+    </div>
+    <button onclick="closeLogoutModal()" style="width: 100%; margin-top: 16px; padding: 10px; color: #9ca3af; font-size: 13px;">Batal</button>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: SUCCESS ═══════════ -->
+<div id="successModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 380px; text-align: center;">
+    <div style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-check-circle" style="color: #34d399; font-size: 32px;"></i>
+    </div>
+    <h3 id="successTitle" style="font-size: 19px; font-weight: 700; margin-bottom: 8px;"></h3>
+    <p id="successMsg" style="font-size: 13px; color: #9ca3af; margin-bottom: 20px; white-space: pre-line; line-height: 1.6;"></p>
+    <button onclick="closeSuccessModal()" class="btn-primary" style="width: 100%; padding: 13px; border-radius: 12px; font-size: 14px;">
+      <i class="fas fa-check" style="margin-right: 8px;"></i>OK, Mengerti
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════ TOAST ═══════════ -->
+<div id="toast" class="hidden-important"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   FIREBASE INIT
+═══════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyA4KS99YVhBa7MIZ8U387PSCClNip3ogn0",
+  authDomain: "shadowmods-8ba7f.firebaseapp.com",
+  databaseURL: "https://shadowmods-8ba7f-default-rtdb.firebaseio.com",
+  projectId: "shadowmods-8ba7f",
+  storageBucket: "shadowmods-8ba7f.firebasestorage.app",
+  messagingSenderId: "545026189878",
+  appId: "1:545026189878:web:4e66d592608c3532938697"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+const IMGBB_KEY = 'cdb1c90e037e9a74be4bb8d30de5d50f';
+
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let currentUid = null;
+let currentAuthUid = null;
+let currentUserData = null;
+let deviceId = null;
+let allTickets = [];
+let allPoolTickets = [];
+let ticketsCache = {};
+let uploadedBefore = [];
+let uploadedAfter = [];
+let selectedTicketId = null;
+let selectedRating = 0;
+let lastTicketId = null;
+let currentFilter = 'all';
+let userListener = null;
+let chatListenerOff = null;
+let unreadChatByTicket = {};
+let chatCooldownTimer = null;
+let pendingETA = null;
+
+/* ═══════════════════════════════════════════════════
+   UTIL
+═══════════════════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.className = 'toast-' + type;
+  const icons = { info: 'info-circle', success: 'check-circle', error: 'exclamation-circle', warn: 'exclamation-triangle' };
+  t.innerHTML = '<i class="fas fa-' + icons[type] + '" style="margin-right: 8px;"></i>' + escapeHtml(msg);
+  t.classList.remove('hidden-important');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.add('hidden-important'), 3500);
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtDate(ts) {
+  if (!ts) return '-';
+  return new Date(ts).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function fmtTime(ts) {
+  if (!ts) return '-';
+  return new Date(ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+}
+function timeAgo(ts) {
+  if (!ts) return '-';
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'Baru saja';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm lalu';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'j lalu';
+  return Math.floor(h / 24) + 'h lalu';
+}
+function isToday(ts) {
+  if (!ts) return false;
+  const d = new Date(ts), n = new Date();
+  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+}
+function statusBadgeClass(s) {
+  const map = {
+    'Terkirim': 'badge-blue',
+    'Diterima Admin': 'badge-purple',
+    'Ditugaskan': 'badge-indigo',
+    'Teknisi OTW': 'badge-yellow',
+    'Dalam Pengerjaan': 'badge-orange',
+    'Pending': 'badge-gray',
+    'Selesai': 'badge-green'
+  };
+  return map[s] || 'badge-gray';
+}
+function copyText(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => toast('Tersalin', 'success')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('Tersalin', 'success'); } catch (e) { toast('Gagal copy', 'error'); }
+    document.body.removeChild(ta);
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   DEVICE FINGERPRINT
+═══════════════════════════════════════════════════ */
+async function generateDeviceId() {
+  try {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.textBaseline = 'top';
+    ctx.font = '14px Arial';
+    ctx.fillStyle = '#f60';
+    ctx.fillRect(125, 1, 62, 20);
+    ctx.fillStyle = '#069';
+    ctx.fillText('LaksoTeknisi', 2, 15);
+    const canvasHash = canvas.toDataURL().slice(-50);
+    const components = [
+      navigator.userAgent, navigator.language,
+      screen.width + 'x' + screen.height, screen.colorDepth,
+      new Date().getTimezoneOffset(),
+      navigator.hardwareConcurrency || 'unknown',
+      navigator.maxTouchPoints || 0,
+      navigator.platform || 'unknown',
+      canvasHash
+    ];
+    const data = new TextEncoder().encode(components.join('|||'));
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
+  } catch (err) {
+    const fallback = (navigator.userAgent + Date.now() + Math.random()).replace(/\s/g, '');
+    return 'fb_' + fallback.substring(0, 30);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   VALIDASI UID
+═══════════════════════════════════════════════════ */
+function validateUid(uid) {
+  if (!uid) return { valid: false, msg: 'UID tidak boleh kosong' };
+  if (uid.length < 8) return { valid: false, msg: 'UID minimal 8 karakter' };
+  if (uid.length > 20) return { valid: false, msg: 'UID maksimal 20 karakter' };
+  if (/\s/.test(uid)) return { valid: false, msg: 'UID tidak boleh ada spasi' };
+  if (!/^[a-zA-Z0-9]+$/.test(uid)) return { valid: false, msg: 'UID hanya boleh huruf & angka' };
+  const digitCount = (uid.match(/\d/g) || []).length;
+  if (digitCount < 2) return { valid: false, msg: 'UID wajib ada minimal 2 angka' };
+  return { valid: true };
+}
+
+/* ═══════════════════════════════════════════════════
+   SPLASH
+═══════════════════════════════════════════════════ */
+function updateSplash(pct, text) {
+  const bar = document.getElementById('splashProgress');
+  const txt = document.getElementById('splashText');
+  if (bar) bar.style.width = pct + '%';
+  if (txt && text) txt.textContent = text;
+}
+function showSplash(show) {
+  const el = document.getElementById('splashLoader');
+  if (show) el.classList.remove('hidden-important');
+  else el.classList.add('hidden-important');
+}
+function showLoginPage() {
+  showSplash(false);
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  setTimeout(() => {
+    const inp = document.getElementById('loginUid');
+    if (inp) inp.focus();
+  }, 200);
+}
+function showMainApp() {
+  showSplash(false);
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════ */
+async function initApp() {
+  try {
+    updateSplash(15, 'Membuat device fingerprint...');
+    deviceId = await generateDeviceId();
+    console.log('%c[Lakso] Device ID:', 'color:#00d4ff;font-weight:bold', deviceId);
+
+    updateSplash(40, 'Menghubungkan ke server...');
+    const cred = await auth.signInAnonymously();
+    currentAuthUid = cred.user.uid;
+
+    updateSplash(70, 'Cek device...');
+    const deviceSnap = await db.ref('device_registry/' + deviceId).once('value');
+    const deviceData = deviceSnap.val();
+
+    updateSplash(100, 'Siap!');
+
+    if (deviceData && deviceData.uid) {
+      const userSnap = await db.ref('users/' + deviceData.uid).once('value');
+      const userData = userSnap.val();
+      if (userData && userData.role === 'teknisi' && userData.status !== 'nonaktif') {
+        console.log('%c[Lakso] Auto-login teknisi:', 'color:#10b981;font-weight:bold', deviceData.uid);
+        setTimeout(() => afterLoginSuccess(deviceData.uid, userData, true), 400);
+        return;
+      }
+    }
+    setTimeout(() => showLoginPage(), 400);
+  } catch (err) {
+    console.error('Init error:', err);
+    updateSplash(100, 'Error: ' + err.message);
+    setTimeout(() => {
+      showSplash(false);
+      document.getElementById('loginPage').style.display = 'flex';
+      toast('Gagal inisialisasi: ' + err.message, 'error');
+    }, 1500);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════════════ */
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const uid = document.getElementById('loginUid').value.trim();
+  const errBox = document.getElementById('loginError');
+  const errText = document.getElementById('loginErrorText');
+  const btn = document.getElementById('loginBtn');
+
+  const validation = validateUid(uid);
+  if (!validation.valid) {
+    errBox.style.display = 'block';
+    errText.textContent = validation.msg;
+    return;
+  }
+  errBox.style.display = 'none';
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Memproses...';
+
+  try {
+    const userSnap = await db.ref('users/' + uid).once('value');
+    const userData = userSnap.val();
+
+    if (!userData) {
+      errBox.style.display = 'block';
+      errText.textContent = 'UID teknisi tidak ditemukan. Hubungi Admin/NOC untuk didaftarkan.';
+      return;
+    }
+    if (userData.role !== 'teknisi') {
+      errBox.style.display = 'block';
+      errText.textContent = 'UID ini terdaftar sebagai ' + userData.role + '. Tidak bisa login di sini.';
+      return;
+    }
+    if (userData.status === 'nonaktif') {
+      errBox.style.display = 'block';
+      errText.textContent = 'Akun teknisi Anda dinonaktifkan. Hubungi Admin.';
+      return;
+    }
+
+    // Cek device
+    const deviceIds = userData.deviceIds || {};
+    if (!deviceIds[deviceId]) {
+      const deviceCount = Object.keys(deviceIds).length;
+      if (deviceCount > 0) {
+        errBox.style.display = 'block';
+        errText.textContent = 'UID sudah digunakan di device lain. Hubungi Admin untuk bantuan.';
+        return;
+      }
+    }
+
+    await db.ref('users/' + uid + '/deviceIds/' + deviceId).set(Date.now());
+    await db.ref('users/' + uid + '/lastLogin').set(Date.now());
+    await db.ref('device_registry/' + deviceId).set({
+      uid,
+      authUid: currentAuthUid,
+      registeredAt: Date.now()
+    });
+
+    await afterLoginSuccess(uid, userData, false);
+  } catch (err) {
+    console.error('Login error:', err);
+    errBox.style.display = 'block';
+    errText.textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>Masuk Sistem';
+  }
+});
+
+async function afterLoginSuccess(uid, userData, isAutoLogin) {
+  currentUid = uid;
+  currentUserData = userData;
+
+  showMainApp();
+  updateUserUI(userData);
+  updateAvailabilityUI();
+
+  listenUser();
+  listenTickets();
+  listenPool();
+
+  document.getElementById('sidebarUid').textContent = uid;
+
+  // Set status tersedia
+  if (isAutoLogin) {
+    await db.ref('users/' + uid + '/tersedia').set(true);
+    console.log('%c[Lakso] Auto-login teknisi berhasil!', 'color:#10b981;font-weight:bold');
+  } else {
+    await db.ref('users/' + uid + '/tersedia').set(true);
+  }
+}
+
+function updateUserUI(userData) {
+  document.getElementById('userAvatar').textContent = (userData.nama || userData.uid || '?').charAt(0).toUpperCase();
+  document.getElementById('menuName').textContent = userData.nama || 'Teknisi';
+  document.getElementById('menuUid').textContent = '@' + userData.uid;
+  document.getElementById('menuArea').textContent = userData.area ? '📍 ' + userData.area : '';
+  document.getElementById('dashName').textContent = userData.nama || userData.uid;
+  document.getElementById('dashArea').innerHTML = '<i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>' + (userData.area || 'Area belum diset');
+  document.getElementById('dashShift').innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i>' + (userData.shift || 'On Call');
+  document.getElementById('profUid').value = userData.uid;
+}
+
+/* ═══════════════════════════════════════════════════
+   AVAILABILITY
+═══════════════════════════════════════════════════ */
+function updateAvailabilityUI() {
+  const btn = document.getElementById('availBtn');
+  if (!currentUserData) return;
+  const avail = currentUserData.tersedia !== false;
+  if (avail) {
+    btn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+    btn.style.background = 'rgba(16, 185, 129, 0.15)';
+    btn.style.color = '#34d399';
+    btn.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span><span id="availText">Tersedia</span>';
+  } else {
+    btn.style.borderColor = 'rgba(107, 114, 128, 0.3)';
+    btn.style.background = 'rgba(107, 114, 128, 0.15)';
+    btn.style.color = '#9ca3af';
+    btn.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: #9ca3af;"></span><span id="availText">Offline</span>';
+  }
+}
+async function toggleAvailability() {
+  const newVal = !(currentUserData.tersedia !== false);
+  try {
+    await db.ref('users/' + currentUid + '/tersedia').set(newVal);
+    currentUserData.tersedia = newVal;
+    updateAvailabilityUI();
+    toast(newVal ? 'Anda sekarang tersedia' : 'Anda offline', newVal ? 'success' : 'warn');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   LISTEN USER
+═══════════════════════════════════════════════════ */
+function listenUser() {
+  if (userListener) userListener.off();
+  userListener = db.ref('users/' + currentUid);
+  userListener.on('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    if (data.status === 'nonaktif') {
+      toast('Akun Anda dinonaktifkan admin', 'error');
+      return forceLogout();
+    }
+    currentUserData = data;
+    updateAvailabilityUI();
+    const stats = data.ratingStats;
+    if (stats && stats.count) {
+      document.getElementById('dashRating').textContent = Number(stats.avg).toFixed(1);
+      document.getElementById('dashRatingCount').textContent = stats.count;
+    } else {
+      document.getElementById('dashRating').textContent = '-';
+      document.getElementById('dashRatingCount').textContent = '0';
+    }
+    document.getElementById('dashArea').innerHTML = '<i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>' + (data.area || 'Area belum diset');
+    document.getElementById('dashShift').innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i>' + (data.shift || 'On Call');
+    const vp = document.getElementById('viewProfile');
+    if (vp && vp.classList.contains('active')) loadProfileForm();
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   LISTEN TICKETS (assigned to me)
+═══════════════════════════════════════════════════ */
+function listenTickets() {
+  db.ref('tickets').orderByChild('teknisiUid').equalTo(currentUid).on('value', snap => {
+    const tickets = [];
+    snap.forEach(c => tickets.push(c.val()));
+    tickets.sort((a, b) => b.updatedAt - a.updatedAt);
+    allTickets = tickets;
+    rebuildCache();
+    setupChatListeners(tickets);
+    applyFilter();
+    updateStats();
+    const vd = document.getElementById('viewTicketDetail');
+    if (selectedTicketId && ticketsCache[selectedTicketId] && vd && vd.classList.contains('active')) {
+      loadTicketDetail(selectedTicketId);
+    }
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   LISTEN POOL (tiket belum di-assign)
+═══════════════════════════════════════════════════ */
+function listenPool() {
+  db.ref('tickets').orderByChild('status').equalTo('Terkirim').on('value', snap => {
+    const arr = [];
+    snap.forEach(c => {
+      const t = c.val();
+      if (!t.teknisiUid) arr.push(t);
+    });
+    mergePoolAndRender(arr, 'Terkirim');
+  });
+  db.ref('tickets').orderByChild('status').equalTo('Diterima Admin').on('value', snap => {
+    const arr = [];
+    snap.forEach(c => {
+      const t = c.val();
+      if (!t.teknisiUid) arr.push(t);
+    });
+    mergePoolAndRender(arr, 'Diterima Admin');
+  });
+}
+
+let poolByStatus = { 'Terkirim': [], 'Diterima Admin': [] };
+function mergePoolAndRender(arr, status) {
+  poolByStatus[status] = arr;
+  allPoolTickets = [...poolByStatus['Terkirim'], ...poolByStatus['Diterima Admin']];
+  rebuildCache();
+  applyFilter();
+  updateStats();
+}
+
+function rebuildCache() {
+  ticketsCache = {};
+  allTickets.forEach(t => ticketsCache[t.id] = t);
+  allPoolTickets.forEach(t => ticketsCache[t.id] = t);
+}
+
+/* ═══════════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════════ */
+function updateStats() {
+  const mine = allTickets;
+  document.getElementById('statNew').textContent = mine.filter(t => t.status === 'Ditugaskan').length;
+  document.getElementById('statProgress').textContent = mine.filter(t => t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan').length;
+  document.getElementById('statDoneToday').textContent = mine.filter(t => t.status === 'Selesai' && isToday(t.finishedAt || t.updatedAt)).length;
+  document.getElementById('statEmergency').textContent = mine.filter(t => t.isEmergency && t.status !== 'Selesai').length;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════════════ */
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    if (b.dataset.filter === f) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  applyFilter();
+}
+
+function applyFilter() {
+  let list = [];
+  const q = (document.getElementById('searchTicket').value || '').toLowerCase().trim();
+
+  if (currentFilter === 'all') {
+    list = allTickets.slice();
+    if (currentUserData && currentUserData.tersedia !== false) {
+      list = list.concat(allPoolTickets);
+    }
+  } else if (currentFilter === 'new') {
+    list = allTickets.filter(t => t.status === 'Ditugaskan');
+    if (currentUserData && currentUserData.tersedia !== false) {
+      list = list.concat(allPoolTickets);
+    }
+  } else if (currentFilter === 'otw') {
+    list = allTickets.filter(t => t.status === 'Teknisi OTW');
+  } else if (currentFilter === 'working') {
+    list = allTickets.filter(t => t.status === 'Dalam Pengerjaan');
+  } else if (currentFilter === 'pending') {
+    list = allTickets.filter(t => t.status === 'Pending');
+  } else if (currentFilter === 'done') {
+    list = allTickets.filter(t => t.status === 'Selesai');
+  }
+
+  if (q) {
+    list = list.filter(t =>
+      (t.customerName || '').toLowerCase().includes(q) ||
+      (t.alamat || '').toLowerCase().includes(q) ||
+      (t.kategori || '').toLowerCase().includes(q) ||
+      (t.id || '').toLowerCase().includes(q) ||
+      (t.noWa || '').includes(q)
+    );
+  }
+  list.sort((a, b) => b.updatedAt - a.updatedAt);
+  renderTickets(list);
+}
+
+function renderTickets(tickets) {
+  const el = document.getElementById('ticketList');
+  const empty = document.getElementById('emptyTickets');
+  if (tickets.length === 0) {
+    el.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  el.innerHTML = tickets.map(t => {
+    const isMine = t.teknisiUid === currentUid;
+    const isPool = !t.teknisiUid;
+    const slaLeft = t.slaDeadline - Date.now();
+    const slaWarn = slaLeft < 0 && t.status !== 'Selesai';
+    const slaH = Math.floor(Math.abs(slaLeft) / 3600000);
+    const slaM = Math.floor((Math.abs(slaLeft) % 3600000) / 60000);
+    const slaText = t.status === 'Selesai' ? 'Selesai' : slaLeft > 0 ? slaH + 'j ' + slaM + 'm' : '+' + slaH + 'j ' + slaM + 'm';
+
+    let borderLeft = '';
+    if (t.isEmergency) borderLeft = '4px solid #ef4444';
+    else if (isPool) borderLeft = '4px solid #3b82f6';
+    else if (slaWarn) borderLeft = '4px solid #ef4444';
+    else if (slaLeft < 4 * 3600000 && t.status !== 'Selesai') borderLeft = '4px solid #f59e0b';
+
+    return '<div class="glass fade-in" onclick="openTicketDetail(\'' + t.id + '\')" style="border-radius: 12px; padding: 14px; cursor: pointer; ' + (borderLeft ? 'border-left: ' + borderLeft + ';' : '') + '">' +
+      '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px;">' +
+      '<div style="flex: 1; min-width: 0;">' +
+      '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">' +
+      (isPool ? '<span class="badge badge-blue"><i class="fas fa-users"></i> Pool</span>' : '') +
+      (t.isEmergency ? '<span class="badge badge-red"><i class="fas fa-exclamation-triangle"></i> SOS</span>' : '') +
+      '<span class="badge ' + statusBadgeClass(t.status) + '">' + t.status + '</span>' +
+      '</div>' +
+      '<p style="font-weight: 600; font-size: 14px;" class="line-clamp-1">' + escapeHtml(t.kategori) + '</p>' +
+      '<p style="font-size: 12px; color: #9ca3af; margin-top: 4px;" class="line-clamp-1"><i class="fas fa-user" style="margin-right: 4px;"></i>' + escapeHtml(t.customerName || '-') + '</p>' +
+      '<p style="font-size: 11px; color: #6b7280; margin-top: 2px;" class="line-clamp-1"><i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>' + escapeHtml(t.alamat || '-') + '</p>' +
+      '</div>' +
+      '<div style="text-align: right; flex-shrink: 0;">' +
+      '<i class="fas fa-chevron-right" style="color: #4b5563;"></i>' +
+      '<p style="font-size: 11px; margin-top: 8px; ' + (slaWarn ? 'color: #f87171; font-weight: 700;' : 'color: #6b7280;') + '">' + slaText + '</p>' +
+      '</div></div>' +
+      '<div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1f2937; flex-wrap: wrap; gap: 6px;">' +
+      '<span style="color: #6b7280;"><i class="fas fa-clock" style="margin-right: 4px;"></i>' + timeAgo(t.updatedAt) + '</span>' +
+      '<span class="prio-badge-' + t.priority + '" style="padding: 2px 8px; border-radius: 999px; font-weight: 600;"><i class="fas fa-flag" style="margin-right: 4px;"></i>' + t.priority + '</span>' +
+      (t.status === 'Selesai' && t.rating ? '<span style="color: #facc15;">' + '★'.repeat(t.rating) + '</span>' : '') +
+      '</div></div>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════
+   TICKET DETAIL
+═══════════════════════════════════════════════════ */
+function openTicketDetail(id) {
+  selectedTicketId = id;
+  lastTicketId = id;
+  showView('TicketDetail', id);
+}
+
+function loadTicketDetail(id) {
+  const t = ticketsCache[id];
+  if (!t) {
+    document.getElementById('ticketDetailContent').innerHTML = '<p style="text-align:center;color:#9ca3af;padding:32px 0;">Tiket tidak ditemukan</p>';
+    return;
+  }
+  const el = document.getElementById('ticketDetailContent');
+  const statuses = ['Terkirim', 'Diterima Admin', 'Ditugaskan', 'Teknisi OTW', 'Dalam Pengerjaan', 'Selesai'];
+  const timeline = t.timeline || {};
+  const currentIdx = statuses.indexOf(t.status);
+  const isMine = t.teknisiUid === currentUid;
+  const isPool = !t.teknisiUid;
+
+  const slaLeft = t.slaDeadline - Date.now();
+  const slaH = Math.floor(Math.abs(slaLeft) / 3600000);
+  const slaM = Math.floor((Math.abs(slaLeft) % 3600000) / 60000);
+  const slaText = t.status === 'Selesai' ? 'Selesai' : slaLeft > 0 ? slaH + 'j ' + slaM + 'm lagi' : 'Lewat ' + slaH + 'j ' + slaM + 'm';
+  const slaClr = t.status === 'Selesai' ? '#34d399' : slaLeft > 0 ? (slaLeft < 4 * 3600000 ? '#fb923c' : '#00d4ff') : '#f87171';
+
+  const mapsUrl = t.koordinat ? 'https://www.google.com/maps?q=' + encodeURIComponent(t.koordinat) : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(t.alamat || '');
+  const waNum = (t.noWa || '').replace(/^\+/, '').replace(/^0/, '62');
+  const waUrl = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent('Halo ' + t.customerName + ', saya teknisi Lakso Global yang akan menangani tiket ' + t.kategori + '.');
+  const telUrl = 'tel:' + (t.noWa || '');
+
+  let actions = '';
+  if (isPool) {
+    actions = '<button onclick="openAcceptModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-hand-holding-heart" style="margin-right:8px;"></i>Ambil & Terima Tiket</button>';
+  } else if (isMine) {
+    if (t.status === 'Ditugaskan') {
+      actions = '<button onclick="openETAModal(\'' + t.id + '\')" class="btn-warn pulse-green" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-truck" style="margin-right:8px;"></i>Mulai OTW ke Lokasi</button>';
+    } else if (t.status === 'Teknisi OTW') {
+      actions = '<button onclick="startWork(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-play" style="margin-right:8px;"></i>Mulai Pengerjaan</button>';
+    } else if (t.status === 'Dalam Pengerjaan') {
+      actions = '<button onclick="openFinishModal(\'' + t.id + '\')" class="btn-success" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-check-circle" style="margin-right:8px;"></i>Selesaikan Tiket</button>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
+        '<button onclick="openPendingModal(\'' + t.id + '\')" class="btn-warn" style="padding:10px;border-radius:10px;font-size:13px;"><i class="fas fa-pause" style="margin-right:4px;"></i>Pending</button>' +
+        '<button onclick="escalateTicket(\'' + t.id + '\')" class="btn-danger" style="padding:10px;border-radius:10px;font-size:13px;"><i class="fas fa-arrow-up" style="margin-right:4px;"></i>Eskalasi</button>' +
+        '</div>';
+    } else if (t.status === 'Pending') {
+      actions = '<button onclick="resumeWork(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-play" style="margin-right:8px;"></i>Lanjutkan Pengerjaan</button>';
+    }
+  }
+
+  el.innerHTML =
+    '<div class="glass slide-up" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px;">' +
+    '<div style="flex:1;min-width:0;">' +
+    '<span style="font-family:ui-monospace,monospace;font-size:11px;color:#6b7280;">#' + t.id.substring(1, 8).toUpperCase() + '</span>' +
+    '<h2 style="font-size:19px;font-weight:700;margin-top:4px;">' + escapeHtml(t.kategori) + '</h2>' +
+    '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+    '<span class="badge ' + statusBadgeClass(t.status) + '">' + t.status + '</span>' +
+    '<span class="prio-badge-' + t.priority + '" style="padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;"><i class="fas fa-flag" style="margin-right:4px;"></i>' + t.priority + '</span>' +
+    (t.isEmergency ? '<span class="badge badge-red">SOS</span>' : '') +
+    (isPool ? '<span class="badge badge-blue">Pool</span>' : '') +
+    '</div></div>' +
+    '<div style="text-align:right;">' +
+    '<p style="font-size:11px;color:#6b7280;">SLA</p>' +
+    '<p style="font-weight:700;color:' + slaClr + ';">' + slaText + '</p>' +
+    '</div></div>' +
+    (actions ? '<div style="margin-top:14px;">' + actions + '</div>' : '') +
+    '</div>' +
+
+    '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+    '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-user" style="color:#00d4ff;margin-right:8px;"></i>Data Customer</h3>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">' +
+    '<div style="display:flex;align-items:center;gap:10px;"><i class="fas fa-user" style="color:#6b7280;width:18px;"></i><span style="font-weight:600;">' + escapeHtml(t.customerName || '-') + '</span></div>' +
+    '<div style="display:flex;align-items:center;gap:10px;"><i class="fas fa-phone" style="color:#6b7280;width:18px;"></i><span>' + escapeHtml(t.noWa || '-') + '</span></div>' +
+    '<div style="display:flex;align-items:flex-start;gap:10px;"><i class="fas fa-map-marker-alt" style="color:#6b7280;width:18px;margin-top:2px;"></i><span>' + escapeHtml(t.alamat || '-') + '</span></div>' +
+    '<div style="display:flex;align-items:center;gap:10px;"><i class="fas fa-wifi" style="color:#6b7280;width:18px;"></i><span>' + escapeHtml(t.paket || '-') + '</span></div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">' +
+    '<a href="' + telUrl + '" class="glass" style="padding:10px;border-radius:10px;text-align:center;font-size:12px;"><i class="fas fa-phone" style="color:#34d399;margin-right:4px;"></i>Telepon</a>' +
+    '<a href="' + waUrl + '" target="_blank" class="glass" style="padding:10px;border-radius:10px;text-align:center;font-size:12px;"><i class="fab fa-whatsapp" style="color:#34d399;margin-right:4px;"></i>WA</a>' +
+    '<a href="' + mapsUrl + '" target="_blank" class="glass" style="padding:10px;border-radius:10px;text-align:center;font-size:12px;"><i class="fas fa-map" style="color:#60a5fa;margin-right:4px;"></i>Maps</a>' +
+    '</div></div>' +
+
+    '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+    '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-comment-alt" style="color:#00d4ff;margin-right:8px;"></i>Keluhan Customer</h3>' +
+    '<p style="font-size:13px;white-space:pre-wrap;line-height:1.6;">' + escapeHtml(t.deskripsi) + '</p>' +
+    '<p style="font-size:11px;color:#6b7280;margin-top:10px;"><i class="fas fa-clock" style="margin-right:4px;"></i>' + fmtDate(t.createdAt) + '</p>' +
+    '</div>' +
+
+    '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+    '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-camera" style="color:#00d4ff;margin-right:8px;"></i>Foto Bukti Customer</h3>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">' +
+    ((t.fotoCustomer || []).length ? t.fotoCustomer.map(u => '<img src="' + u + '" onclick="window.open(\'' + u + '\',\'_blank\')" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid #1f2937;cursor:pointer;">').join('') : '<p style="font-size:13px;color:#6b7280;grid-column:span 3;">Tidak ada foto</p>') +
+    '</div></div>' +
+
+    (t.eta ? '<div class="glass" style="border-radius:12px;padding:12px;margin-bottom:16px;border-left:4px solid #facc15;"><p style="font-size:11px;color:#9ca3af;">ETA Anda</p><p style="font-weight:700;color:#facc15;font-size:17px;margin-top:4px;"><i class="fas fa-truck" style="margin-right:8px;"></i>' + escapeHtml(t.eta) + '</p></div>' : '') +
+
+    '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+    '<h3 style="font-weight:700;margin-bottom:16px;"><i class="fas fa-route" style="color:#00d4ff;margin-right:8px;"></i>Timeline</h3>' +
+    '<div class="timeline-wrap">' +
+    statuses.map((s, i) => {
+      const ts = timeline[s];
+      const done = !!ts || currentIdx >= i;
+      const active = t.status === s;
+      return '<div class="timeline-item ' + (done ? 'done' : '') + ' ' + (active ? 'active' : '') + '">' +
+        '<p style="font-size:13px;font-weight:600;color:' + (done || active ? '#fff' : '#6b7280') + ';">' + s + '</p>' +
+        '<p style="font-size:11px;color:' + (active ? '#00d4ff' : '#6b7280') + ';">' + (ts ? fmtDate(ts) : (done ? 'Selesai' : 'Menunggu')) + '</p>' +
+        '</div>';
+    }).join('') +
+    '</div></div>' +
+
+    (t.fotoPengerjaan && t.fotoPengerjaan.length ?
+      '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+      '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-tools" style="color:#34d399;margin-right:8px;"></i>Foto Pengerjaan</h3>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">' +
+      t.fotoPengerjaan.map(u => '<img src="' + u + '" onclick="window.open(\'' + u + '\',\'_blank\')" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid #1f2937;cursor:pointer;">').join('') +
+      '</div></div>' : '') +
+
+    (t.laporanTeknisi ?
+      '<div class="glass" style="border-radius:16px;padding:20px;margin-bottom:16px;">' +
+      '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-clipboard-check" style="color:#00d4ff;margin-right:8px;"></i>Laporan Pengerjaan</h3>' +
+      '<p style="font-size:13px;white-space:pre-wrap;line-height:1.6;">' + escapeHtml(t.laporanTeknisi) + '</p>' +
+      '</div>' : '') +
+
+    (t.rating ?
+      '<div class="glass" style="border-radius:16px;padding:20px;">' +
+      '<h3 style="font-weight:700;margin-bottom:12px;"><i class="fas fa-star" style="color:#facc15;margin-right:8px;"></i>Rating Customer</h3>' +
+      '<div style="display:flex;gap:4px;margin-bottom:8px;">' + [1, 2, 3, 4, 5].map(i => '<i class="fas fa-star" style="color:' + (i <= t.rating ? '#facc15' : '#4b5563') + ';"></i>').join('') + '</div>' +
+      '<p style="font-size:13px;color:#d1d5db;">' + escapeHtml(t.ulasan || 'Tanpa komentar') + '</p>' +
+      '</div>' : '') +
+
+    (isMine ?
+      '<button onclick="showView(\'Chat\',\'' + t.id + '\')" class="glass" style="width:100%;margin-top:16px;padding:14px;border-radius:12px;font-weight:600;font-size:14px;"><i class="fas fa-comments" style="color:#00d4ff;margin-right:8px;"></i>Chat dengan Customer</button>' : '');
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: ACCEPT
+═══════════════════════════════════════════════════ */
+function openAcceptModal(id) {
+  selectedTicketId = id;
+  const t = ticketsCache[id];
+  document.getElementById('acceptInfo').innerHTML = '<b>' + escapeHtml(t.kategori) + '</b><br>' + escapeHtml(t.customerName) + ' - ' + escapeHtml(t.alamat);
+  document.getElementById('acceptModal').classList.add('show');
+}
+function closeAcceptModal() { document.getElementById('acceptModal').classList.remove('show'); }
+async function confirmAccept() {
+  closeAcceptModal();
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + selectedTicketId).update({
+      teknisiUid: currentUid,
+      teknisiName: currentUserData.nama || currentUid,
+      status: 'Ditugaskan',
+      assignedAt: now,
+      updatedAt: now,
+      'timeline/Ditugaskan': now
+    });
+    toast('Tiket berhasil diambil', 'success');
+    showView('TicketDetail', selectedTicketId);
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: OTW + ETA
+═══════════════════════════════════════════════════ */
+function openETAModal(id) {
+  selectedTicketId = id;
+  pendingETA = null;
+  document.querySelectorAll('.eta-opt').forEach(b => b.classList.remove('selected'));
+  document.getElementById('etaCustom').value = '';
+  document.getElementById('etaModal').classList.add('show');
+}
+function closeETAModal() { document.getElementById('etaModal').classList.remove('show'); }
+function selectETA(val, btn) {
+  pendingETA = val;
+  document.getElementById('etaCustom').value = val;
+  document.querySelectorAll('.eta-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+async function submitOTA() {
+  const eta = document.getElementById('etaCustom').value.trim() || pendingETA;
+  if (!eta) return toast('Pilih atau isi ETA', 'warn');
+  closeETAModal();
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + selectedTicketId).update({
+      status: 'Teknisi OTW',
+      eta,
+      otwAt: now,
+      updatedAt: now,
+      'timeline/Teknisi OTW': now
+    });
+    await db.ref('chats/' + selectedTicketId).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '🚗 Saya sedang dalam perjalanan ke lokasi Anda. Estimasi tiba: ' + eta,
+      timestamp: now
+    });
+    toast('Status OTW dikirim ke customer', 'success');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: START WORK
+═══════════════════════════════════════════════════ */
+async function startWork(id) {
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + id).update({
+      status: 'Dalam Pengerjaan',
+      startedAt: now,
+      updatedAt: now,
+      'timeline/Dalam Pengerjaan': now
+    });
+    await db.ref('chats/' + id).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '🔧 Saya sudah tiba di lokasi dan mulai melakukan pengerjaan.',
+      timestamp: now
+    });
+    toast('Mulai pengerjaan', 'success');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+async function resumeWork(id) {
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + id).update({
+      status: 'Dalam Pengerjaan',
+      updatedAt: now,
+      'timeline/Dalam Pengerjaan': now
+    });
+    toast('Lanjutkan pengerjaan', 'success');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: FINISH
+═══════════════════════════════════════════════════ */
+function openFinishModal(id) {
+  selectedTicketId = id;
+  uploadedBefore = [];
+  uploadedAfter = [];
+  document.getElementById('beforePreview').innerHTML = '';
+  document.getElementById('afterPreview').innerHTML = '';
+  document.getElementById('lapPenyebab').value = '';
+  document.getElementById('lapTindakan').value = '';
+  document.getElementById('lapSparepart').value = '';
+  document.getElementById('finishModal').classList.add('show');
+}
+function closeFinishModal() { document.getElementById('finishModal').classList.remove('show'); }
+
+document.getElementById('beforeInput').addEventListener('change', e => handleUpload(e, 'before'));
+document.getElementById('afterInput').addEventListener('change', e => handleUpload(e, 'after'));
+
+async function handleUpload(e, type) {
+  const files = Array.from(e.target.files);
+  const arr = type === 'before' ? uploadedBefore : uploadedAfter;
+  const preview = document.getElementById(type === 'before' ? 'beforePreview' : 'afterPreview');
+  if (arr.length + files.length > 3) { toast('Maksimal 3 foto', 'warn'); e.target.value = ''; return; }
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    if (file.size > 5 * 1024 * 1024) { toast(file.name + ' terlalu besar', 'error'); continue; }
+    const loader = document.createElement('div');
+    loader.className = 'photo-item';
+    loader.style.display = 'flex';
+    loader.style.alignItems = 'center';
+    loader.style.justifyContent = 'center';
+    loader.style.background = 'rgba(17,24,39,0.6)';
+    loader.style.borderRadius = '8px';
+    loader.innerHTML = '<span class="spin"></span>';
+    preview.appendChild(loader);
+    try {
+      const blob = await compressImage(file);
+      const url = await uploadToImgbb(blob);
+      arr.push(url);
+      loader.remove();
+      const div = document.createElement('div');
+      div.className = 'photo-item';
+      div.innerHTML = '<img src="' + url + '"><button type="button" class="photo-remove" onclick="removeUpload(\'' + type + '\',\'' + url + '\',this)"><i class="fas fa-times"></i></button>';
+      preview.appendChild(div);
+    } catch (err) {
+      loader.remove();
+      toast('Upload gagal: ' + err.message, 'error');
+    }
+  }
+  e.target.value = '';
+}
+function removeUpload(type, url, btn) {
+  if (type === 'before') uploadedBefore = uploadedBefore.filter(u => u !== url);
+  else uploadedAfter = uploadedAfter.filter(u => u !== url);
+  btn.parentElement.remove();
+}
+
+async function compressImage(file, maxSize = 1280, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > h && w > maxSize) { h = h * maxSize / w; w = maxSize; }
+        else if (h > maxSize) { w = w * maxSize / h; h = maxSize; }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('Compress gagal')), 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadToImgbb(blob, retries = 2) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+  const formData = new FormData();
+  formData.append('image', blob);
+  try {
+    const res = await fetch('https://api.imgbb.com/1/upload?key=' + IMGBB_KEY, { method: 'POST', body: formData, signal: controller.signal });
+    clearTimeout(timeout);
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error?.message || 'Upload gagal');
+    return data.data.url;
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') throw new Error('Upload timeout');
+    if (retries > 0) {
+      await new Promise(r => setTimeout(r, 1500));
+      return uploadToImgbb(blob, retries - 1);
+    }
+    throw err;
+  }
+}
+
+async function submitFinish() {
+  if (uploadedBefore.length === 0) return toast('Upload minimal 1 foto SEBELUM', 'error');
+  if (uploadedAfter.length === 0) return toast('Upload minimal 1 foto SESUDAH', 'error');
+  const penyebab = document.getElementById('lapPenyebab').value.trim();
+  const tindakan = document.getElementById('lapTindakan').value.trim();
+  const sparepart = document.getElementById('lapSparepart').value.trim();
+  if (!penyebab) return toast('Isi penyebab masalah', 'error');
+  if (!tindakan) return toast('Isi tindakan/solusi', 'error');
+
+  const btn = document.getElementById('submitFinishBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Menyimpan...';
+
+  try {
+    const now = Date.now();
+    const laporan = 'PENYEBAB: ' + penyebab + '\n\nTINDAKAN: ' + tindakan + (sparepart ? '\n\nSPAREPART: ' + sparepart : '');
+    const allPhotos = [...uploadedBefore, ...uploadedAfter];
+
+    await db.ref('tickets/' + selectedTicketId).update({
+      status: 'Selesai',
+      fotoPengerjaan: allPhotos,
+      laporanTeknisi: laporan,
+      penyebab, tindakan, sparepart,
+      finishedAt: now,
+      updatedAt: now,
+      'timeline/Selesai': now
+    });
+
+    await db.ref('chats/' + selectedTicketId).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '✅ Pengerjaan selesai.\nPenyebab: ' + penyebab + '\nTindakan: ' + tindakan + (sparepart ? '\nSparepart: ' + sparepart : ''),
+      timestamp: now
+    });
+
+    showSuccessModal('Tiket Selesai!', 'Pekerjaan berhasil diselesaikan.\nCustomer akan diberi notifikasi untuk memberikan rating.');
+    toast('Tiket selesai!', 'success');
+    closeFinishModal();
+    showView('Dashboard');
+  } catch (err) {
+    toast('Gagal: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check" style="margin-right: 6px;"></i>Tandai Selesai';
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: PENDING
+═══════════════════════════════════════════════════ */
+function openPendingModal(id) {
+  selectedTicketId = id;
+  document.getElementById('pendingReason').value = '';
+  document.getElementById('pendingModal').classList.add('show');
+}
+function closePendingModal() { document.getElementById('pendingModal').classList.remove('show'); }
+async function submitPending() {
+  const reason = document.getElementById('pendingReason').value.trim();
+  if (!reason) return toast('Isi alasan pending', 'error');
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + selectedTicketId).update({
+      status: 'Pending',
+      pendingReason: reason,
+      pendingAt: now,
+      updatedAt: now,
+      'timeline/Pending': now
+    });
+    await db.ref('chats/' + selectedTicketId).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '⏸️ Tiket ditandai pending. Alasan: ' + reason,
+      timestamp: now
+    });
+    toast('Tiket pending', 'warn');
+    closePendingModal();
+    showView('Dashboard');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   AKSI: ESCALATE
+═══════════════════════════════════════════════════ */
+async function escalateTicket(id) {
+  if (!confirm('Eskalasi tiket ini ke Admin/NOC?')) return;
+  try {
+    const now = Date.now();
+    await db.ref('tickets/' + id).update({
+      escalated: true,
+      escalatedAt: now,
+      escalatedBy: currentUserData.nama,
+      updatedAt: now
+    });
+    await db.ref('chats/' + id).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '🚨 Tiket dieskalasi ke Admin/NOC untuk penanganan lanjutan.',
+      timestamp: now
+    });
+    toast('Tiket dieskalasi ke admin', 'success');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════════════ */
+function setupChatListeners(tickets) {
+  if (chatListenerOff) chatListenerOff();
+  const offs = [];
+  tickets.forEach(t => {
+    const ref = db.ref('chats/' + t.id);
+    const handler = ref.on('value', snap => {
+      const msgs = [];
+      snap.forEach(c => msgs.push(c.val()));
+      const last = msgs[msgs.length - 1];
+      const isChatOpen = lastTicketId === t.id && document.getElementById('viewChat').classList.contains('active');
+      if (last && last.senderRole === 'customer' && last.senderId !== currentUid) {
+        const readKey = 'tech_read_' + t.id + '_' + last.timestamp;
+        if (!localStorage.getItem(readKey) && !isChatOpen) {
+          unreadChatByTicket[t.id] = (unreadChatByTicket[t.id] || 0) + 1;
+        }
+      }
+      if (isChatOpen) {
+        renderChatMessages(msgs);
+        if (last) localStorage.setItem('tech_read_' + t.id + '_' + last.timestamp, '1');
+      }
+    });
+    offs.push(() => ref.off('value', handler));
+  });
+  chatListenerOff = () => offs.forEach(f => f());
+  updateChatBadge();
+}
+
+function updateChatBadge() {
+  const total = Object.values(unreadChatByTicket).reduce((s, n) => s + n, 0);
+  const badge = document.getElementById('chatBadge');
+  const sidebarBadge = document.getElementById('sidebarChatBadge');
+  if (total > 0) {
+    if (badge) { badge.textContent = total > 9 ? '9+' : total; badge.style.display = 'flex'; }
+    if (sidebarBadge) { sidebarBadge.textContent = total > 9 ? '9+' : total; sidebarBadge.style.display = 'flex'; }
+  } else {
+    if (badge) badge.style.display = 'none';
+    if (sidebarBadge) sidebarBadge.style.display = 'none';
+  }
+}
+
+function loadChat(ticketId) {
+  lastTicketId = ticketId;
+  delete unreadChatByTicket[ticketId];
+  updateChatBadge();
+  const t = ticketsCache[ticketId];
+  document.getElementById('chatTicketTitle').textContent = t ? t.kategori : 'Live Chat';
+  document.getElementById('chatTicketInfo').textContent = t ? '#' + t.id.substring(1, 8).toUpperCase() + ' • ' + t.customerName : '';
+  const box = document.getElementById('chatMessages');
+  box.innerHTML = '<p style="text-align:center;color:#6b7280;font-size:13px;padding:32px 0;"><i class="fas fa-spinner fa-spin"></i> Memuat...</p>';
+  db.ref('chats/' + ticketId).orderByChild('timestamp').once('value', snap => {
+    const msgs = [];
+    snap.forEach(c => msgs.push(c.val()));
+    renderChatMessages(msgs);
+  });
+  checkChatCooldown();
+}
+
+function renderChatMessages(msgs) {
+  const box = document.getElementById('chatMessages');
+  const wasBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 100;
+  if (msgs.length === 0) {
+    box.innerHTML = '<p style="text-align:center;color:#6b7280;font-size:13px;padding:32px 0;">Belum ada pesan.</p>';
+    return;
+  }
+  box.innerHTML = msgs.map(m => {
+    const mine = m.senderId === currentUid;
+    const sys = m.senderRole === 'system';
+    if (sys) {
+      return '<div style="display:flex;justify-content:center;margin:6px 0;"><div style="font-size:12px;background:rgba(0,212,255,0.1);color:#00d4ff;border:1px solid rgba(0,212,255,0.3);border-radius:999px;padding:6px 16px;max-width:85%;text-align:center;"><i class="fas fa-info-circle" style="margin-right:4px;"></i>' + escapeHtml(m.message) + '</div></div>';
+    }
+    return '<div style="display:flex;' + (mine ? 'justify-content:flex-end;' : 'justify-content:flex-start;') + '">' +
+      '<div class="chat-bubble" style="max-width:78%;' + (mine ? 'background:linear-gradient(135deg,#00d4ff,#0091ff);color:#fff;' : 'background:rgba(17,24,39,0.7);border:1px solid #1f2937;') + 'border-radius:16px;padding:10px 14px;box-shadow:0 2px 8px rgba(0,0,0,0.2);">' +
+      (!mine ? '<p style="font-size:11px;font-weight:600;margin-bottom:4px;opacity:0.85;">' + escapeHtml(m.senderName) + ' · <span style="text-transform:capitalize;">' + m.senderRole + '</span></p>' : '') +
+      '<p style="font-size:13px;white-space:pre-wrap;line-height:1.5;">' + escapeHtml(m.message) + '</p>' +
+      '<p style="font-size:10px;opacity:0.65;margin-top:4px;text-align:right;">' + fmtTime(m.timestamp) + '</p>' +
+      '</div></div>';
+  }).join('');
+  if (wasBottom) box.scrollTop = box.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || !lastTicketId) return;
+  if (msg.length > 500) return toast('Pesan terlalu panjang', 'warn');
+
+  const now = Date.now();
+  const lastSent = currentUserData.lastChatSent || 0;
+  const diff = (now - lastSent) / 1000;
+  if (diff < 10) {
+    toast('Tunggu ' + Math.ceil(10 - diff) + ' detik lagi', 'warn');
+    return;
+  }
+
+  input.value = '';
+  try {
+    await db.ref('chats/' + lastTicketId).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: msg,
+      timestamp: now
+    });
+    await db.ref('users/' + currentUid + '/lastChatSent').set(now);
+    currentUserData.lastChatSent = now;
+    startCooldownUI();
+  } catch (err) { toast('Gagal kirim: ' + err.message, 'error'); }
+}
+
+function sendQuickMsg(msg) {
+  document.getElementById('chatInput').value = msg;
+  sendChat();
+}
+
+function startCooldownUI() {
+  const cd = document.getElementById('chatCooldown');
+  const sec = document.getElementById('cooldownSec');
+  const btn = document.getElementById('sendChatBtn');
+  if (!cd) return;
+  cd.style.display = 'block';
+  btn.disabled = true;
+  let remaining = 10;
+  sec.textContent = remaining;
+  if (chatCooldownTimer) clearInterval(chatCooldownTimer);
+  chatCooldownTimer = setInterval(() => {
+    remaining--;
+    sec.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(chatCooldownTimer);
+      cd.style.display = 'none';
+      btn.disabled = false;
+    }
+  }, 1000);
+}
+
+function checkChatCooldown() {
+  const now = Date.now();
+  const lastSent = currentUserData.lastChatSent || 0;
+  if ((now - lastSent) / 1000 < 10) startCooldownUI();
+}
+
+document.getElementById('chatInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendChat(); });
+
+function openLastChat() {
+  if (lastTicketId) showView('Chat', lastTicketId);
+  else if (allTickets.length) { lastTicketId = allTickets[0].id; showView('Chat', lastTicketId); }
+  else toast('Belum ada tiket', 'warn');
+}
+
+/* ═══════════════════════════════════════════════════
+   PERFORMANCE
+═══════════════════════════════════════════════════ */
+function renderPerformance() {
+  const mine = allTickets;
+  const done = mine.filter(t => t.status === 'Selesai');
+  document.getElementById('perfTotalDone').textContent = done.length;
+  document.getElementById('perfTodayDone').textContent = done.filter(t => isToday(t.finishedAt || t.updatedAt)).length;
+  const rated = done.filter(t => t.rating > 0);
+  document.getElementById('perfAvgRating').textContent = rated.length ? (rated.reduce((s, t) => s + t.rating, 0) / rated.length).toFixed(1) : '-';
+  const withTime = done.filter(t => t.finishedAt && t.startedAt);
+  if (withTime.length) {
+    const avgMin = withTime.reduce((s, t) => s + (t.finishedAt - t.startedAt), 0) / withTime.length / 60000;
+    document.getElementById('perfAvgTime').textContent = avgMin < 60 ? Math.round(avgMin) + 'm' : (avgMin / 60).toFixed(1) + 'j';
+  } else {
+    document.getElementById('perfAvgTime').textContent = '-';
+  }
+
+  const chart = document.getElementById('perfChart');
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    const next = new Date(d);
+    next.setDate(next.getDate() + 1);
+    const count = done.filter(t => (t.finishedAt || t.updatedAt) >= d.getTime() && (t.finishedAt || t.updatedAt) < next.getTime()).length;
+    days.push({ label: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][d.getDay()], count });
+  }
+  const max = Math.max(...days.map(d => d.count), 1);
+  chart.innerHTML = days.map(d =>
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;">' +
+    '<span style="font-size:11px;color:#9ca3af;">' + d.count + '</span>' +
+    '<div style="width:100%;background:linear-gradient(180deg,#00d4ff,#7c3aed);border-radius:6px 6px 0 0;height:' + ((d.count / max) * 100) + '%;min-height:4px;"></div>' +
+    '<span style="font-size:11px;color:#6b7280;">' + d.label + '</span>' +
+    '</div>'
+  ).join('');
+
+  const reviews = done.filter(t => t.rating > 0 && t.ulasan).sort((a, b) => (b.ratedAt || b.updatedAt) - (a.ratedAt || a.updatedAt)).slice(0, 10);
+  document.getElementById('perfReviews').innerHTML = reviews.length ? reviews.map(t =>
+    '<div class="glass" style="border-radius:10px;padding:12px;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
+    '<p style="font-size:13px;font-weight:600;">' + escapeHtml(t.customerName) + '</p>' +
+    '<span style="color:#facc15;font-size:12px;">' + '★'.repeat(t.rating) + '☆'.repeat(5 - t.rating) + '</span>' +
+    '</div>' +
+    '<p style="font-size:12px;color:#d1d5db;">' + escapeHtml(t.ulasan) + '</p>' +
+    '<p style="font-size:11px;color:#6b7280;margin-top:4px;">' + timeAgo(t.ratedAt || t.updatedAt) + '</p>' +
+    '</div>'
+  ).join('') : '<p style="color:#6b7280;font-size:13px;text-align:center;padding:16px 0;">Belum ada ulasan</p>';
+}
+
+/* ═══════════════════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════════════════ */
+function loadProfileForm() {
+  if (!currentUserData) return;
+  document.getElementById('profNama').value = currentUserData.nama || '';
+  document.getElementById('profHp').value = currentUserData.noHp || '';
+  document.getElementById('profArea').value = currentUserData.area || '';
+  document.getElementById('profShift').value = currentUserData.shift || 'On Call';
+}
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nama = document.getElementById('profNama').value.trim();
+  const hp = document.getElementById('profHp').value.trim();
+  const area = document.getElementById('profArea').value.trim();
+  const shift = document.getElementById('profShift').value;
+  if (!nama) return toast('Nama wajib diisi', 'error');
+  try {
+    await db.ref('users/' + currentUid).update({
+      nama, noHp: hp, area, shift,
+      updatedAt: Date.now()
+    });
+    toast('Profil disimpan', 'success');
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+});
+
+/* ═══════════════════════════════════════════════════
+   NOTIFIKASI
+═══════════════════════════════════════════════════ */
+function renderNotif() {
+  const notifs = [];
+  allTickets.forEach(t => {
+    if (t.updatedAt > Date.now() - 7 * 24 * 3600000) {
+      const key = 'tech_notif_' + t.id + '_' + t.status + '_' + t.updatedAt;
+      notifs.push({
+        id: t.id,
+        title: t.kategori + ' - ' + t.customerName,
+        body: 'Status: ' + t.status + ((t.priority === 'Critical' || t.isEmergency) ? ' • 🚨 PRIORITAS' : ''),
+        time: t.updatedAt,
+        isRead: !!localStorage.getItem(key)
+      });
+    }
+  });
+  allPoolTickets.forEach(t => {
+    const key = 'tech_notif_pool_' + t.id;
+    notifs.push({
+      id: t.id,
+      title: 'Tiket Baru di Pool: ' + t.kategori,
+      body: t.customerName + ' - ' + (t.alamat || ''),
+      time: t.createdAt,
+      isRead: !!localStorage.getItem(key)
+    });
+  });
+  notifs.sort((a, b) => b.time - a.time);
+  const unread = notifs.filter(n => !n.isRead).length;
+  const badge = document.getElementById('notifBadge');
+  if (unread > 0) {
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.style.display = 'flex';
+    badge.classList.add('badge-pulse');
+    setTimeout(() => badge.classList.remove('badge-pulse'), 600);
+  } else {
+    badge.style.display = 'none';
+  }
+
+  document.getElementById('notifList').innerHTML = notifs.length ? notifs.map(n =>
+    '<div class="glass" onclick="markNotifRead(\'' + n.id + '\'); openTicketDetail(\'' + n.id + '\')" style="border-radius:10px;padding:12px;cursor:pointer;' + (n.isRead ? 'opacity:0.6;' : '') + '">' +
+    '<p style="font-weight:600;font-size:13px;">' + escapeHtml(n.title) + '</p>' +
+    '<p style="font-size:11px;color:#9ca3af;margin-top:4px;">' + escapeHtml(n.body) + '</p>' +
+    '<p style="font-size:11px;color:#6b7280;margin-top:4px;">' + timeAgo(n.time) + '</p>' +
+    '</div>'
+  ).join('') : '<p style="text-align:center;color:#6b7280;padding:32px 0;">Tidak ada notifikasi</p>';
+}
+
+function markNotifRead(id) {
+  const t = ticketsCache[id];
+  if (t) localStorage.setItem('tech_notif_' + t.id + '_' + t.status + '_' + t.updatedAt, '1');
+  localStorage.setItem('tech_notif_pool_' + id, '1');
+  renderNotif();
+}
+
+function clearAllNotif() {
+  allTickets.forEach(t => localStorage.setItem('tech_notif_' + t.id + '_' + t.status + '_' + t.updatedAt, '1'));
+  allPoolTickets.forEach(t => localStorage.setItem('tech_notif_pool_' + t.id, '1'));
+  renderNotif();
+  toast('Semua notif ditandai dibaca', 'success');
+}
+
+function toggleNotif() {
+  const panel = document.getElementById('notifPanel');
+  if (panel.classList.contains('show')) panel.classList.remove('show');
+  else {
+    panel.classList.add('show');
+    renderNotif();
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════ */
+function showView(name, ticketId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const view = document.getElementById('view' + name);
+  if (view) view.classList.add('active');
+
+  document.querySelectorAll('[data-nav]').forEach(b => {
+    if (b.dataset.nav === name) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
+  document.querySelectorAll('[data-sidebar]').forEach(b => {
+    if (b.dataset.sidebar === name) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
+  const titles = { Dashboard: 'Teknisi Portal', Chat: 'Live Chat', Performance: 'Performa Saya', Profile: 'Profil Saya', TicketDetail: 'Detail Tiket' };
+  const sub = document.getElementById('headerSubtitle');
+  if (sub) sub.textContent = titles[name] || 'Teknisi Portal';
+
+  if (name === 'TicketDetail' && ticketId) loadTicketDetail(ticketId);
+  if (name === 'Chat' && ticketId) { lastTicketId = ticketId; loadChat(ticketId); }
+  if (name === 'Performance') renderPerformance();
+  if (name === 'Profile') loadProfileForm();
+
+  window.scrollTo(0, 0);
+}
+
+function toggleUserMenu() {
+  const m = document.getElementById('userMenu');
+  if (m.style.display === 'none' || !m.style.display) m.style.display = 'block';
+  else m.style.display = 'none';
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('userMenu');
+  if (!e.target.closest('#userMenu') && !e.target.closest('button[onclick="toggleUserMenu()"]')) {
+    menu.style.display = 'none';
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   SUCCESS MODAL
+═══════════════════════════════════════════════════ */
+function showSuccessModal(title, msg) {
+  document.getElementById('successTitle').textContent = title;
+  document.getElementById('successMsg').textContent = msg;
+  document.getElementById('successModal').classList.add('show');
+}
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('show');
+}
+
+/* ═══════════════════════════════════════════════════
+   LOGOUT
+═══════════════════════════════════════════════════ */
+function logout() { document.getElementById('logoutModal').classList.add('show'); }
+function closeLogoutModal() { document.getElementById('logoutModal').classList.remove('show'); }
+
+async function confirmLogout(deleteDevice) {
+  try {
+    await db.ref('users/' + currentUid + '/tersedia').set(false);
+    if (deleteDevice) {
+      await db.ref('users/' + currentUid + '/deviceIds/' + deviceId).remove();
+      await db.ref('device_registry/' + deviceId).remove();
+    }
+    if (userListener) userListener.off();
+    if (chatListenerOff) chatListenerOff();
+    currentUid = null;
+    currentUserData = null;
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+    document.getElementById('loginUid').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    closeLogoutModal();
+    toast('Logout berhasil', 'success');
+  } catch (err) {
+    toast('Gagal logout: ' + err.message, 'error');
+  }
+}
+
+async function logoutDevice() {
+  if (!confirm('Logout & hapus device ini? Anda perlu login manual lagi.')) return;
+  await confirmLogout(true);
+}
+
+async function forceLogout() {
+  if (currentUid) await db.ref('users/' + currentUid + '/tersedia').set(false);
+  if (userListener) userListener.off();
+  if (chatListenerOff) chatListenerOff();
+  currentUid = null;
+  currentUserData = null;
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════ */
+function applyResponsive() {
+  const isDesktop = window.innerWidth >= 1024;
+  const sidebar = document.getElementById('sidebar');
+  const bottomNav = document.getElementById('bottomNav');
+  if (isDesktop) {
+    sidebar.style.display = 'block';
+    bottomNav.style.display = 'none';
+    document.getElementById('mainApp').style.paddingBottom = '0';
+  } else {
+    sidebar.style.display = 'none';
+    bottomNav.style.display = 'block';
+    document.getElementById('mainApp').style.paddingBottom = '80px';
+  }
+}
+window.addEventListener('resize', applyResponsive);
+applyResponsive();
+
+/* Auto refresh SLA tiap 30s */
+setInterval(() => {
+  if (allTickets.length) {
+    const v = document.getElementById('viewTicketDetail');
+    if (selectedTicketId && ticketsCache[selectedTicketId] && v && v.classList.contains('active')) {
+      loadTicketDetail(selectedTicketId);
+    }
+  }
+  if (currentUid) renderNotif();
+}, 30000);
+
+/* Warn unload */
+window.addEventListener('beforeunload', () => {
+  if (currentUid) {
+    db.ref('users/' + currentUid + '/tersedia').set(false);
+  }
+});
+
+/* ═══════════════════════════════════════════════════
+   START
+═══════════════════════════════════════════════════ */
+window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
