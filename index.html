@@ -2045,7 +2045,6 @@ function openProgressModal(ticketId, editKey) {
     if (titleEl) titleEl.textContent = 'Edit Progress';
     if (editInfo) editInfo.style.display = 'block';
     if (btn) btn.innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i>Update';
-    // Load data existing
     db.ref('tickets/' + ticketId + '/progressHistory/' + editKey).once('value').then(function(snap) {
       var p = snap.val();
       if (!p) return;
@@ -2058,6 +2057,7 @@ function openProgressModal(ticketId, editKey) {
         var dt = document.getElementById('progressDeadline');
         if (dt) dt.value = d.toISOString().slice(0, 16);
       }
+      toggleDurationField(); // ✅ Trigger visibility
     });
   } else {
     if (titleEl) titleEl.textContent = 'Update Progress';
@@ -2070,10 +2070,45 @@ function openProgressModal(ticketId, editKey) {
     document.querySelectorAll('.duration-btn').forEach(function(b) { b.classList.remove('active'); });
     var btn30 = document.querySelector('.duration-btn[data-dur="30"]');
     if (btn30) btn30.classList.add('active');
+    toggleDurationField(); // ✅ Trigger visibility
   }
   var m = document.getElementById('progressModal');
   if (m) m.classList.add('show');
 }
+
+/* ═══════════════════════════════════════════════
+   TOGGLE DURATION FIELD — Sembunyikan jika Selesai
+═══════════════════════════════════════════════ */
+function toggleDurationField() {
+  var sel = document.getElementById('progressStatus');
+  if (!sel) return;
+  var isDone = sel.value === 'Selesai';
+
+  // Cari semua elemen terkait durasi (label, button, input, dll)
+  var durationLabel = document.getElementById('progressDurationLabel');
+  var durationGrid = document.getElementById('progressDurationGrid');
+  var durationInput = document.getElementById('progressDuration');
+  var deadlineLabel = document.getElementById('progressDeadlineLabel');
+  var deadlineInput = document.getElementById('progressDeadline');
+  var infoText = document.getElementById('progressDurationInfo');
+
+  var display = isDone ? 'none' : '';
+  if (durationLabel) durationLabel.style.display = display;
+  if (durationGrid) durationGrid.style.display = display;
+  if (durationInput) durationInput.style.display = display;
+  if (deadlineLabel) deadlineLabel.style.display = display;
+  if (deadlineInput) deadlineInput.style.display = display;
+
+  // Tampilkan/sembunyikan info "Selesai tidak butuh waktu"
+  if (infoText) infoText.style.display = isDone ? 'block' : 'none';
+}
+
+// Bind onchange ke select progressStatus
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'progressStatus') {
+    toggleDurationField();
+  }
+});
 
 function closeProgressModal() {
   var m = document.getElementById('progressModal');
@@ -2084,17 +2119,31 @@ function closeProgressModal() {
 async function saveProgress() {
   var ticketId = window.currentProgressTicketId;
   if (!ticketId) return toast('Tiket tidak ditemukan', 'error');
-  var status = document.getElementById('progressStatus').value;
-  var durationMin = parseInt(document.getElementById('progressDuration').value) || 0;
-  var specificDeadline = document.getElementById('progressDeadline').value;
-  var note = document.getElementById('progressNote').value.trim();
 
-  if (!status) return toast('Pilih status', 'error');
-  if (durationMin <= 0 && !specificDeadline) return toast('Isi estimasi waktu (menit) atau waktu spesifik', 'error');
+  var statusEl = document.getElementById('progressStatus');
+  var status = statusEl ? statusEl.value : 'Dalam Pengerjaan';
+  var isDone = status === 'Selesai';
+
+  var durationEl = document.getElementById('progressDuration');
+  var durationMin = durationEl ? parseInt(durationEl.value) || 0 : 0;
+  var deadlineEl = document.getElementById('progressDeadline');
+  var specificDeadline = deadlineEl ? deadlineEl.value : '';
+  var noteEl = document.getElementById('progressNote');
+  var note = noteEl ? noteEl.value.trim() : '';
+
+  // ✅ Jika Selesai → TIDAK butuh waktu
+  if (!isDone) {
+    if (durationMin <= 0 && !specificDeadline) {
+      return toast('Isi estimasi waktu (menit) atau waktu spesifik', 'error');
+    }
+  }
 
   var now = Date.now();
   var deadline;
-  if (specificDeadline) {
+  if (isDone) {
+    deadline = now; // Selesai = langsung deadline now
+    durationMin = 0;
+  } else if (specificDeadline) {
     deadline = new Date(specificDeadline).getTime();
     durationMin = Math.max(1, Math.round((deadline - now) / 60000));
   } else {
@@ -2103,9 +2152,11 @@ async function saveProgress() {
 
   var isEdit = !!editingProgressKey;
   var btn = document.getElementById('saveProgressBtn');
-  btn.disabled = true;
-  var originalHTML = btn.innerHTML;
-  btn.innerHTML = '<span class="spin"></span> Menyimpan...';
+  if (btn) {
+    btn.disabled = true;
+    var originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="spin"></span> Menyimpan...';
+  }
 
   try {
     var t = ticketsCache[ticketId];
@@ -2121,15 +2172,14 @@ async function saveProgress() {
       at: now,
       durationMinutes: durationMin,
       deadline: deadline,
-      confirmed: false,
-      confirmedAt: null,
+      confirmed: isDone,                    // ✅ Selesai = auto confirmed
+      confirmedAt: isDone ? now : null,     // ✅ Auto timestamp
       updatedBy: (typeof currentUid !== 'undefined' ? currentUid : ''),
       updatedByName: userName,
       role: role
     };
 
     if (isEdit) {
-      // Preserve original createdAt
       var existSnap = await db.ref('tickets/' + ticketId + '/progressHistory/' + key).once('value');
       var existing = existSnap.val() || {};
       item.at = existing.at || now;
@@ -2149,16 +2199,26 @@ async function saveProgress() {
     updates['tickets/' + ticketId + '/progressUpdatedAt'] = now;
     updates['tickets/' + ticketId + '/updatedAt'] = now;
     updates['tickets/' + ticketId + '/timeline/' + status] = now;
-    updates['tickets/' + ticketId + '/currentDeadline'] = deadline;
-    updates['tickets/' + ticketId + '/currentProgressKey'] = key;
-    if (status === 'Selesai') updates['tickets/' + ticketId + '/finishedAt'] = now;
+
+    if (isDone) {
+      updates['tickets/' + ticketId + '/currentDeadline'] = null;
+      updates['tickets/' + ticketId + '/currentProgressKey'] = null;
+      updates['tickets/' + ticketId + '/finishedAt'] = now;
+    } else {
+      updates['tickets/' + ticketId + '/currentDeadline'] = deadline;
+      updates['tickets/' + ticketId + '/currentProgressKey'] = key;
+    }
 
     await db.ref().update(updates);
 
-    // Chat message
-    var chatMsg = (isEdit ? '✏️ Progress diedit: ' : '📋 Progress: ') + status +
-      '\n⏱️ Estimasi: ' + durationMin + ' menit' +
-      (note ? '\n📝 ' + note : '');
+    var chatMsg = (isEdit ? '✏️ Progress diedit: ' : '📋 Progress: ') + status;
+    if (isDone) {
+      chatMsg += '\n✅ Pekerjaan telah selesai!';
+    } else {
+      chatMsg += '\n⏱️ Estimasi: ' + durationMin + ' menit';
+    }
+    if (note) chatMsg += '\n📝 ' + note;
+
     await db.ref('chats/' + ticketId).push({
       senderId: currentUid || 'user',
       senderName: userName,
@@ -2173,8 +2233,10 @@ async function saveProgress() {
     console.error('[Lakso] saveProgress error', err);
     toast('Gagal: ' + err.message, 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = isEdit ? '<i class="fas fa-save" style="margin-right:6px;"></i>Update' : '<i class="fas fa-check" style="margin-right:6px;"></i>Simpan';
+    }
   }
 }
 
@@ -2249,21 +2311,32 @@ function renderProgressHistory(ticketId) {
     arr.sort(function(a, b) { return (b.at || 0) - (a.at || 0); });
 
     if (arr.length === 0) {
-      container.innerHTML = '<p style="font-size:13px;color:#6b7280;text-align:center;padding:12px 0;">Belum ada riwayat progress</p>';
+      container.innerHTML = '<p style="font-size:12px;color:#6b7280;text-align:center;padding:10px 0;">Belum ada progress</p>';
       return;
     }
 
     container.innerHTML = arr.map(function(p) {
       var now = Date.now();
+      var isDone = p.status === 'Selesai';
       var remaining = (p.deadline || 0) - now;
-      var isConfirmed = !!p.confirmed;
+      var isConfirmed = !!p.confirmed || isDone;
       var isExpired = !isConfirmed && remaining <= 0;
       var cardClass = isConfirmed ? 'confirmed' : (isExpired ? 'expired' : '');
-
       var countdownClass = isConfirmed ? 'countdown-confirmed' : (isExpired ? 'countdown-expired' : 'countdown-running');
-      var countdownText = isConfirmed
-        ? '✅ Selesai ' + fmtTime(p.confirmedAt)
-        : (isExpired ? '⏰ Waktu Habis' : '⏱️ ' + formatCountdown(remaining));
+
+      // ✅ Jika Selesai → tampilkan "Selesai" tanpa countdown
+      var countdownText;
+      if (isDone) {
+        countdownText = '✅ Selesai ' + fmtTime(p.confirmedAt || p.at);
+      } else if (isConfirmed) {
+        countdownText = '✅ Dikonfirmasi ' + fmtTime(p.confirmedAt);
+      } else if (isExpired) {
+        countdownText = '⏰ Waktu Habis';
+      } else {
+        countdownText = '⏱️ ' + formatCountdown(remaining);
+      }
+
+      var editedTag = p.edited ? '<span style="font-size:9px;color:#fbbf24;margin-left:4px;">(diedit)</span>' : '';
 
       var confirmBtn = '';
       if (!isConfirmed && isExpired && typeof currentUserData !== 'undefined') {
@@ -2282,8 +2355,6 @@ function renderProgressHistory(ticketId) {
         }
       }
 
-      var editedTag = p.edited ? '<span style="font-size:9px;color:#fbbf24;margin-left:4px;">(diedit)</span>' : '';
-
       return '<div class="progress-card ' + cardClass + '">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">' +
         '<div style="flex:1;min-width:0;">' +
@@ -2294,12 +2365,14 @@ function renderProgressHistory(ticketId) {
         '</p>' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
-        '<span class="countdown-badge ' + countdownClass + '" data-deadline="' + (p.deadline || 0) + '" data-confirmed="' + isConfirmed + '">' + countdownText + '</span>' +
+        '<span class="countdown-badge ' + countdownClass + '" ' +
+        (isDone ? '' : 'data-deadline="' + (p.deadline || 0) + '" data-confirmed="' + isConfirmed + '"') +
+        '>' + countdownText + '</span>' +
         editBtn +
         '</div>' +
         '</div>' +
         (p.note ? '<p style="font-size:12px;color:#d1d5db;margin-top:6px;line-height:1.4;">' + escapeHtml(p.note) + '</p>' : '') +
-        '<p style="font-size:10px;color:#6b7280;margin-top:4px;">⏱️ Estimasi: ' + (p.durationMinutes || 0) + ' menit</p>' +
+        (!isDone ? '<p style="font-size:10px;color:#6b7280;margin-top:4px;">⏱️ Estimasi: ' + (p.durationMinutes || 0) + ' menit</p>' : '') +
         confirmBtn +
         '</div>';
     }).join('');
