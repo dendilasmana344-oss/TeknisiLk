@@ -2637,7 +2637,7 @@ function renderProgressHistory(ticketId) {
             '<span class="seek-right">' + (endAt ? fmtTime(endAt) : '-') + '</span>' +
             '</div>' +
             '</div>';
-        })() +
+        })() : '') +
         confirmBtn +
         '</div>';
     }).join('');
