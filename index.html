@@ -15,398 +15,186 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; min-height: 100%; }
-  body { background: #0a0e1a; color: #e5e7eb; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
-  button { cursor: pointer; border: none; background: none; color: inherit; font: inherit; }
-  input, textarea, select { font: inherit; color: inherit; }
-  a { color: inherit; text-decoration: none; }
-  .view { display: none !important; }
-  .view.active { display: block !important; }
-  .hidden-important { display: none !important; }
-  #splashLoader { display: flex; }
-  #loginPage, #mainApp, #notifPanel, #acceptModal, #etaModal, #finishModal, #pendingModal, #logoutModal, #successModal, #toast, #chatHistoryModal, #escalateModal { display: none; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #111827; }
-  ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
-  .glass { background: rgba(17, 24, 39, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.06); }
-  .gradient-text { background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-  .btn-primary { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; }
-  .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3); }
-  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
-  .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 600; }
-  .btn-success:hover:not(:disabled) { transform: translateY(-2px); }
-  .btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 600; }
-  .btn-warn:hover:not(:disabled) { transform: translateY(-2px); }
-  .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 600; }
-  .btn-danger:hover:not(:disabled) { transform: translateY(-2px); }
-  .fade-in { animation: fadeIn 0.3s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-  .slide-right { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-  @keyframes slideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .spin { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 80; display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
-  .modal-overlay.show { display: flex !important; }
-  #toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 200; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 20px; border-radius: 12px; max-width: 92vw; font-size: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-  #toast.hidden-important { display: none !important; }
-  #toast.toast-info { border-left: 4px solid #00d4ff; }
-  #toast.toast-success { border-left: 4px solid #10b981; }
-  #toast.toast-error { border-left: 4px solid #ef4444; }
-  #toast.toast-warn { border-left: 4px solid #f59e0b; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
-  .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
-  .badge-purple { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
-  .badge-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3); }
-  .badge-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
-  .badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
-  .badge-gray { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border-color: rgba(107, 114, 128, 0.3); }
-  .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
-  .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
-  .prio-badge-Low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
-  .prio-badge-Medium { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-  .prio-badge-High { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
-  .prio-badge-Critical { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-  .timeline-wrap { position: relative; padding-left: 28px; }
-  .timeline-wrap::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: #1f2937; }
-  .timeline-item { position: relative; padding-bottom: 20px; }
-  .timeline-item:last-child { padding-bottom: 0; }
-  .timeline-item::before { content: ''; position: absolute; left: -28px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: #374151; border: 3px solid #0a0e1a; z-index: 2; }
-  .timeline-item.done::before { background: #10b981; }
-  .timeline-item.active::before { background: #00d4ff; box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.25); }
-  .sidebar-item.active { background: rgba(0, 212, 255, 0.14); color: #00d4ff; border-right: 3px solid #00d4ff; }
-  .bottom-nav-item.active { color: #00d4ff; }
-  #splashLoader { position: fixed; inset: 0; background: #0a0e1a; z-index: 200; display: flex; align-items: center; justify-content: center; }
-  #splashLoader.hidden-important { display: none !important; }
-  .progress-track { width: 120px; height: 4px; background: #1f2937; border-radius: 999px; overflow: hidden; margin: 20px auto 0; }
-  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff, #7c3aed); transition: width 0.3s; }
-  @media (max-width: 768px) { input, textarea, select { font-size: 16px !important; } }
-  .badge-pulse { animation: badgePulse 0.6s ease-out; }
-  @keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-  .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid #1f2937; color: #9ca3af; background: rgba(17, 24, 39, 0.5); cursor: pointer; transition: all 0.2s; }
-  .filter-chip.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
-  .eta-opt { padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 13px; transition: all 0.2s; background: rgba(17, 24, 39, 0.5); }
-  .eta-opt.selected { border: 2px solid #00d4ff; background: rgba(0, 212, 255, 0.12); color: #00d4ff; }
-  .photo-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-  .photo-item { position: relative; aspect-ratio: 1; }
-  .photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #1f2937; }
-  .photo-remove { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #ef4444; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #0a0e1a; }
-  .chat-history-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 14px; cursor: pointer; transition: all 0.2s; background: rgba(17, 24, 39, 0.6); border-left: 4px solid #00d4ff; }
-  .chat-history-item:hover { transform: translateX(4px); background: rgba(0, 212, 255, 0.08); }
-  .chat-history-avatar { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; flex-shrink: 0; }
-  .chat-history-preview { font-size: 12.5px; color: #d1d5db; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; min-height: 100%; }
+body { background: #0a0e1a; color: #e5e7eb; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+button { cursor: pointer; border: none; background: none; color: inherit; font: inherit; }
+input, textarea, select { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+.view { display: none !important; }
+.view.active { display: block !important; }
+.hidden-important { display: none !important; }
+#splashLoader { display: flex; }
+#loginPage, #mainApp, #notifPanel, #acceptModal, #progressModal, #finishModal, #pendingModal, #escalateModal, #chatHistoryModal, #maintenancePopup, #successModal, #logoutModal, #toast { display: none; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+.glass { background: rgba(17, 24, 39, 0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.06); }
+.gradient-text { background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.btn-primary { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s; }
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 600; }
+.btn-warn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; font-weight: 600; }
+.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; font-weight: 600; }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.slide-right { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.spin { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 80; display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.modal-overlay.show { display: flex !important; }
+#toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 200; background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px 20px; border-radius: 12px; max-width: 92vw; font-size: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+#toast.hidden-important { display: none !important; }
+#toast.toast-info { border-left: 4px solid #00d4ff; }
+#toast.toast-success { border-left: 4px solid #10b981; }
+#toast.toast-error { border-left: 4px solid #ef4444; }
+#toast.toast-warn { border-left: 4px solid #f59e0b; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+.badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+.badge-purple { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
+.badge-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.3); }
+.badge-yellow { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+.badge-orange { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+.badge-gray { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border-color: rgba(107, 114, 128, 0.3); }
+.badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+.badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+.prio-badge-Low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+.prio-badge-Medium { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.prio-badge-High { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+.prio-badge-Critical { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.timeline-wrap { position: relative; padding-left: 28px; }
+.timeline-wrap::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 2px; background: #1f2937; }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item::before { content: ''; position: absolute; left: -28px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: #374151; border: 3px solid #0a0e1a; z-index: 2; }
+.timeline-item.done::before { background: #10b981; }
+.timeline-item.active::before { background: #00d4ff; box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.25); }
+.sidebar-item.active { background: rgba(0, 212, 255, 0.14); color: #00d4ff; border-right: 3px solid #00d4ff; }
+.bottom-nav-item.active { color: #00d4ff; }
+#splashLoader { position: fixed; inset: 0; background: #0a0e1a; z-index: 200; display: flex; align-items: center; justify-content: center; }
+#splashLoader.hidden-important { display: none !important; }
+.progress-track { width: 120px; height: 4px; background: #1f2937; border-radius: 999px; overflow: hidden; margin: 20px auto 0; }
+.progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff, #7c3aed); transition: width 0.3s; }
+@media (max-width: 768px) { input, textarea, select { font-size: 16px !important; } }
+.badge-pulse { animation: badgePulse 0.6s ease-out; }
+@keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+.filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid #1f2937; color: #9ca3af; background: rgba(17, 24, 39, 0.5); transition: all 0.2s; }
+.filter-chip.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
+.photo-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.photo-item { position: relative; aspect-ratio: 1; }
+.photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #1f2937; }
+.photo-remove { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #ef4444; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #0a0e1a; }
 
-  /* CHAT LAYOUT */
-  .chat-layout { display: flex; height: calc(100vh - 180px); min-height: 500px; border-radius: 16px; overflow: hidden; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); }
-  .chat-sidebar { width: 340px; flex-shrink: 0; border-right: 1px solid #1f2937; display: flex; flex-direction: column; background: rgba(11, 15, 25, 0.5); }
-  .chat-sidebar-header { padding: 14px 16px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; justify-content: space-between; }
-  .chat-sidebar-search { padding: 10px 12px; border-bottom: 1px solid #1f2937; }
-  .chat-sidebar-search input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #1f2937; border-radius: 20px; padding: 9px 14px; color: #e5e7eb; outline: none; font-size: 13px; }
-  .chat-list { flex: 1; overflow-y: auto; }
-  .chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; border-bottom: 1px solid rgba(31, 41, 55, 0.5); transition: background 0.15s; position: relative; }
-  .chat-list-item:hover { background: rgba(0, 212, 255, 0.05); }
-  .chat-list-item.active { background: rgba(0, 212, 255, 0.12); border-left: 3px solid #00d4ff; padding-left: 11px; }
-  .chat-list-avatar { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; position: relative; }
-  .chat-list-avatar .status-dot { position: absolute; bottom: 0; right: 0; width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid #0a0e1a; }
-  .chat-list-content { flex: 1; min-width: 0; }
-  .chat-list-name { font-size: 13.5px; font-weight: 600; color: #e5e7eb; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-  .chat-list-name .time { font-size: 10px; color: #6b7280; font-weight: 400; white-space: nowrap; }
-  .chat-list-preview { font-size: 12px; color: #9ca3af; margin-top: 3px; display: flex; align-items: center; gap: 4px; overflow: hidden; }
-  .chat-list-preview .text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chat-list-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 6px; flex-shrink: 0; }
-  .chat-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05)); }
-  .chat-panel-header { padding: 14px 18px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; gap: 12px; }
-  .chat-panel-header .back-btn { display: none; width: 36px; height: 36px; border-radius: 50%; background: rgba(17,24,39,0.6); border: 1px solid #1f2937; align-items: center; justify-content: center; color: #9ca3af; margin-right: 4px; flex-shrink: 0; }
-  .chat-panel-header .avatar-panel { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
-  .chat-panel-header .panel-info { flex: 1; min-width: 0; }
-  .chat-panel-header .panel-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chat-panel-header .panel-status { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .chat-panel-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-  .chat-panel-input { padding: 12px; border-top: 1px solid #1f2937; background: rgba(11, 15, 25, 0.6); }
-  .chat-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 40px; text-align: center; color: #6b7280; }
-  .chat-empty i { font-size: 60px; opacity: 0.2; margin-bottom: 16px; }
-  .chat-empty .empty-title { font-size: 15px; font-weight: 700; color: #9ca3af; margin-bottom: 6px; }
-  .msg-wrapper { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; width: 100%; }
-  .msg-wrapper.mine { flex-direction: row-reverse; }
-  .msg-avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; }
-  .msg-avatar.admin { background: linear-gradient(135deg, #c084fc, #7c3aed); }
-  .msg-avatar.teknisi { background: linear-gradient(135deg, #34d399, #059669); }
-  .msg-avatar.customer { background: linear-gradient(135deg, #00d4ff, #0091ff); }
-  .msg-avatar.system { background: linear-gradient(135deg, #facc15, #f59e0b); }
-  .msg-content { max-width: 75%; display: flex; flex-direction: column; min-width: 0; }
-  .msg-wrapper.mine .msg-content { align-items: flex-end; }
-  .msg-sender-name { font-size: 10.5px; font-weight: 700; margin-bottom: 4px; padding: 0 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .msg-sender-name.admin { color: #c084fc; }
-  .msg-sender-name.teknisi { color: #34d399; }
-  .msg-sender-name.customer { color: #00d4ff; }
-  .msg-sender-name.system { color: #facc15; }
-  .msg-role-tag { font-size: 9px; color: #6b7280; padding: 1px 6px; background: rgba(17,24,39,0.6); border-radius: 4px; }
-  .msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.5; word-wrap: break-word; word-break: break-word; overflow-wrap: anywhere; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-  .msg-bubble.mine { background: linear-gradient(135deg, #34d399, #059669); color: #fff; border-bottom-right-radius: 4px; }
-  .msg-bubble.other { background: rgba(30, 41, 59, 0.95); color: #e5e7eb; border-bottom-left-radius: 4px; }
-  .msg-time { font-size: 10px; opacity: 0.6; margin-top: 3px; padding: 0 4px; color: #9ca3af; }
-  .msg-system { display: flex; justify-content: center; margin: 6px 0; }
-  .msg-system .msg-bubble { background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 999px; font-size: 11.5px; padding: 5px 14px; max-width: 85%; text-align: center; }
-  @media (max-width: 768px) {
-    .chat-layout { height: calc(100vh - 200px); position: relative; }
-    .chat-sidebar { width: 100%; position: absolute; inset: 0; z-index: 5; }
-    .chat-panel { width: 100%; position: absolute; inset: 0; z-index: 6; display: none; }
-    .chat-layout.mobile-open .chat-panel { display: flex; }
-    .chat-panel-header .back-btn { display: flex; }
-  }
-  
-  /* ═══════ NEON SEEKBAR ═══════ */
-  .neon-seekbar {
-    position: relative;
-    height: 10px;
-    background: rgba(10, 14, 26, 0.8);
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid rgba(0, 212, 255, 0.25);
-    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
-  }
-  .neon-seekbar-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 50%, #00ff88 100%);
-    border-radius: 999px;
-    box-shadow: 0 0 8px #00d4ff, 0 0 16px rgba(124, 58, 237, 0.6), 0 0 24px rgba(0, 255, 136, 0.4);
-    transition: width 1s linear;
-    position: relative;
-    overflow: hidden;
-  }
-  .neon-seekbar-fill::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-    animation: neonSweep 2.5s ease-in-out infinite;
-  }
-  @keyframes neonSweep {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-  .neon-seekbar-danger .neon-seekbar-fill {
-    background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #facc15 100%);
-    box-shadow: 0 0 8px #ef4444, 0 0 16px rgba(245, 158, 11, 0.6);
-  }
-  .neon-seekbar-success .neon-seekbar-fill {
-    background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #00ff88 100%);
-    box-shadow: 0 0 8px #10b981, 0 0 16px rgba(52, 211, 153, 0.6);
-  }
-  .neon-seekbar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #9ca3af;
-    margin-top: 5px;
-    font-family: ui-monospace, monospace;
-    font-weight: 600;
-  }
-  .neon-seekbar-label .seek-left { color: #00d4ff; }
-  .neon-seekbar-label .seek-right { color: #7c3aed; }
-  .neon-seekbar-label .seek-pct { color: #00ff88; font-weight: 700; }
+/* Neon Seekbar */
+.neon-seekbar { position: relative; height: 10px; background: rgba(10, 14, 26, 0.8); border-radius: 999px; overflow: hidden; border: 1px solid rgba(0, 212, 255, 0.25); box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); }
+.neon-seekbar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 50%, #00ff88 100%); border-radius: 999px; box-shadow: 0 0 8px #00d4ff, 0 0 16px rgba(124, 58, 237, 0.6), 0 0 24px rgba(0, 255, 136, 0.4); transition: width 1s linear; position: relative; overflow: hidden; }
+.neon-seekbar-fill::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%); animation: neonSweep 2.5s ease-in-out infinite; }
+@keyframes neonSweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.neon-seekbar-danger .neon-seekbar-fill { background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #facc15 100%); box-shadow: 0 0 8px #ef4444, 0 0 16px rgba(245, 158, 11, 0.6); }
+.neon-seekbar-success .neon-seekbar-fill { background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #00ff88 100%); box-shadow: 0 0 8px #10b981, 0 0 16px rgba(52, 211, 153, 0.6); }
+.neon-seekbar-label { display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-top: 5px; font-family: ui-monospace, monospace; font-weight: 600; }
+.neon-seekbar-label .seek-left { color: #00d4ff; }
+.neon-seekbar-label .seek-right { color: #7c3aed; }
+.neon-seekbar-label .seek-pct { color: #00ff88; font-weight: 700; }
 
-  /* ═══════ MAINTENANCE POPUP ═══════ */
-  .maint-popup {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 300;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  .maint-popup.show { display: flex; }
-  .maint-popup .maint-box {
-    background: rgba(17, 24, 39, 0.98);
-    border-radius: 20px;
-    padding: 24px;
-    width: 100%;
-    max-width: 440px;
-    border: 2px solid;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .maint-popup .maint-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    color: #fff;
-  }
-  .maint-popup .maint-title {
-    font-size: 20px;
-    font-weight: 800;
-    text-align: center;
-    margin-bottom: 8px;
-  }
-  .maint-popup .maint-desc {
-    font-size: 13px;
-    color: #d1d5db;
-    text-align: center;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    margin-bottom: 20px;
-  }
-  .maint-popup .maint-timer {
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 16px;
-  }
-  .maint-popup .maint-timer-top {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #9ca3af;
-    margin-bottom: 10px;
-  }
-  .maint-popup .maint-info {
-    text-align: center;
-    font-size: 11px;
-    color: #6b7280;
-    line-height: 1.5;
-  }
-  .maint-popup .maint-info i { color: #f59e0b; }
-  
-  /* ═══════════════════════════════════════════════
-   PROGRESS DENGAN WAKTU
-  ═══════════════════════════════════════════════ */
-  .duration-btn {
-    padding: 10px 6px;
-    border-radius: 8px;
-    border: 1px solid #1f2937;
-    background: rgba(17, 24, 39, 0.5);
-    color: #e5e7eb;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .duration-btn:hover { border-color: #00d4ff; }
-  .duration-btn.active {
-    border: 2px solid #00d4ff;
-    background: rgba(0, 212, 255, 0.15);
-    color: #00d4ff;
-  }
+/* Maintenance Popup */
+.maint-popup { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
+.maint-popup.show { display: flex; }
+.maint-box { background: rgba(17, 24, 39, 0.98); border-radius: 20px; padding: 24px; width: 100%; max-width: 440px; border: 2px solid; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.maint-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: #fff; }
+.maint-title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+.maint-desc { font-size: 13px; color: #d1d5db; text-align: center; line-height: 1.6; white-space: pre-wrap; margin-bottom: 20px; }
+.maint-timer { background: rgba(0, 0, 0, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.maint-timer-top { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
+.maint-info { text-align: center; font-size: 11px; color: #6b7280; line-height: 1.5; }
+.maint-info i { color: #f59e0b; }
 
-  .progress-card {
-    background: rgba(17, 24, 39, 0.6);
-    border-radius: 10px;
-    padding: 12px;
-    border-left: 4px solid #00d4ff;
-    margin-bottom: 8px;
-    position: relative;
-    transition: all 0.2s;
-  }
-  .progress-card.expired { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
-  .progress-card.confirmed { border-left-color: #34d399; background: rgba(16, 185, 129, 0.08); }
+/* Progress Card */
+.progress-card { background: rgba(17, 24, 39, 0.6); border-radius: 10px; padding: 12px; border-left: 4px solid #00d4ff; margin-bottom: 8px; position: relative; transition: all 0.2s; }
+.progress-card.expired { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+.progress-card.confirmed { border-left-color: #34d399; background: rgba(16, 185, 129, 0.08); }
+.countdown-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; font-family: ui-monospace, monospace; }
+.countdown-running { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+.countdown-expired { background: rgba(245, 158, 11, 0.2); color: #fbbf24; animation: pulseWarn 1.5s infinite; }
+.countdown-confirmed { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+@keyframes pulseWarn { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.progress-edit-btn { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.3); color: #00d4ff; }
+.progress-confirm-btn { padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; margin-top: 6px; width: 100%; }
+.duration-btn { padding: 10px 6px; border-radius: 8px; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #e5e7eb; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.duration-btn:hover { border-color: #00d4ff; }
+.duration-btn.active { border: 2px solid #00d4ff; background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
 
-  .countdown-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: ui-monospace, monospace;
-  }
-  .countdown-running { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
-  .countdown-expired { background: rgba(245, 158, 11, 0.2); color: #fbbf24; animation: pulseWarn 1.5s infinite; }
-  .countdown-confirmed { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-  @keyframes pulseWarn {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
+/* Notif Tabs */
+.notif-tabs { display: flex; gap: 4px; padding: 10px 12px; border-bottom: 1px solid #1f2937; overflow-x: auto; background: rgba(11, 15, 25, 0.5); scrollbar-width: none; }
+.notif-tabs::-webkit-scrollbar { display: none; }
+.notif-tab { padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #9ca3af; white-space: nowrap; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+.notif-tab.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
+.notif-tab i { font-size: 10px; }
 
-  .progress-edit-btn {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: 600;
-    background: rgba(0, 212, 255, 0.12);
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    color: #00d4ff;
-    cursor: pointer;
-  }
-  .progress-confirm-btn {
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    margin-top: 6px;
-    width: 100%;
-  }
-
-  /* NOTIF FILTER TABS */
-  .notif-tabs {
-    display: flex;
-    gap: 4px;
-    padding: 10px 12px;
-    border-bottom: 1px solid #1f2937;
-    overflow-x: auto;
-    background: rgba(11, 15, 25, 0.5);
-    scrollbar-width: none;
-  }
-  .notif-tabs::-webkit-scrollbar { display: none; }
-  .notif-tab {
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 700;
-    border: 1px solid #1f2937;
-    background: rgba(17, 24, 39, 0.5);
-    color: #9ca3af;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .notif-tab.active {
-    background: linear-gradient(135deg, #00d4ff, #0091ff);
-    color: #fff;
-    border-color: transparent;
-  }
-  .notif-tab i { font-size: 10px; }
-
-  /* COMPACT DASHBOARD */
-  #viewDashboard > div:first-child { gap: 6px !important; margin-bottom: 10px !important; }
-  #viewDashboard > div:first-child .glass { padding: 10px 12px !important; border-radius: 10px !important; }
-  #viewDashboard > div:first-child .glass i { font-size: 16px !important; }
-  #viewDashboard #statNew, #viewDashboard #statProgress,
-  #viewDashboard #statDoneToday, #viewDashboard #statEmergency {
-    font-size: 20px !important; margin-top: 2px !important; line-height: 1.1 !important;
-  }
-  #viewDashboard > div:first-child .glass p:last-of-type { font-size: 10px !important; margin-top: 0 !important; }
-  #viewDashboard .glass > h3 { font-size: 13px !important; margin-bottom: 8px !important; }
-  header > div { padding: 8px 12px !important; }
-  header h1 { font-size: 13px !important; }
-  header #headerSubtitle { font-size: 10px !important; }
-  header button { padding: 6px !important; }
-  header button i { font-size: 16px !important; }
-  main { padding: 12px 10px 20px !important; }
-  #bottomNav button { padding: 6px 2px !important; gap: 1px !important; }
-  #bottomNav button i { font-size: 15px !important; }
-  #bottomNav button span { font-size: 9px !important; }
+/* Chat Layout */
+.chat-layout { display: flex; height: calc(100vh - 180px); min-height: 500px; border-radius: 16px; overflow: hidden; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); }
+.chat-sidebar { width: 340px; flex-shrink: 0; border-right: 1px solid #1f2937; display: flex; flex-direction: column; background: rgba(11, 15, 25, 0.5); }
+.chat-sidebar-header { padding: 14px 16px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; justify-content: space-between; }
+.chat-sidebar-search { padding: 10px 12px; border-bottom: 1px solid #1f2937; }
+.chat-sidebar-search input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #1f2937; border-radius: 20px; padding: 9px 14px; color: #e5e7eb; outline: none; font-size: 13px; }
+.chat-list { flex: 1; overflow-y: auto; }
+.chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid rgba(31, 41, 55, 0.5); transition: background 0.15s; position: relative; }
+.chat-list-item:hover { background: rgba(0, 212, 255, 0.05); }
+.chat-list-item.active { background: rgba(0, 212, 255, 0.12); border-left: 3px solid #00d4ff; padding-left: 11px; }
+.chat-list-avatar { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; position: relative; }
+.chat-list-avatar .status-dot { position: absolute; bottom: 0; right: 0; width: 13px; height: 13px; border-radius: 50%; border: 2.5px solid #0a0e1a; }
+.chat-list-content { flex: 1; min-width: 0; }
+.chat-list-name { font-size: 13.5px; font-weight: 600; color: #e5e7eb; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.chat-list-name .time { font-size: 10px; color: #6b7280; font-weight: 400; white-space: nowrap; }
+.chat-list-preview { font-size: 12px; color: #9ca3af; margin-top: 3px; display: flex; align-items: center; gap: 4px; overflow: hidden; }
+.chat-list-preview .text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-list-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 6px; flex-shrink: 0; }
+.chat-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05)); }
+.chat-panel-header { padding: 14px 18px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; gap: 12px; }
+.chat-panel-header .back-btn { display: none; width: 36px; height: 36px; border-radius: 50%; background: rgba(17,24,39,0.6); border: 1px solid #1f2937; align-items: center; justify-content: center; color: #9ca3af; margin-right: 4px; flex-shrink: 0; }
+.chat-panel-header .avatar-panel { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+.chat-panel-header .panel-info { flex: 1; min-width: 0; }
+.chat-panel-header .panel-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-panel-header .panel-status { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-panel-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.chat-panel-input { padding: 12px; border-top: 1px solid #1f2937; background: rgba(11, 15, 25, 0.6); }
+.chat-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 40px; text-align: center; color: #6b7280; }
+.chat-empty i { font-size: 60px; opacity: 0.2; margin-bottom: 16px; }
+.chat-empty .empty-title { font-size: 15px; font-weight: 700; color: #9ca3af; margin-bottom: 6px; }
+.msg-wrapper { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; width: 100%; }
+.msg-wrapper.mine { flex-direction: row-reverse; }
+.msg-avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; }
+.msg-avatar.admin { background: linear-gradient(135deg, #c084fc, #7c3aed); }
+.msg-avatar.teknisi { background: linear-gradient(135deg, #34d399, #059669); }
+.msg-avatar.customer { background: linear-gradient(135deg, #00d4ff, #0091ff); }
+.msg-avatar.system { background: linear-gradient(135deg, #facc15, #f59e0b); }
+.msg-content { max-width: 75%; display: flex; flex-direction: column; min-width: 0; }
+.msg-wrapper.mine .msg-content { align-items: flex-end; }
+.msg-sender-name { font-size: 10.5px; font-weight: 700; margin-bottom: 4px; padding: 0 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.msg-sender-name.admin { color: #c084fc; }
+.msg-sender-name.teknisi { color: #34d399; }
+.msg-sender-name.customer { color: #00d4ff; }
+.msg-sender-name.system { color: #facc15; }
+.msg-role-tag { font-size: 9px; color: #6b7280; padding: 1px 6px; background: rgba(17,24,39,0.6); border-radius: 4px; }
+.msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.5; word-wrap: break-word; word-break: break-word; overflow-wrap: anywhere; }
+.msg-bubble.mine { background: linear-gradient(135deg, #34d399, #059669); color: #fff; border-bottom-right-radius: 4px; }
+.msg-bubble.other { background: rgba(30, 41, 59, 0.95); color: #e5e7eb; border-bottom-left-radius: 4px; }
+.msg-time { font-size: 10px; opacity: 0.6; margin-top: 3px; padding: 0 4px; color: #9ca3af; }
+.msg-system { display: flex; justify-content: center; margin: 6px 0; }
+.msg-system .msg-bubble { background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 999px; font-size: 11.5px; padding: 5px 14px; max-width: 85%; text-align: center; }
+@media (max-width: 768px) {
+  .chat-layout { height: calc(100vh - 200px); position: relative; }
+  .chat-sidebar { width: 100%; position: absolute; inset: 0; z-index: 5; }
+  .chat-panel { width: 100%; position: absolute; inset: 0; z-index: 6; display: none; }
+  .chat-layout.mobile-open .chat-panel { display: flex; }
+  .chat-panel-header .back-btn { display: flex; }
+}
 </style>
 </head>
 <body>
@@ -442,14 +230,11 @@
         </div>
         <p style="font-size: 12px; color: #6b7280; margin-left: 26px;">UID dibuat oleh Admin. Hubungi NOC jika belum punya.</p>
       </div>
-      <div>
-        <input type="text" id="loginUid" required autocomplete="off" spellcheck="false" maxlength="20"
-          style="width: 100%; background: #0a0e1a; border: 2px solid #1f2937; border-radius: 12px; padding: 16px; text-align: center; font-family: ui-monospace, monospace; font-size: 18px; letter-spacing: 0.08em; color: #fff; outline: none; box-sizing: border-box;"
-          placeholder="TEKNISI01">
-        <p style="font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center;">
-          <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Min 8 karakter, wajib ada 2 angka
-        </p>
-      </div>
+      <input type="text" id="loginUid" autocomplete="off" spellcheck="false" maxlength="20" placeholder="TEKNISI01"
+        style="width: 100%; background: #0a0e1a; border: 2px solid #1f2937; border-radius: 12px; padding: 16px; text-align: center; font-family: ui-monospace, monospace; font-size: 18px; letter-spacing: 0.08em; color: #fff; outline: none; box-sizing: border-box;">
+      <p style="font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center;">
+        <i class="fas fa-info-circle" style="margin-right: 4px;"></i>Min 8 karakter, wajib ada 2 angka
+      </p>
       <div id="loginError" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; font-size: 13px; color: #f87171; margin-top: 14px;">
         <i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i><span id="loginErrorText"></span>
       </div>
@@ -464,30 +249,30 @@
 <!-- MAIN APP -->
 <div id="mainApp" style="min-height: 100vh; padding-bottom: 80px;">
   <header class="glass" style="position: sticky; top: 0; z-index: 40; border-bottom: 1px solid #1f2937; border-left: none; border-right: none; border-top: none;">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
       <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-          <i class="fas fa-tools" style="color: #fff;"></i>
+        <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #00d4ff, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <i class="fas fa-tools" style="color: #fff; font-size: 15px;"></i>
         </div>
         <div style="min-width: 0;">
-          <h1 style="font-size: 15px; font-weight: 800; line-height: 1.1;" class="gradient-text">Lakso Teknisi</h1>
-          <p id="headerSubtitle" style="font-size: 11px; color: #6b7280; line-height: 1.1;">Teknisi Portal</p>
+          <h1 style="font-size: 13px; font-weight: 800; line-height: 1.1;" class="gradient-text">Lakso Teknisi</h1>
+          <p id="headerSubtitle" style="font-size: 10px; color: #6b7280; line-height: 1.1;">Teknisi Portal</p>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 6px;">
+      <div style="display: flex; align-items: center; gap: 4px;">
         <button onclick="toggleAvailability()" id="availBtn" style="padding: 6px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.15); color: #34d399;">
           <span style="width: 7px; height: 7px; border-radius: 50%; background: #34d399;"></span>
           <span id="availText">Tersedia</span>
         </button>
-        <button onclick="toggleNotif(event)" style="position: relative; padding: 8px; color: #9ca3af; border-radius: 8px;" title="Notifikasi">
-          <i class="fas fa-bell" style="font-size: 18px;"></i>
-          <span id="notifBadge" style="display: none; position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
+        <button onclick="toggleNotif(event)" style="position: relative; padding: 6px; color: #9ca3af; border-radius: 8px;" title="Notifikasi">
+          <i class="fas fa-bell" style="font-size: 16px;"></i>
+          <span id="notifBadge" style="display: none; position: absolute; top: 0; right: 0; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
         </button>
-        <button onclick="openChatHistory(event)" style="position: relative; padding: 8px; color: #9ca3af; border-radius: 8px;" title="Riwayat Chat">
-          <i class="fas fa-comment-dots" style="font-size: 18px;"></i>
-          <span id="chatHistoryBadge" style="display: none; position: absolute; top: 2px; right: 2px; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
+        <button onclick="openChatHistory(event)" style="position: relative; padding: 6px; color: #9ca3af; border-radius: 8px;" title="Riwayat Chat">
+          <i class="fas fa-comment-dots" style="font-size: 16px;"></i>
+          <span id="chatHistoryBadge" style="display: none; position: absolute; top: 0; right: 0; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
         </button>
-        <button onclick="openLogoutModal()" style="padding: 8px; color: #9ca3af; border-radius: 8px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;" title="Logout">
+        <button onclick="openLogoutModal()" style="padding: 6px; color: #9ca3af; border-radius: 8px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;" title="Logout">
           <i class="fas fa-sign-out-alt" style="font-size: 16px;"></i>
         </button>
       </div>
@@ -522,7 +307,7 @@
       </div>
     </aside>
 
-    <main style="flex: 1; min-width: 0;">
+    <main style="flex: 1; min-width: 0; padding: 12px 10px 20px;">
       <!-- DASHBOARD -->
       <div id="viewDashboard" class="view active">
         <div class="glass slide-up" style="border-radius: 14px; padding: 14px; margin-bottom: 12px;">
@@ -699,7 +484,7 @@
         </button>
         <div class="glass" style="border-radius: 16px; padding: 16px;">
           <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;"><i class="fas fa-user" style="color: #00d4ff; margin-right: 8px;"></i>Profil Teknisi</h2>
-          <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">UID (tidak bisa diubah)</label>
+          <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">UID</label>
           <div style="display: flex; gap: 8px; margin-bottom: 14px;">
             <input type="text" id="profUid" disabled style="flex: 1; background: rgba(10, 14, 26, 0.5); border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #6b7280; font-family: ui-monospace, monospace; outline: none; box-sizing: border-box;">
             <button type="button" onclick="copyText(currentUid)" style="padding: 0 14px; background: rgba(0, 212, 255, 0.15); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 10px; color: #00d4ff;">
@@ -764,24 +549,62 @@
   </div>
 </div>
 
-<!-- ETA MODAL -->
-<div id="etaModal" class="modal-overlay">
-  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 440px;">
-    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-truck" style="color: #facc15; margin-right: 8px;"></i>Konfirmasi OTW</h3>
-    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 16px;">Berapa lama estimasi Anda sampai ke lokasi customer?</p>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
-      <button onclick="selectETA('15 menit', this)" class="eta-opt">15 menit</button>
-      <button onclick="selectETA('30 menit', this)" class="eta-opt">30 menit</button>
-      <button onclick="selectETA('45 menit', this)" class="eta-opt">45 menit</button>
-      <button onclick="selectETA('1 jam', this)" class="eta-opt">1 jam</button>
-      <button onclick="selectETA('1.5 jam', this)" class="eta-opt">1.5 jam</button>
-      <button onclick="selectETA('2 jam', this)" class="eta-opt">2 jam</button>
+<!-- PROGRESS MODAL -->
+<div id="progressModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">
+      <i class="fas fa-tasks" style="color: #00d4ff; margin-right: 8px;"></i>
+      <span id="progressModalTitle">Update Progress</span>
+    </h3>
+    <p style="font-size: 12px; color: #9ca3af; margin-bottom: 16px;">Setiap progress wajib menyertakan estimasi waktu.</p>
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Status Progress <span style="color: #f87171;">*</span></label>
+    <select id="progressStatus" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
+      <option value="Ditugaskan">Ditugaskan</option>
+      <option value="Teknisi OTW">Teknisi OTW</option>
+      <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
+      <option value="Pending">Pending</option>
+      <option value="Selesai">Selesai</option>
+    </select>
+
+    <div id="progressDurationInfo" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 12px; font-size: 12px; color: #34d399; margin-bottom: 14px;">
+      <i class="fas fa-check-circle" style="margin-right: 6px;"></i>
+      <b>Selesai!</b> Tidak perlu isi waktu estimasi.
     </div>
-    <input type="text" id="etaCustom" placeholder="Atau custom (contoh: 25 menit)" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; box-sizing: border-box;">
+
+    <div id="progressDurationLabel">
+      <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Estimasi Waktu <span style="color: #f87171;">*</span></label>
+    </div>
+    <div id="progressDurationGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;">
+      <button type="button" onclick="selectDuration(15,this)" class="duration-btn" data-dur="15">15 menit</button>
+      <button type="button" onclick="selectDuration(30,this)" class="duration-btn" data-dur="30">30 menit</button>
+      <button type="button" onclick="selectDuration(60,this)" class="duration-btn" data-dur="60">1 jam</button>
+      <button type="button" onclick="selectDuration(120,this)" class="duration-btn" data-dur="120">2 jam</button>
+      <button type="button" onclick="selectDuration(240,this)" class="duration-btn" data-dur="240">4 jam</button>
+      <button type="button" onclick="selectDuration(480,this)" class="duration-btn" data-dur="480">8 jam</button>
+    </div>
+
+    <input type="number" id="progressDuration" min="1" placeholder="Atau custom (menit)"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 10px; box-sizing: border-box; font-family: ui-monospace, monospace;">
+
+    <div id="progressDeadlineLabel">
+      <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Atau waktu spesifik (opsional)</label>
+    </div>
+    <input type="datetime-local" id="progressDeadline"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
+
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Catatan</label>
+    <textarea id="progressNote" rows="3" placeholder="Contoh: Teknisi sedang dalam perjalanan"
+      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+
+    <div id="progressEditInfo" style="display: none; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 10px; padding: 10px; font-size: 12px; color: #fbbf24; margin-bottom: 14px;">
+      <i class="fas fa-edit" style="margin-right: 4px;"></i>Mode Edit
+    </div>
+
     <div style="display: flex; gap: 10px;">
-      <button onclick="closeETAModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
-      <button onclick="submitOTA()" class="btn-warn" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
-        <i class="fas fa-truck" style="margin-right: 6px;"></i>Mulai OTW
+      <button onclick="closeProgressModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="saveProgress()" id="saveProgressBtn" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-check" style="margin-right: 6px;"></i>Simpan
       </button>
     </div>
   </div>
@@ -794,7 +617,7 @@
       <h3 style="font-size: 18px; font-weight: 700;"><i class="fas fa-clipboard-check" style="color: #34d399; margin-right: 8px;"></i>Selesaikan Tiket</h3>
       <button onclick="closeFinishModal()" style="color: #9ca3af;"><i class="fas fa-times"></i></button>
     </div>
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sebelum Pengerjaan <span style="color: #f87171;">*</span></label>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sebelum <span style="color: #f87171;">*</span></label>
     <div onclick="document.getElementById('beforeInput').click()" style="border: 2px dashed #1f2937; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 8px;">
       <i class="fas fa-camera" style="font-size: 22px; color: #6b7280;"></i>
       <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">Klik untuk upload</p>
@@ -802,7 +625,7 @@
     <input type="file" id="beforeInput" accept="image/*" multiple style="display: none;">
     <div id="beforePreview" class="photo-preview" style="margin-bottom: 16px;"></div>
 
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sesudah Pengerjaan <span style="color: #f87171;">*</span></label>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sesudah <span style="color: #f87171;">*</span></label>
     <div onclick="document.getElementById('afterInput').click()" style="border: 2px dashed #1f2937; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 8px;">
       <i class="fas fa-camera" style="font-size: 22px; color: #6b7280;"></i>
       <p style="font-size: 12px; color: #9ca3af; margin-top: 6px;">Klik untuk upload</p>
@@ -810,10 +633,10 @@
     <input type="file" id="afterInput" accept="image/*" multiple style="display: none;">
     <div id="afterPreview" class="photo-preview" style="margin-bottom: 16px;"></div>
 
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Penyebab Masalah <span style="color: #f87171;">*</span></label>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Penyebab <span style="color: #f87171;">*</span></label>
     <input type="text" id="lapPenyebab" placeholder="Contoh: Kabel fiber tertekuk" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Tindakan / Solusi <span style="color: #f87171;">*</span></label>
-    <textarea id="lapTindakan" rows="3" placeholder="Contoh: Ganti kabel fiber 50m" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Tindakan <span style="color: #f87171;">*</span></label>
+    <textarea id="lapTindakan" rows="3" placeholder="Contoh: Ganti kabel fiber" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Sparepart (Opsional)</label>
     <input type="text" id="lapSparepart" placeholder="Contoh: Patchcord SC/APC" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 18px; box-sizing: border-box;">
     <div style="display: flex; gap: 10px;">
@@ -825,66 +648,11 @@
   </div>
 </div>
 
-<!-- ═══ PROGRESS MODAL BARU ═══ -->
-<div id="progressModal" class="modal-overlay">
-  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;">
-    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">
-      <i class="fas fa-tasks" style="color: #00d4ff; margin-right: 8px;"></i>
-      <span id="progressModalTitle">Update Progress</span>
-    </h3>
-    <p style="font-size: 12px; color: #9ca3af; margin-bottom: 16px;">Setiap progress wajib menyertakan estimasi waktu.</p>
-
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Status Progress <span style="color: #f87171;">*</span></label>
-    <select id="progressStatus" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
-      <option value="Terkirim">Terkirim</option>
-      <option value="Diterima Admin">Diterima Admin</option>
-      <option value="Ditugaskan">Ditugaskan</option>
-      <option value="Teknisi OTW">Teknisi OTW</option>
-      <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
-      <option value="Pending">Pending</option>
-      <option value="Selesai">Selesai</option>
-    </select>
-
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Estimasi Waktu <span style="color: #f87171;">*</span></label>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;">
-      <button type="button" onclick="selectDuration(15,this)" class="duration-btn" data-dur="15">15 menit</button>
-      <button type="button" onclick="selectDuration(30,this)" class="duration-btn" data-dur="30">30 menit</button>
-      <button type="button" onclick="selectDuration(60,this)" class="duration-btn" data-dur="60">1 jam</button>
-      <button type="button" onclick="selectDuration(120,this)" class="duration-btn" data-dur="120">2 jam</button>
-      <button type="button" onclick="selectDuration(240,this)" class="duration-btn" data-dur="240">4 jam</button>
-      <button type="button" onclick="selectDuration(480,this)" class="duration-btn" data-dur="480">8 jam</button>
-    </div>
-
-    <input type="number" id="progressDuration" min="1" placeholder="Atau custom (menit)"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 10px; box-sizing: border-box; font-family: ui-monospace, monospace;">
-
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Atau waktu spesifik (opsional)</label>
-    <input type="datetime-local" id="progressDeadline"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
-
-    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Catatan Progress</label>
-    <textarea id="progressNote" rows="3" placeholder="Contoh: Teknisi sedang dalam perjalanan"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
-
-    <div id="progressEditInfo" style="display: none; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 10px; padding: 10px; font-size: 12px; color: #fbbf24; margin-bottom: 14px;">
-      <i class="fas fa-edit" style="margin-right: 4px;"></i>Mode Edit — Progress sebelumnya akan diperbarui
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <button onclick="closeProgressModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
-      <button onclick="saveProgress()" id="saveProgressBtn" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
-        <i class="fas fa-check" style="margin-right: 6px;"></i>Simpan
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- PENDING MODAL -->
 <div id="pendingModal" class="modal-overlay">
   <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
     <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-pause-circle" style="color: #facc15; margin-right: 8px;"></i>Tandai Pending</h3>
-    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px;">Berikan alasan pending:</p>
-    <textarea id="pendingReason" rows="3" placeholder="Contoh: Butuh sparepart, menunggu admin" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+    <textarea id="pendingReason" rows="3" placeholder="Alasan pending" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
     <div style="display: flex; gap: 10px;">
       <button onclick="closePendingModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
       <button onclick="submitPending()" class="btn-warn" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Pending</button>
@@ -895,9 +663,8 @@
 <!-- ESCALATE MODAL -->
 <div id="escalateModal" class="modal-overlay">
   <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
-    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-arrow-up" style="color: #f87171; margin-right: 8px;"></i>Eskalasi ke Admin</h3>
-    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px;">Berikan alasan eskalasi:</p>
-    <textarea id="escalateReason" rows="3" placeholder="Contoh: Butuh alat khusus, diluar kemampuan" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-arrow-up" style="color: #f87171; margin-right: 8px;"></i>Eskalasi</h3>
+    <textarea id="escalateReason" rows="3" placeholder="Alasan eskalasi" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
     <div style="display: flex; gap: 10px;">
       <button onclick="closeEscalateModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
       <button onclick="submitEscalate()" class="btn-danger" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Eskalasi</button>
@@ -943,27 +710,17 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
+    <div class="notif-tabs">
+      <button class="notif-tab active" data-nfilter="all" onclick="setNotifFilter('all')"><i class="fas fa-list"></i> Semua</button>
+      <button class="notif-tab" data-nfilter="info" onclick="setNotifFilter('info')"><i class="fas fa-bell"></i> Pemberitahuan</button>
+      <button class="notif-tab" data-nfilter="progress" onclick="setNotifFilter('progress')"><i class="fas fa-tasks"></i> Progress</button>
+      <button class="notif-tab" data-nfilter="busy" onclick="setNotifFilter('busy')"><i class="fas fa-tools"></i> Sibuk</button>
+    </div>
     <div id="notifList" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px;"></div>
   </div>
 </div>
 
-<!-- ═══ NOTIF FILTER TABS ═══ -->
-<div class="notif-tabs" id="notifTabs">
-  <button class="notif-tab active" data-nfilter="all" onclick="setNotifFilter('all')">
-    <i class="fas fa-list"></i> Semua
-  </button>
-  <button class="notif-tab" data-nfilter="info" onclick="setNotifFilter('info')">
-    <i class="fas fa-bell"></i> Pemberitahuan
-  </button>
-  <button class="notif-tab" data-nfilter="progress" onclick="setNotifFilter('progress')">
-    <i class="fas fa-tasks"></i> Progress
-  </button>
-  <button class="notif-tab" data-nfilter="busy" onclick="setNotifFilter('busy')">
-    <i class="fas fa-tools"></i> Sibuk
-  </button>
-</div>
-
-<!-- MAINTENANCE POPUP (NON-DISMISSIBLE) -->
+<!-- MAINTENANCE POPUP -->
 <div id="maintenancePopup" class="maint-popup">
   <div class="maint-box" id="maintBox" style="border-color: #f59e0b;">
     <div class="maint-icon" id="maintIcon" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff;">
@@ -986,8 +743,8 @@
       </div>
     </div>
     <div class="maint-info">
-      <i class="fas fa-lock"></i> Popup ini tidak dapat ditutup.<br>
-      Akan hilang otomatis saat maintenance selesai.
+      <i class="fas fa-lock"></i> Popup tidak dapat ditutup.<br>
+      Akan hilang otomatis saat selesai.
     </div>
   </div>
 </div>
@@ -1040,7 +797,9 @@
 <script>
 'use strict';
 
-/* ═══════ STATE ═══════ */
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
 var db = null, auth = null;
 var currentUid = null, currentAuthUid = null, currentUserData = null;
 var deviceId = null;
@@ -1054,10 +813,17 @@ var globalChatRef = null;
 var chatLastMessages = {};
 var unreadChatByTicket = {};
 var activeChatTicketId = null;
-var pendingETA = null;
+var progressTicker = null;
+var notifFilter = 'all';
+var editingProgressKey = null;
 var listenersStarted = false;
+var maintData = null;
+var maintTicker = null;
 var IMGBB_KEY = 'cdb1c90e037e9a74be4bb8d30de5d50f';
 
+/* ═══════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════ */
 function log(msg, data) { console.log('%c[Lakso Teknisi]', 'color:#34d399;font-weight:bold;', msg, data || ''); }
 function logErr(msg, err) { console.error('%c[Lakso Teknisi ERROR]', 'color:#ef4444;font-weight:bold;', msg, err || ''); }
 function $(id) { return document.getElementById(id); }
@@ -1090,6 +856,18 @@ function statusBadgeClass(s) {
   var map = { 'Terkirim': 'badge-blue', 'Diterima Admin': 'badge-purple', 'Ditugaskan': 'badge-indigo', 'Teknisi OTW': 'badge-yellow', 'Dalam Pengerjaan': 'badge-orange', 'Pending': 'badge-gray', 'Selesai': 'badge-green' };
   return map[s] || 'badge-gray';
 }
+function formatCountdown(ms) {
+  if (ms < 0) ms = 0;
+  var s = Math.floor(ms / 1000);
+  var d = Math.floor(s / 86400);
+  var h = Math.floor((s % 86400) / 3600);
+  var m = Math.floor((s % 3600) / 60);
+  var sec = s % 60;
+  if (d > 0) return d + 'h ' + h + 'j ' + m + 'm';
+  if (h > 0) return h + 'j ' + m + 'm ' + sec + 'd';
+  if (m > 0) return m + 'm ' + sec + 'd';
+  return sec + ' detik';
+}
 function copyText(t) {
   if (!t) return;
   navigator.clipboard.writeText(t).then(function() { toast('Tersalin', 'success'); }).catch(function() {
@@ -1108,8 +886,22 @@ function updateSplash(pct, text) {
   var b = $('splashProgress'); if (b) b.style.width = pct + '%';
   var t = $('splashText'); if (t && text) t.textContent = text;
 }
+function hideSplash() { var el = $('splashLoader'); if (el) el.classList.add('hidden-important'); }
+function showLoginPage() {
+  hideSplash();
+  var ma = $('mainApp'); if (ma) ma.style.display = 'none';
+  var lp = $('loginPage'); if (lp) lp.style.display = 'flex';
+  setTimeout(function() { var i = $('loginUid'); if (i) i.focus(); }, 200);
+}
+function showMainApp() {
+  hideSplash();
+  var lp = $('loginPage'); if (lp) lp.style.display = 'none';
+  var ma = $('mainApp'); if (ma) ma.style.display = 'block';
+}
 
-/* ═══════ FIREBASE ═══════ */
+/* ═══════════════════════════════════════════════
+   FIREBASE INIT
+═══════════════════════════════════════════════ */
 function initFirebase() {
   try {
     var cfg = {
@@ -1128,7 +920,9 @@ function initFirebase() {
   } catch (e) { logErr('Firebase init failed', e); return false; }
 }
 
-/* ═══════ DEVICE ID ═══════ */
+/* ═══════════════════════════════════════════════
+   DEVICE ID
+═══════════════════════════════════════════════ */
 async function generateDeviceId() {
   try {
     var canvas = document.createElement('canvas');
@@ -1146,7 +940,9 @@ async function generateDeviceId() {
   }
 }
 
-/* ═══════ VALIDATE UID ═══════ */
+/* ═══════════════════════════════════════════════
+   VALIDATE UID
+═══════════════════════════════════════════════ */
 function validateUid(uid) {
   if (!uid) return { valid: false, msg: 'UID tidak boleh kosong' };
   if (uid.length < 8) return { valid: false, msg: 'UID minimal 8 karakter' };
@@ -1157,7 +953,9 @@ function validateUid(uid) {
   return { valid: true };
 }
 
-/* ═══════ BOOT ═══════ */
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
 async function boot() {
   log('Boot started');
   if (!initFirebase()) { toast('Firebase gagal dimuat', 'error'); setTimeout(showLoginPage, 1000); return; }
@@ -1189,20 +987,9 @@ async function boot() {
   }
 }
 
-function hideSplash() { var el = $('splashLoader'); if (el) el.classList.add('hidden-important'); }
-function showLoginPage() {
-  hideSplash();
-  var ma = $('mainApp'); if (ma) ma.style.display = 'none';
-  var lp = $('loginPage'); if (lp) lp.style.display = 'flex';
-  setTimeout(function() { var i = $('loginUid'); if (i) i.focus(); }, 200);
-}
-function showMainApp() {
-  hideSplash();
-  var lp = $('loginPage'); if (lp) lp.style.display = 'none';
-  var ma = $('mainApp'); if (ma) ma.style.display = 'block';
-}
-
-/* ═══════ LOGIN ═══════ */
+/* ═══════════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════════ */
 async function doLogin() {
   log('doLogin called');
   var uidEl = $('loginUid'); if (!uidEl) return;
@@ -1250,8 +1037,8 @@ async function afterLoginSuccess(uid, userData, isAutoLogin) {
     listenUser();
     listenTickets();
     listenPool();
-    startMaintenancePopupListener();
     startGlobalChatIndex();
+    startMaintenancePopupListener();
     listenersStarted = true;
   }
   $('sidebarUid').textContent = uid;
@@ -1260,7 +1047,6 @@ async function afterLoginSuccess(uid, userData, isAutoLogin) {
 }
 
 function updateUserUI(u) {
-  var av = $('userAvatar');
   var nameEl = $('dashName');
   if (nameEl) nameEl.textContent = u.nama || u.uid;
   var da = $('dashArea'); if (da) da.innerHTML = '<i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>' + (u.area || 'Area belum diset');
@@ -1268,7 +1054,9 @@ function updateUserUI(u) {
   var pu = $('profUid'); if (pu) pu.value = u.uid;
 }
 
-/* ═══════ AVAILABILITY ═══════ */
+/* ═══════════════════════════════════════════════
+   AVAILABILITY
+═══════════════════════════════════════════════ */
 function updateAvailabilityUI() {
   var btn = $('availBtn'); if (!btn || !currentUserData) return;
   var avail = currentUserData.tersedia !== false;
@@ -1295,7 +1083,9 @@ async function toggleAvailability() {
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════ LISTENERS ═══════ */
+/* ═══════════════════════════════════════════════
+   LISTENERS
+═══════════════════════════════════════════════ */
 function listenUser() {
   if (userListener) userListener.off();
   userListener = db.ref('users/' + currentUid);
@@ -1387,12 +1177,7 @@ function startGlobalChatIndex() {
         msgs.sort(function(a, b) { return (a.timestamp || 0) - (b.timestamp || 0); });
         var last = msgs[msgs.length - 1];
         if (!last) return;
-        next[id] = {
-          msg: last.message || last.text || '',
-          name: last.senderName || '',
-          role: last.senderRole || 'customer',
-          ts: last.timestamp || 0
-        };
+        next[id] = { msg: last.message || last.text || '', name: last.senderName || '', role: last.senderRole || 'customer', ts: last.timestamp || 0 };
         if (last.senderRole === 'customer' || last.senderRole === 'admin') {
           if (last.senderId !== currentUid) {
             var readKey = 'tech_read_' + id + '_' + last.timestamp;
@@ -1401,9 +1186,7 @@ function startGlobalChatIndex() {
               if (last.timestamp > prevTs) {
                 localStorage.setItem('tech_chat_last_' + id, String(last.timestamp));
                 var isChatOpen = activeChatTicketId === id && $('viewChat') && $('viewChat').classList.contains('active');
-                if (!isChatOpen) {
-                  unreadChatByTicket[id] = (unreadChatByTicket[id] || 0) + 1;
-                }
+                if (!isChatOpen) unreadChatByTicket[id] = (unreadChatByTicket[id] || 0) + 1;
               }
             }
           }
@@ -1428,7 +1211,9 @@ function updateChatBadges() {
   if (hb) { if (total > 0) { hb.textContent = total > 9 ? '9+' : total; hb.style.display = 'flex'; } else hb.style.display = 'none'; }
 }
 
-/* ═══════ STATS ═══════ */
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
 function updateStats() {
   var mine = allTickets;
   var s1 = $('statNew'); if (s1) s1.textContent = mine.filter(function(t) { return t.status === 'Ditugaskan'; }).length;
@@ -1437,7 +1222,9 @@ function updateStats() {
   var s4 = $('statEmergency'); if (s4) s4.textContent = mine.filter(function(t) { return t.isEmergency && t.status !== 'Selesai'; }).length;
 }
 
-/* ═══════ FILTER ═══════ */
+/* ═══════════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════════ */
 function setFilter(f) {
   currentFilter = f;
   document.querySelectorAll('.filter-chip[data-filter]').forEach(function(b) {
@@ -1483,7 +1270,6 @@ function renderTickets(tickets) {
     }
     empty.style.display = 'none';
     el.innerHTML = tickets.map(function(t) {
-      var isMine = t.teknisiUid === currentUid;
       var isPool = !t.teknisiUid;
       var slaLeft = (t.slaDeadline || 0) - Date.now();
       var slaWarn = slaLeft < 0 && t.status !== 'Selesai';
@@ -1520,7 +1306,9 @@ function renderTickets(tickets) {
   } catch (err) { logErr('renderTickets error', err); }
 }
 
-/* ═══════ TICKET DETAIL ═══════ */
+/* ═══════════════════════════════════════════════
+   TICKET DETAIL
+═══════════════════════════════════════════════ */
 function openTicketDetail(id) {
   selectedTicketId = id;
   lastTicketId = id;
@@ -1617,17 +1405,13 @@ function loadTicketDetail(id) {
       });
       html += '</div></div>';
     }
-    
-    // Sisipkan di antara bagian Timeline
+
+    // Progress & Waktu
     html += '<div class="glass" style="border-radius:16px;padding:16px;margin-bottom:12px;">';
     html += '<h3 style="font-weight:700;margin-bottom:10px;font-size:14px;"><i class="fas fa-tasks" style="color:#00d4ff;margin-right:6px;"></i>Progress & Waktu</h3>';
     html += '<div id="progressHistoryContainer" style="margin-bottom:10px;"></div>';
-    // Tombol tambah progress (hanya untuk teknisi/admin)
-    if (typeof currentUserData !== 'undefined') {
-      var role = (currentUserData && currentUserData.role) || 'teknisi';
-      if (role === 'teknisi' || role === 'admin') {
-        html += '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:11px;border-radius:10px;font-size:13px;"><i class="fas fa-plus-circle" style="margin-right:6px;"></i>Tambah Progress Baru</button>';
-      }
+    if (isMine) {
+      html += '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:11px;border-radius:10px;font-size:13px;"><i class="fas fa-plus-circle" style="margin-right:6px;"></i>Tambah Progress Baru</button>';
     }
     html += '</div>';
 
@@ -1673,7 +1457,7 @@ function loadTicketDetail(id) {
       html += '<div class="glass" style="border-radius:16px;padding:16px;">';
       html += '<h3 style="font-weight:700;margin-bottom:10px;font-size:14px;"><i class="fas fa-star" style="color:#facc15;margin-right:6px;"></i>Rating Customer</h3>';
       html += '<div style="display:flex;gap:4px;margin-bottom:8px;">';
-      for (var i = 1; i <= 5; i++) html += '<i class="fas fa-star" style="color:' + (i <= t.rating ? '#facc15' : '#4b5563') + ';"></i>';
+      for (var ri = 1; ri <= 5; ri++) html += '<i class="fas fa-star" style="color:' + (ri <= t.rating ? '#facc15' : '#4b5563') + ';"></i>';
       html += '</div>';
       html += '<p style="font-size:13px;color:#d1d5db;">' + escapeHtml(t.ulasan || 'Tanpa komentar') + '</p>';
       html += '</div>';
@@ -1684,12 +1468,13 @@ function loadTicketDetail(id) {
     }
 
     el.innerHTML = html;
-    // Panggil render progress history
     setTimeout(function() { renderProgressHistory(id); }, 100);
   } catch (err) { logErr('loadTicketDetail error', err); }
 }
 
-/* ═══════ ACCEPT ═══════ */
+/* ═══════════════════════════════════════════════
+   ACCEPT
+═══════════════════════════════════════════════ */
 function openAcceptModal(id) {
   selectedTicketId = id;
   var t = ticketsCache[id]; if (!t) return;
@@ -1720,75 +1505,377 @@ async function confirmAccept() {
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════ ETA / OTW ═══════ */
-function openETAModal(id) {
-  selectedTicketId = id;
-  pendingETA = null;
-  document.querySelectorAll('.eta-opt').forEach(function(b) { b.classList.remove('selected'); });
-  var ec = $('etaCustom'); if (ec) ec.value = '';
-  var m = $('etaModal'); if (m) m.classList.add('show');
+/* ═══════════════════════════════════════════════
+   PROGRESS
+═══════════════════════════════════════════════ */
+function selectDuration(min, btn) {
+  var input = $('progressDuration');
+  if (input) input.value = min;
+  document.querySelectorAll('.duration-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
 }
-function closeETAModal() { var m = $('etaModal'); if (m) m.classList.remove('show'); }
-function selectETA(val, btn) {
-  pendingETA = val;
-  var ec = $('etaCustom'); if (ec) ec.value = val;
-  document.querySelectorAll('.eta-opt').forEach(function(b) { b.classList.remove('selected'); });
-  btn.classList.add('selected');
+
+function toggleDurationField() {
+  var sel = $('progressStatus');
+  if (!sel) return;
+  var isDone = sel.value === 'Selesai';
+  var durationLabel = $('progressDurationLabel');
+  var durationGrid = $('progressDurationGrid');
+  var durationInput = $('progressDuration');
+  var deadlineLabel = $('progressDeadlineLabel');
+  var deadlineInput = $('progressDeadline');
+  var infoText = $('progressDurationInfo');
+  var display = isDone ? 'none' : '';
+  if (durationLabel) durationLabel.style.display = display;
+  if (durationGrid) durationGrid.style.display = display;
+  if (durationInput) durationInput.style.display = display;
+  if (deadlineLabel) deadlineLabel.style.display = display;
+  if (deadlineInput) deadlineInput.style.display = display;
+  if (infoText) infoText.style.display = isDone ? 'block' : 'none';
 }
-async function submitOTA() {
-  var ec = $('etaCustom');
-  var eta = (ec && ec.value.trim()) || pendingETA;
-  if (!eta) return toast('Pilih atau isi ETA', 'warn');
-  closeETAModal();
-  try {
-    var now = Date.now();
-    await db.ref('tickets/' + selectedTicketId).update({
-      status: 'Teknisi OTW',
-      eta: eta,
-      otwAt: now,
-      updatedAt: now,
-      'timeline/Teknisi OTW': now
+
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'progressStatus') toggleDurationField();
+});
+
+function openProgressModal(ticketId, editKey) {
+  var t = ticketsCache[ticketId];
+  if (!t) return;
+  window.currentProgressTicketId = ticketId;
+  editingProgressKey = editKey || null;
+
+  var titleEl = $('progressModalTitle');
+  var editInfo = $('progressEditInfo');
+  var btn = $('saveProgressBtn');
+
+  if (editKey) {
+    if (titleEl) titleEl.textContent = 'Edit Progress';
+    if (editInfo) editInfo.style.display = 'block';
+    if (btn) btn.innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i>Update';
+    db.ref('tickets/' + ticketId + '/progressHistory/' + editKey).once('value').then(function(snap) {
+      var p = snap.val();
+      if (!p) return;
+      var sel = $('progressStatus'); if (sel) sel.value = p.status || 'Dalam Pengerjaan';
+      var dur = $('progressDuration'); if (dur) dur.value = p.durationMinutes || '';
+      var note = $('progressNote'); if (note) note.value = p.note || '';
+      if (p.deadline) {
+        var d = new Date(p.deadline);
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        var dt = $('progressDeadline');
+        if (dt) dt.value = d.toISOString().slice(0, 16);
+      }
+      toggleDurationField();
     });
-    await db.ref('chats/' + selectedTicketId).push({
-      senderId: currentUid, senderName: currentUserData.nama || currentUid, senderRole: 'teknisi',
-      message: '🚗 Saya sedang dalam perjalanan. Estimasi tiba: ' + eta,
+  } else {
+    if (titleEl) titleEl.textContent = 'Update Progress';
+    if (editInfo) editInfo.style.display = 'none';
+    if (btn) btn.innerHTML = '<i class="fas fa-check" style="margin-right:6px;"></i>Simpan';
+    var sel2 = $('progressStatus'); if (sel2) sel2.value = t.status || 'Dalam Pengerjaan';
+    var dur2 = $('progressDuration'); if (dur2) dur2.value = '30';
+    var note2 = $('progressNote'); if (note2) note2.value = '';
+    var dt2 = $('progressDeadline'); if (dt2) dt2.value = '';
+    document.querySelectorAll('.duration-btn').forEach(function(b) { b.classList.remove('active'); });
+    var btn30 = document.querySelector('.duration-btn[data-dur="30"]');
+    if (btn30) btn30.classList.add('active');
+    toggleDurationField();
+  }
+  var m = $('progressModal');
+  if (m) m.classList.add('show');
+}
+
+function closeProgressModal() {
+  var m = $('progressModal'); if (m) m.classList.remove('show');
+  editingProgressKey = null;
+}
+
+async function saveProgress() {
+  var ticketId = window.currentProgressTicketId;
+  if (!ticketId) return toast('Tiket tidak ditemukan', 'error');
+
+  var statusEl = $('progressStatus');
+  var status = statusEl ? statusEl.value : 'Dalam Pengerjaan';
+  var isDone = status === 'Selesai';
+
+  var durationEl = $('progressDuration');
+  var durationMin = durationEl ? parseInt(durationEl.value) || 0 : 0;
+  var deadlineEl = $('progressDeadline');
+  var specificDeadline = deadlineEl ? deadlineEl.value : '';
+  var noteEl = $('progressNote');
+  var note = noteEl ? noteEl.value.trim() : '';
+
+  if (!isDone) {
+    if (durationMin <= 0 && !specificDeadline) {
+      return toast('Isi estimasi waktu (menit) atau waktu spesifik', 'error');
+    }
+  }
+
+  var now = Date.now();
+  var deadline;
+  if (isDone) {
+    deadline = now;
+    durationMin = 0;
+  } else if (specificDeadline) {
+    deadline = new Date(specificDeadline).getTime();
+    durationMin = Math.max(1, Math.round((deadline - now) / 60000));
+  } else {
+    deadline = now + durationMin * 60000;
+  }
+
+  var isEdit = !!editingProgressKey;
+  var btn = $('saveProgressBtn');
+  var originalHTML = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Menyimpan...';
+  }
+
+  try {
+    var t = ticketsCache[ticketId];
+    var user = currentUserData || {};
+    var userName = user.nama || currentUid;
+    var role = user.role || 'teknisi';
+    var key = isEdit ? editingProgressKey : db.ref('tickets/' + ticketId + '/progressHistory').push().key;
+
+    var item = {
+      id: key,
+      status: status,
+      note: note,
+      at: now,
+      durationMinutes: durationMin,
+      deadline: deadline,
+      confirmed: isDone,
+      confirmedAt: isDone ? now : null,
+      updatedBy: currentUid,
+      updatedByName: userName,
+      role: role
+    };
+
+    if (isEdit) {
+      var existSnap = await db.ref('tickets/' + ticketId + '/progressHistory/' + key).once('value');
+      var existing = existSnap.val() || {};
+      item.at = existing.at || now;
+      item.createdAt = existing.createdAt || now;
+      item.createdByName = existing.createdByName || userName;
+      item.edited = true;
+      item.editedAt = now;
+      item.editedBy = currentUid;
+    } else {
+      item.createdAt = now;
+      item.createdByName = userName;
+    }
+
+    var updates = {};
+    updates['tickets/' + ticketId + '/progressHistory/' + key] = item;
+    updates['tickets/' + ticketId + '/status'] = status;
+    updates['tickets/' + ticketId + '/progressUpdatedAt'] = now;
+    updates['tickets/' + ticketId + '/updatedAt'] = now;
+    updates['tickets/' + ticketId + '/timeline/' + status] = now;
+
+    if (isDone) {
+      updates['tickets/' + ticketId + '/currentDeadline'] = null;
+      updates['tickets/' + ticketId + '/currentProgressKey'] = null;
+      updates['tickets/' + ticketId + '/finishedAt'] = now;
+    } else {
+      updates['tickets/' + ticketId + '/currentDeadline'] = deadline;
+      updates['tickets/' + ticketId + '/currentProgressKey'] = key;
+    }
+
+    await db.ref().update(updates);
+
+    var chatMsg = (isEdit ? '✏️ Progress diedit: ' : '📋 Progress: ') + status;
+    if (isDone) {
+      chatMsg += '\n✅ Pekerjaan telah selesai!';
+    } else {
+      chatMsg += '\n⏱️ Estimasi: ' + durationMin + ' menit';
+    }
+    if (note) chatMsg += '\n📝 ' + note;
+
+    await db.ref('chats/' + ticketId).push({
+      senderId: currentUid,
+      senderName: userName,
+      senderRole: role,
+      message: chatMsg,
       timestamp: now
     });
-    toast('Status OTW terkirim', 'success');
+
+    toast(isEdit ? 'Progress diupdate' : 'Progress disimpan', 'success');
+    closeProgressModal();
+  } catch (err) {
+    logErr('saveProgress error', err);
+    toast('Gagal: ' + err.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = isEdit ? '<i class="fas fa-save" style="margin-right:6px;"></i>Update' : '<i class="fas fa-check" style="margin-right:6px;"></i>Simpan';
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TICKER
+═══════════════════════════════════════════════ */
+function startCountdownTicker() {
+  if (progressTicker) return;
+  progressTicker = setInterval(function() {
+    var now = Date.now();
+    document.querySelectorAll('[data-deadline]').forEach(function(el) {
+      var deadline = parseInt(el.dataset.deadline);
+      var confirmed = el.dataset.confirmed === 'true';
+      if (confirmed) return;
+      var remaining = deadline - now;
+      if (remaining <= 0) {
+        el.textContent = '⏰ Waktu Habis';
+        el.className = 'countdown-badge countdown-expired';
+      } else {
+        el.textContent = '⏱️ ' + formatCountdown(remaining);
+        el.className = 'countdown-badge countdown-active';
+      }
+    });
+    document.querySelectorAll('.neon-seekbar-fill[data-seek-start]').forEach(function(el) {
+      var startAt = parseInt(el.dataset.seekStart);
+      var endAt = parseInt(el.dataset.seekEnd);
+      var done = el.dataset.seekDone === 'true';
+      if (done) return;
+      if (endAt > startAt) {
+        var pct = Math.max(0, Math.min(100, Math.round(((now - startAt) / (endAt - startAt)) * 100)));
+        el.style.width = pct + '%';
+        var parent = el.closest('.neon-seekbar');
+        var pctLabel = parent ? parent.parentElement.querySelector('.seek-pct') : null;
+        if (pctLabel) pctLabel.textContent = pct + '%';
+      }
+    });
+  }, 1000);
+}
+
+async function confirmProgressDone(ticketId, progressKey) {
+  if (!confirm('Konfirmasi bahwa progress ini sudah selesai?')) return;
+  try {
+    var now = Date.now();
+    await db.ref('tickets/' + ticketId + '/progressHistory/' + progressKey).update({
+      confirmed: true, confirmedAt: now
+    });
+    await db.ref('tickets/' + ticketId).update({
+      currentDeadline: null, currentProgressKey: null, updatedAt: now
+    });
+    toast('Progress dikonfirmasi selesai', 'success');
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════ START WORK ═══════ */
-async function startWork(id) {
-  try {
-    var now = Date.now();
-    await db.ref('tickets/' + id).update({
-      status: 'Dalam Pengerjaan',
-      startedAt: now,
-      updatedAt: now,
-      'timeline/Dalam Pengerjaan': now
+/* ═══════════════════════════════════════════════
+   RENDER PROGRESS HISTORY
+═══════════════════════════════════════════════ */
+function renderProgressHistory(ticketId) {
+  var container = $('progressHistoryContainer');
+  if (!container) return;
+  db.ref('tickets/' + ticketId + '/progressHistory').on('value', function(snap) {
+    var arr = [];
+    snap.forEach(function(c) {
+      var v = c.val() || {};
+      if (!v.id) v.id = c.key;
+      arr.push(v);
     });
-    await db.ref('chats/' + id).push({
-      senderId: currentUid, senderName: currentUserData.nama || currentUid, senderRole: 'teknisi',
-      message: '🔧 Saya sudah tiba dan mulai pengerjaan.',
-      timestamp: now
-    });
-    toast('Mulai pengerjaan', 'success');
-  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
-}
-async function resumeWork(id) {
-  try {
-    var now = Date.now();
-    await db.ref('tickets/' + id).update({
-      status: 'Dalam Pengerjaan',
-      updatedAt: now,
-      'timeline/Dalam Pengerjaan': now
-    });
-    toast('Lanjutkan pengerjaan', 'success');
-  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+    arr.sort(function(a, b) { return (b.at || 0) - (a.at || 0); });
+
+    if (arr.length === 0) {
+      container.innerHTML = '<p style="font-size:12px;color:#6b7280;text-align:center;padding:10px 0;">Belum ada progress</p>';
+      return;
+    }
+
+    container.innerHTML = arr.map(function(p) {
+      var now = Date.now();
+      var isDone = p.status === 'Selesai';
+      var remaining = (p.deadline || 0) - now;
+      var isConfirmed = !!p.confirmed || isDone;
+      var isExpired = !isConfirmed && remaining <= 0;
+      var cardClass = isConfirmed ? 'confirmed' : (isExpired ? 'expired' : '');
+      var countdownClass = isConfirmed ? 'countdown-confirmed' : (isExpired ? 'countdown-expired' : 'countdown-running');
+
+      var countdownText;
+      if (isDone) {
+        countdownText = '✅ Selesai ' + fmtTime(p.confirmedAt || p.at);
+      } else if (isConfirmed) {
+        countdownText = '✅ Dikonfirmasi ' + fmtTime(p.confirmedAt);
+      } else if (isExpired) {
+        countdownText = '⏰ Waktu Habis';
+      } else {
+        countdownText = '⏱️ ' + formatCountdown(remaining);
+      }
+
+      var editedTag = p.edited ? '<span style="font-size:9px;color:#fbbf24;margin-left:4px;">(diedit)</span>' : '';
+
+      var confirmBtn = '';
+      if (!isConfirmed && isExpired) {
+        confirmBtn = '<button class="progress-confirm-btn" onclick="confirmProgressDone(\'' + ticketId + '\',\'' + p.id + '\')">' +
+          '<i class="fas fa-check-circle"></i> Konfirmasi Progress Selesai</button>';
+      }
+
+      var editBtn = '';
+      if (!isConfirmed) {
+        editBtn = '<button class="progress-edit-btn" onclick="openProgressModal(\'' + ticketId + '\',\'' + p.id + '\')"><i class="fas fa-pen"></i> Edit</button>';
+      }
+
+      // ✅ FIX: Ternary lengkap dengan : ''
+      var seekbarHtml = '';
+      if (!isDone) {
+        var now2 = Date.now();
+        var startAt = p.at || 0;
+        var endAt = p.deadline || 0;
+        var pct = 0;
+        if (endAt > startAt) {
+          pct = Math.max(0, Math.min(100, Math.round(((now2 - startAt) / (endAt - startAt)) * 100)));
+        }
+        var seekCls = (pct >= 100) ? 'neon-seekbar-danger' : '';
+        seekbarHtml = '<div style="margin-top:8px;">' +
+          '<div class="neon-seekbar ' + seekCls + '">' +
+          '<div class="neon-seekbar-fill" data-seek-start="' + startAt + '" data-seek-end="' + endAt + '" data-seek-done="false" style="width:' + pct + '%;"></div>' +
+          '</div>' +
+          '<div class="neon-seekbar-label">' +
+          '<span class="seek-left">' + fmtTime(startAt) + '</span>' +
+          '<span class="seek-pct">' + pct + '%</span>' +
+          '<span class="seek-right">' + (endAt ? fmtTime(endAt) : '-') + '</span>' +
+          '</div>' +
+          '</div>';
+      } else {
+        seekbarHtml = '<div style="margin-top:8px;">' +
+          '<div class="neon-seekbar neon-seekbar-success">' +
+          '<div class="neon-seekbar-fill" style="width: 100%;"></div>' +
+          '</div>' +
+          '<div class="neon-seekbar-label">' +
+          '<span class="seek-left">' + fmtTime(p.at) + '</span>' +
+          '<span class="seek-pct">100%</span>' +
+          '<span class="seek-right">' + fmtTime(p.confirmedAt || p.at) + '</span>' +
+          '</div>' +
+          '</div>';
+      }
+
+      return '<div class="progress-card ' + cardClass + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">' +
+        '<div style="flex:1;min-width:0;">' +
+        '<p style="font-weight:700;font-size:13px;color:#fff;">' + escapeHtml(p.status || '-') + editedTag + '</p>' +
+        '<p style="font-size:10px;color:#6b7280;margin-top:2px;">' +
+        '<i class="fas fa-user"></i> ' + escapeHtml(p.updatedByName || '-') +
+        ' · <i class="fas fa-clock"></i> ' + fmtDate(p.at) +
+        '</p>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
+        '<span class="countdown-badge ' + countdownClass + '" ' +
+        (isDone ? '' : 'data-deadline="' + (p.deadline || 0) + '" data-confirmed="' + isConfirmed + '"') +
+        '>' + countdownText + '</span>' +
+        editBtn +
+        '</div>' +
+        '</div>' +
+        (p.note ? '<p style="font-size:12px;color:#d1d5db;margin-top:6px;line-height:1.4;">' + escapeHtml(p.note) + '</p>' : '') +
+        seekbarHtml +
+        confirmBtn +
+        '</div>';
+    }).join('');
+    startCountdownTicker();
+  });
 }
 
-/* ═══════ FINISH ═══════ */
+/* ═══════════════════════════════════════════════
+   FINISH
+═══════════════════════════════════════════════ */
 function openFinishModal(id) {
   selectedTicketId = id;
   uploadedBefore = []; uploadedAfter = [];
@@ -1862,7 +1949,7 @@ async function compressImage(file, maxSize, quality) {
         var ctx = canvas.getContext('2d');
         ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        canvas.toBlob(function(b) { b ? resolve(b) : reject(new Error('Compress gagal')); }, 'image/jpeg', quality);
+        canvas.toBlob(function(b) { if (b) resolve(b); else reject(new Error('Compress gagal')); }, 'image/jpeg', quality);
       };
       img.src = e.target.result;
     };
@@ -1931,7 +2018,7 @@ async function submitFinish() {
       timestamp: now
     });
 
-    showSuccessModal('Tiket Selesai!', 'Pengerjaan berhasil diselesaikan.\nCustomer akan diberi notifikasi untuk rating.');
+    showSuccessModal('Tiket Selesai!', 'Customer akan diberi notifikasi untuk rating.');
     toast('Tiket selesai!', 'success');
     closeFinishModal();
     showView('Dashboard');
@@ -1944,7 +2031,9 @@ async function submitFinish() {
   }
 }
 
-/* ═══════ PENDING ═══════ */
+/* ═══════════════════════════════════════════════
+   PENDING
+═══════════════════════════════════════════════ */
 function openPendingModal(id) {
   selectedTicketId = id;
   var pr = $('pendingReason'); if (pr) pr.value = '';
@@ -1975,7 +2064,9 @@ async function submitPending() {
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════ ESCALATE ═══════ */
+/* ═══════════════════════════════════════════════
+   ESCALATE
+═══════════════════════════════════════════════ */
 function openEscalateModal(id) {
   selectedTicketId = id;
   var er = $('escalateReason'); if (er) er.value = '';
@@ -2006,11 +2097,8 @@ async function submitEscalate() {
 }
 
 /* ═══════════════════════════════════════════════
-   MAINTENANCE POPUP — CUSTOMER
+   MAINTENANCE POPUP
 ═══════════════════════════════════════════════ */
-var maintData = null;
-var maintTicker = null;
-
 function startMaintenancePopupListener() {
   if (window._maintPopupStarted) return;
   window._maintPopupStarted = true;
@@ -2020,7 +2108,6 @@ function startMaintenancePopupListener() {
     snap.forEach(function(c) {
       var v = c.val() || {};
       if (!v.id) v.id = c.key;
-      // Cari maintenance yang active && sekarang masih dalam range waktu
       if (v.active !== false && now >= v.startAt && now < v.endAt) {
         if (!active || v.startAt > active.startAt) active = v;
       }
@@ -2033,13 +2120,11 @@ function startMaintenancePopupListener() {
 function updateMaintPopup() {
   var popup = $('maintenancePopup');
   if (!popup) return;
-
   if (!maintData) {
     popup.classList.remove('show');
     if (maintTicker) { clearInterval(maintTicker); maintTicker = null; }
     return;
   }
-
   var m = maintData;
   var colors = {
     info: { c: '#00d4ff', grad: 'linear-gradient(135deg, #00d4ff, #0091ff)', icon: 'fa-info-circle' },
@@ -2048,17 +2133,14 @@ function updateMaintPopup() {
     critical: { c: '#dc2626', grad: 'linear-gradient(135deg, #dc2626, #991b1b)', icon: 'fa-biohazard' }
   };
   var c = colors[m.status] || colors.warning;
-
   var box = $('maintBox'); if (box) box.style.borderColor = c.c;
   var icon = $('maintIcon'); if (icon) { icon.style.background = c.grad; icon.innerHTML = '<i class="fas ' + c.icon + '"></i>'; }
   var titleEl = $('maintTitleText'); if (titleEl) { titleEl.textContent = m.title || 'Maintenance'; titleEl.style.color = c.c; }
   var descEl = $('maintDescText'); if (descEl) descEl.textContent = m.description || '';
   var startEl = $('maintTimeStart'); if (startEl) startEl.textContent = fmtDate(m.startAt);
   var endEl = $('maintTimeEnd'); if (endEl) endEl.textContent = fmtDate(m.endAt);
-
   popup.classList.add('show');
   updateMaintSeekbar();
-
   if (maintTicker) clearInterval(maintTicker);
   maintTicker = setInterval(updateMaintSeekbar, 1000);
 }
@@ -2070,11 +2152,8 @@ function updateMaintSeekbar() {
   var total = m.endAt - m.startAt;
   var elapsed = now - m.startAt;
   var pct = Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
-
   var fill = $('maintSeekFill'); if (fill) fill.style.width = pct + '%';
   var pctEl = $('maintPctText'); if (pctEl) pctEl.textContent = pct + '%';
-
-  // Auto-hide kalau sudah lewat
   if (now >= m.endAt) {
     var popup = $('maintenancePopup');
     if (popup) popup.classList.remove('show');
@@ -2083,7 +2162,9 @@ function updateMaintSeekbar() {
   }
 }
 
-/* ═══════ CHAT ═══════ */
+/* ═══════════════════════════════════════════════
+   CHAT
+═══════════════════════════════════════════════ */
 function renderChatList() {
   try {
     var listEl = $('chatListSidebar');
@@ -2091,7 +2172,6 @@ function renderChatList() {
     if (!listEl) return;
     var search = ($('chatListSearch') && $('chatListSearch').value || '').toLowerCase().trim();
 
-    // Ambil tiket yang punya chat
     var ids = Object.keys(chatLastMessages);
     if (ids.length === 0) {
       listEl.innerHTML = '<div style="text-align:center;padding:60px 20px;"><i class="fas fa-comment-slash" style="font-size:40px;color:#374151;"></i><p style="color:#6b7280;margin-top:12px;font-size:13px;">Belum ada percakapan</p></div>';
@@ -2103,7 +2183,6 @@ function renderChatList() {
       var t = ticketsCache[id] || { id: id, customerName: 'Customer', kategori: 'Chat', status: 'Chat' };
       return { id: id, t: t, lc: chatLastMessages[id] || {} };
     }).filter(function(x) {
-      // Hanya tampilkan tiket yang di-assign ke teknisi ini atau pool
       if (x.t.teknisiUid && x.t.teknisiUid !== currentUid) return false;
       return true;
     });
@@ -2116,7 +2195,6 @@ function renderChatList() {
     }
 
     items.sort(function(a, b) { return (b.lc.ts || 0) - (a.lc.ts || 0); });
-
     if (countEl) countEl.textContent = items.length + ' percakapan';
 
     if (items.length === 0) {
@@ -2168,7 +2246,6 @@ function openChatPanel(ticketId) {
 
   loadChatMessages(ticketId);
   renderChatList();
-
   if (window.innerWidth < 768) {
     var cl = $('chatLayout'); if (cl) cl.classList.add('mobile-open');
   }
@@ -2201,7 +2278,7 @@ function renderChatMessages(msgs) {
   var html = '';
   msgs.forEach(function(m) {
     var isSystem = m.senderRole === 'system';
-    var mine = m.senderId === currentUid || (m.senderRole === 'teknisi' && m.senderName === (currentUserData.nama || currentUid));
+    var mine = m.senderId === currentUid || (m.senderRole === 'teknisi' && m.senderName === (currentUserData && currentUserData.nama));
     if (isSystem) {
       html += '<div class="msg-system"><div class="msg-bubble"><i class="fas fa-info-circle" style="margin-right:4px;"></i>' + escapeHtml(m.message) + '</div></div>';
       return;
@@ -2248,576 +2325,8 @@ function sendQuickMsg(msg) {
 }
 
 /* ═══════════════════════════════════════════════
-   PROGRESS DENGAN WAKTU
+   CHAT HISTORY
 ═══════════════════════════════════════════════ */
-var notifFilter = 'all';
-var editingProgressKey = null;
-var progressTicker = null;
-
-function selectDuration(min, btn) {
-  var input = document.getElementById('progressDuration');
-  if (input) input.value = min;
-  document.querySelectorAll('.duration-btn').forEach(function(b) { b.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-}
-
-function openProgressModal(ticketId, editKey) {
-  var t = ticketsCache[ticketId];
-  if (!t) return;
-  window.currentProgressTicketId = ticketId;
-  editingProgressKey = editKey || null;
-
-  var titleEl = document.getElementById('progressModalTitle');
-  var editInfo = document.getElementById('progressEditInfo');
-  var btn = document.getElementById('saveProgressBtn');
-
-  if (editKey) {
-    if (titleEl) titleEl.textContent = 'Edit Progress';
-    if (editInfo) editInfo.style.display = 'block';
-    if (btn) btn.innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i>Update';
-    db.ref('tickets/' + ticketId + '/progressHistory/' + editKey).once('value').then(function(snap) {
-      var p = snap.val();
-      if (!p) return;
-      var sel = document.getElementById('progressStatus'); if (sel) sel.value = p.status || 'Dalam Pengerjaan';
-      var dur = document.getElementById('progressDuration'); if (dur) dur.value = p.durationMinutes || '';
-      var note = document.getElementById('progressNote'); if (note) note.value = p.note || '';
-      if (p.deadline) {
-        var d = new Date(p.deadline);
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-        var dt = document.getElementById('progressDeadline');
-        if (dt) dt.value = d.toISOString().slice(0, 16);
-      }
-      toggleDurationField(); // ✅ Trigger visibility
-    });
-  } else {
-    if (titleEl) titleEl.textContent = 'Update Progress';
-    if (editInfo) editInfo.style.display = 'none';
-    if (btn) btn.innerHTML = '<i class="fas fa-check" style="margin-right:6px;"></i>Simpan';
-    var sel2 = document.getElementById('progressStatus'); if (sel2) sel2.value = t.status || 'Dalam Pengerjaan';
-    var dur2 = document.getElementById('progressDuration'); if (dur2) dur2.value = '30';
-    var note2 = document.getElementById('progressNote'); if (note2) note2.value = '';
-    var dt2 = document.getElementById('progressDeadline'); if (dt2) dt2.value = '';
-    document.querySelectorAll('.duration-btn').forEach(function(b) { b.classList.remove('active'); });
-    var btn30 = document.querySelector('.duration-btn[data-dur="30"]');
-    if (btn30) btn30.classList.add('active');
-    toggleDurationField(); // ✅ Trigger visibility
-  }
-  var m = document.getElementById('progressModal');
-  if (m) m.classList.add('show');
-}
-
-/* ═══════════════════════════════════════════════
-   TOGGLE DURATION FIELD — Sembunyikan jika Selesai
-═══════════════════════════════════════════════ */
-function toggleDurationField() {
-  var sel = document.getElementById('progressStatus');
-  if (!sel) return;
-  var isDone = sel.value === 'Selesai';
-
-  // Cari semua elemen terkait durasi (label, button, input, dll)
-  var durationLabel = document.getElementById('progressDurationLabel');
-  var durationGrid = document.getElementById('progressDurationGrid');
-  var durationInput = document.getElementById('progressDuration');
-  var deadlineLabel = document.getElementById('progressDeadlineLabel');
-  var deadlineInput = document.getElementById('progressDeadline');
-  var infoText = document.getElementById('progressDurationInfo');
-
-  var display = isDone ? 'none' : '';
-  if (durationLabel) durationLabel.style.display = display;
-  if (durationGrid) durationGrid.style.display = display;
-  if (durationInput) durationInput.style.display = display;
-  if (deadlineLabel) deadlineLabel.style.display = display;
-  if (deadlineInput) deadlineInput.style.display = display;
-
-  // Tampilkan/sembunyikan info "Selesai tidak butuh waktu"
-  if (infoText) infoText.style.display = isDone ? 'block' : 'none';
-}
-
-// Bind onchange ke select progressStatus
-document.addEventListener('change', function(e) {
-  if (e.target && e.target.id === 'progressStatus') {
-    toggleDurationField();
-  }
-});
-
-function closeProgressModal() {
-  var m = document.getElementById('progressModal');
-  if (m) m.classList.remove('show');
-  editingProgressKey = null;
-}
-
-async function saveProgress() {
-  var ticketId = window.currentProgressTicketId;
-  if (!ticketId) return toast('Tiket tidak ditemukan', 'error');
-
-  var statusEl = document.getElementById('progressStatus');
-  var status = statusEl ? statusEl.value : 'Dalam Pengerjaan';
-  var isDone = status === 'Selesai';
-
-  var durationEl = document.getElementById('progressDuration');
-  var durationMin = durationEl ? parseInt(durationEl.value) || 0 : 0;
-  var deadlineEl = document.getElementById('progressDeadline');
-  var specificDeadline = deadlineEl ? deadlineEl.value : '';
-  var noteEl = document.getElementById('progressNote');
-  var note = noteEl ? noteEl.value.trim() : '';
-
-  // ✅ Jika Selesai → TIDAK butuh waktu
-  if (!isDone) {
-    if (durationMin <= 0 && !specificDeadline) {
-      return toast('Isi estimasi waktu (menit) atau waktu spesifik', 'error');
-    }
-  }
-
-  var now = Date.now();
-  var deadline;
-  if (isDone) {
-    deadline = now; // Selesai = langsung deadline now
-    durationMin = 0;
-  } else if (specificDeadline) {
-    deadline = new Date(specificDeadline).getTime();
-    durationMin = Math.max(1, Math.round((deadline - now) / 60000));
-  } else {
-    deadline = now + durationMin * 60000;
-  }
-
-  var isEdit = !!editingProgressKey;
-  var btn = document.getElementById('saveProgressBtn');
-  if (btn) {
-    btn.disabled = true;
-    var originalHTML = btn.innerHTML;
-    btn.innerHTML = '<span class="spin"></span> Menyimpan...';
-  }
-
-  try {
-    var t = ticketsCache[ticketId];
-    var user = (typeof currentUserData !== 'undefined' && currentUserData) || {};
-    var userName = user.nama || (typeof currentUid !== 'undefined' ? currentUid : 'User');
-    var role = user.role || 'teknisi';
-    var key = isEdit ? editingProgressKey : db.ref('tickets/' + ticketId + '/progressHistory').push().key;
-
-    var item = {
-      id: key,
-      status: status,
-      note: note,
-      at: now,
-      durationMinutes: durationMin,
-      deadline: deadline,
-      confirmed: isDone,                    // ✅ Selesai = auto confirmed
-      confirmedAt: isDone ? now : null,     // ✅ Auto timestamp
-      updatedBy: (typeof currentUid !== 'undefined' ? currentUid : ''),
-      updatedByName: userName,
-      role: role
-    };
-
-    if (isEdit) {
-      var existSnap = await db.ref('tickets/' + ticketId + '/progressHistory/' + key).once('value');
-      var existing = existSnap.val() || {};
-      item.at = existing.at || now;
-      item.createdAt = existing.createdAt || now;
-      item.createdByName = existing.createdByName || userName;
-      item.edited = true;
-      item.editedAt = now;
-      item.editedBy = currentUid;
-    } else {
-      item.createdAt = now;
-      item.createdByName = userName;
-    }
-
-    var updates = {};
-    updates['tickets/' + ticketId + '/progressHistory/' + key] = item;
-    updates['tickets/' + ticketId + '/status'] = status;
-    updates['tickets/' + ticketId + '/progressUpdatedAt'] = now;
-    updates['tickets/' + ticketId + '/updatedAt'] = now;
-    updates['tickets/' + ticketId + '/timeline/' + status] = now;
-
-    if (isDone) {
-      updates['tickets/' + ticketId + '/currentDeadline'] = null;
-      updates['tickets/' + ticketId + '/currentProgressKey'] = null;
-      updates['tickets/' + ticketId + '/finishedAt'] = now;
-    } else {
-      updates['tickets/' + ticketId + '/currentDeadline'] = deadline;
-      updates['tickets/' + ticketId + '/currentProgressKey'] = key;
-    }
-
-    await db.ref().update(updates);
-
-    var chatMsg = (isEdit ? '✏️ Progress diedit: ' : '📋 Progress: ') + status;
-    if (isDone) {
-      chatMsg += '\n✅ Pekerjaan telah selesai!';
-    } else {
-      chatMsg += '\n⏱️ Estimasi: ' + durationMin + ' menit';
-    }
-    if (note) chatMsg += '\n📝 ' + note;
-
-    await db.ref('chats/' + ticketId).push({
-      senderId: currentUid || 'user',
-      senderName: userName,
-      senderRole: role,
-      message: chatMsg,
-      timestamp: now
-    });
-
-    toast(isEdit ? 'Progress diupdate' : 'Progress disimpan', 'success');
-    closeProgressModal();
-  } catch (err) {
-    console.error('[Lakso] saveProgress error', err);
-    toast('Gagal: ' + err.message, 'error');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = isEdit ? '<i class="fas fa-save" style="margin-right:6px;"></i>Update' : '<i class="fas fa-check" style="margin-right:6px;"></i>Simpan';
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════
-   COUNTDOWN & KONFIRMASI
-═══════════════════════════════════════════════ */
-function formatCountdown(ms) {
-  if (ms < 0) ms = 0;
-  var s = Math.floor(ms / 1000);
-  var d = Math.floor(s / 86400);
-  var h = Math.floor((s % 86400) / 3600);
-  var m = Math.floor((s % 3600) / 60);
-  var sec = s % 60;
-  if (d > 0) return d + 'h ' + h + 'j ' + m + 'm';
-  if (h > 0) return h + 'j ' + m + 'm ' + sec + 'd';
-  if (m > 0) return m + 'm ' + sec + 'd';
-  return sec + ' detik';
-}
-
-function startCountdownTicker() {
-  if (progressTicker) return;
-  progressTicker = setInterval(function() {
-    var now = Date.now();
-    // Update countdown badge
-    document.querySelectorAll('[data-deadline]').forEach(function(el) {
-      var deadline = parseInt(el.dataset.deadline);
-      var confirmed = el.dataset.confirmed === 'true';
-      if (confirmed) return;
-      var remaining = deadline - now;
-      if (remaining <= 0) {
-        el.textContent = '⏰ Waktu Habis';
-        el.className = 'countdown-badge countdown-expired';
-      } else {
-        el.textContent = '⏱️ ' + formatCountdown(remaining);
-        el.className = 'countdown-badge countdown-active';
-      }
-    });
-    // ✅ Update seekbar progress
-    document.querySelectorAll('.neon-seekbar-fill[data-seek-start]').forEach(function(el) {
-      var startAt = parseInt(el.dataset.seekStart);
-      var endAt = parseInt(el.dataset.seekEnd);
-      var done = el.dataset.seekDone === 'true';
-      if (done) return;
-      if (endAt > startAt) {
-        var pct = Math.max(0, Math.min(100, Math.round(((now - startAt) / (endAt - startAt)) * 100)));
-        el.style.width = pct + '%';
-        var parent = el.closest('.neon-seekbar').parentElement;
-        var pctLabel = parent ? parent.querySelector('.seek-pct') : null;
-        if (pctLabel) pctLabel.textContent = pct + '%';
-      }
-    });
-  }, 1000);
-}
-
-async function confirmProgressDone(ticketId, progressKey) {
-  if (!confirm('Konfirmasi bahwa progress ini sudah selesai?\n\nSetelah dikonfirmasi, Anda bisa lanjut ke progress berikutnya.')) return;
-  try {
-    var now = Date.now();
-    await db.ref('tickets/' + ticketId + '/progressHistory/' + progressKey).update({
-      confirmed: true,
-      confirmedAt: now
-    });
-    await db.ref('tickets/' + ticketId).update({
-      currentDeadline: null,
-      currentProgressKey: null,
-      updatedAt: now
-    });
-    toast('Progress dikonfirmasi selesai', 'success');
-  } catch (err) {
-    toast('Gagal: ' + err.message, 'error');
-  }
-}
-
-/* ═══════════════════════════════════════════════
-   RENDER PROGRESS HISTORY DI TICKET DETAIL
-═══════════════════════════════════════════════ */
-function renderProgressHistory(ticketId) {
-  var container = document.getElementById('progressHistoryContainer');
-  if (!container) return;
-  db.ref('tickets/' + ticketId + '/progressHistory').on('value', function(snap) {
-    var arr = [];
-    snap.forEach(function(c) {
-      var v = c.val() || {};
-      if (!v.id) v.id = c.key;
-      arr.push(v);
-    });
-    arr.sort(function(a, b) { return (b.at || 0) - (a.at || 0); });
-
-    if (arr.length === 0) {
-      container.innerHTML = '<p style="font-size:12px;color:#6b7280;text-align:center;padding:10px 0;">Belum ada progress</p>';
-      return;
-    }
-
-    container.innerHTML = arr.map(function(p) {
-      var now = Date.now();
-      var isDone = p.status === 'Selesai';
-      var remaining = (p.deadline || 0) - now;
-      var isConfirmed = !!p.confirmed || isDone;
-      var isExpired = !isConfirmed && remaining <= 0;
-      var cardClass = isConfirmed ? 'confirmed' : (isExpired ? 'expired' : '');
-      var countdownClass = isConfirmed ? 'countdown-confirmed' : (isExpired ? 'countdown-expired' : 'countdown-running');
-
-      // ✅ Jika Selesai → tampilkan "Selesai" tanpa countdown
-      var countdownText;
-      if (isDone) {
-        countdownText = '✅ Selesai ' + fmtTime(p.confirmedAt || p.at);
-      } else if (isConfirmed) {
-        countdownText = '✅ Dikonfirmasi ' + fmtTime(p.confirmedAt);
-      } else if (isExpired) {
-        countdownText = '⏰ Waktu Habis';
-      } else {
-        countdownText = '⏱️ ' + formatCountdown(remaining);
-      }
-
-      var editedTag = p.edited ? '<span style="font-size:9px;color:#fbbf24;margin-left:4px;">(diedit)</span>' : '';
-
-      var confirmBtn = '';
-      if (!isConfirmed && isExpired && typeof currentUserData !== 'undefined') {
-        var role = (currentUserData && currentUserData.role) || 'teknisi';
-        if (role === 'teknisi' || role === 'admin') {
-          confirmBtn = '<button class="progress-confirm-btn" onclick="confirmProgressDone(\'' + ticketId + '\',\'' + p.id + '\')">' +
-            '<i class="fas fa-check-circle"></i> Konfirmasi Progress Selesai</button>';
-        }
-      }
-
-      var editBtn = '';
-      if (!isConfirmed && typeof currentUserData !== 'undefined') {
-        var role2 = (currentUserData && currentUserData.role) || 'teknisi';
-        if (role2 === 'teknisi' || role2 === 'admin') {
-          editBtn = '<button class="progress-edit-btn" onclick="openProgressModal(\'' + ticketId + '\',\'' + p.id + '\')"><i class="fas fa-pen"></i> Edit</button>';
-        }
-      }
-
-      return '<div class="progress-card ' + cardClass + '">' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;">' +
-        '<div style="flex:1;min-width:0;">' +
-        '<p style="font-weight:700;font-size:13px;color:#fff;">' + escapeHtml(p.status || '-') + editedTag + '</p>' +
-        '<p style="font-size:10px;color:#6b7280;margin-top:2px;">' +
-        '<i class="fas fa-user"></i> ' + escapeHtml(p.updatedByName || '-') +
-        ' · <i class="fas fa-clock"></i> ' + fmtDate(p.at) +
-        '</p>' +
-        '</div>' +
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
-        '<span class="countdown-badge ' + countdownClass + '" ' +
-        (isDone ? '' : 'data-deadline="' + (p.deadline || 0) + '" data-confirmed="' + isConfirmed + '"') +
-        '>' + countdownText + '</span>' +
-        editBtn +
-        '</div>' +
-        '</div>' +
-        (p.note ? '<p style="font-size:12px;color:#d1d5db;margin-top:6px;line-height:1.4;">' + escapeHtml(p.note) + '</p>' : '') +
-        (!isDone ? // Seekbar progress untuk estimasi
-        (function() {
-          var now2 = Date.now();
-          var startAt = p.at || 0;
-          var endAt = p.deadline || 0;
-          var pct = 0;
-          var isDone2 = p.status === 'Selesai';
-          if (isDone2) pct = 100;
-          else if (endAt > startAt) pct = Math.max(0, Math.min(100, Math.round(((now2 - startAt) / (endAt - startAt)) * 100)));
-          var seekCls = isDone2 ? 'neon-seekbar-success' : (pct >= 100 ? 'neon-seekbar-danger' : '');
-          return '<div style="margin-top:8px;">' +
-            '<div class="neon-seekbar ' + seekCls + '">' +
-            '<div class="neon-seekbar-fill" data-seek-start="' + startAt + '" data-seek-end="' + endAt + '" data-seek-done="' + isDone2 + '" style="width:' + pct + '%;"></div>' +
-            '</div>' +
-            '<div class="neon-seekbar-label">' +
-            '<span class="seek-left">' + fmtTime(startAt) + '</span>' +
-            '<span class="seek-pct">' + pct + '%</span>' +
-            '<span class="seek-right">' + (endAt ? fmtTime(endAt) : '-') + '</span>' +
-            '</div>' +
-            '</div>';
-        })() : '') +
-        confirmBtn +
-        '</div>';
-    }).join('');
-    startCountdownTicker();
-  });
-}
-
-/* ═══════════════════════════════════════════════
-   NOTIFIKASI DENGAN FILTER
-═══════════════════════════════════════════════ */
-function setNotifFilter(mode) {
-  notifFilter = mode;
-  document.querySelectorAll('.notif-tab').forEach(function(b) {
-    if (b.dataset.nfilter === mode) b.classList.add('active');
-    else b.classList.remove('active');
-  });
-  renderNotif();
-}
-
-function renderNotifFiltered() {
-  var lastRead = getNotifLastReadAt();
-  var allNotifs = [];
-
-  // ═══ 1. PEMBERITAHUAN (Info / SOS / New / SLA) ═══
-  if (typeof allTickets !== 'undefined') {
-    allTickets.forEach(function(t) {
-      if (t.isEmergency && t.status !== 'Selesai') {
-        allNotifs.push({
-          id: t.id, category: 'info',
-          title: '🚨 SOS EMERGENCY',
-          body: (t.customerName || '-') + ' - ' + (t.alamat || '-'),
-          time: t.createdAt || Date.now(),
-          color: '#ef4444', icon: 'fa-exclamation-circle',
-          key: 'notif_info_sos_' + t.id
-        });
-      }
-      if (!t.teknisiUid && t.status === 'Terkirim') {
-        allNotifs.push({
-          id: t.id, category: 'info',
-          title: '📥 Tiket Baru',
-          body: (t.customerName || '-') + ' - ' + (t.kategori || '-'),
-          time: t.createdAt || Date.now(),
-          color: '#00d4ff', icon: 'fa-inbox',
-          key: 'notif_info_new_' + t.id
-        });
-      }
-      if (t.status !== 'Selesai' && (t.slaDeadline || 0) < Date.now()) {
-        allNotifs.push({
-          id: t.id, category: 'info',
-          title: '⚠️ SLA Lewat',
-          body: (t.customerName || '-') + ' - ' + (t.kategori || '-'),
-          time: t.slaDeadline || Date.now(),
-          color: '#f59e0b', icon: 'fa-exclamation-triangle',
-          key: 'notif_info_sla_' + t.id
-        });
-      }
-    });
-  }
-
-  // ═══ 2. PROGRESS ═══
-  if (typeof allTickets !== 'undefined') {
-    allTickets.forEach(function(t) {
-      var ph = t.progressHistory;
-      if (!ph) return;
-      Object.keys(ph).forEach(function(k) {
-        var p = ph[k] || {};
-        if (!p.at) return;
-        allNotifs.push({
-          id: t.id, category: 'progress',
-          title: '📋 ' + (p.status || 'Progress') + ' — ' + (t.customerName || '-'),
-          body: (p.note ? p.note : 'Estimasi: ' + (p.durationMinutes || 0) + ' menit') +
-                ' · oleh ' + (p.updatedByName || '-'),
-          time: p.at,
-          color: '#c084fc', icon: 'fa-tasks',
-          key: 'notif_progress_' + t.id + '_' + k
-        });
-      });
-    });
-  }
-
-  // ═══ 3. SIBUK (Teknisi working) ═══
-  if (typeof allTickets !== 'undefined') {
-    allTickets.forEach(function(t) {
-      if ((t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan') && t.teknisiName) {
-        allNotifs.push({
-          id: t.id, category: 'busy',
-          title: '🔧 Teknisi Sibuk — ' + (t.teknisiName || '-'),
-          body: 'Menangani: ' + (t.customerName || '-') + ' · ' + (t.status || '-'),
-          time: t.updatedAt || Date.now(),
-          color: '#f59e0b', icon: 'fa-tools',
-          key: 'notif_busy_' + t.id + '_' + (t.status || '')
-        });
-      }
-    });
-  }
-
-  // ═══ FILTER BY TAB ═══
-  var filtered = allNotifs;
-  if (typeof notifFilter !== 'undefined' && notifFilter !== 'all') {
-    filtered = allNotifs.filter(function(n) { return n.category === notifFilter; });
-  }
-  filtered.sort(function(a, b) { return b.time - a.time; });
-
-  // ═══ ✅ HITUNG UNREAD BERDASARKAN WAKTU ═══
-  var unread = filtered.filter(function(n) { return n.time > lastRead; }).length;
-
-  // ═══ UPDATE BADGE ═══
-  var badge = document.getElementById('notifBadge');
-  if (badge) {
-    if (unread > 0) {
-      badge.textContent = unread > 9 ? '9+' : unread;
-      badge.style.display = 'flex';
-    } else {
-      badge.style.display = 'none';
-    }
-  }
-  var cl = document.getElementById('notifCountLabel');
-  if (cl) {
-    cl.textContent = unread > 0 ? unread + ' belum dibaca' : 'Belum ada pemberitahuan';
-  }
-
-  // ═══ RENDER LIST ═══
-  var listEl = document.getElementById('notifList');
-  if (!listEl) return;
-
-  if (filtered.length === 0) {
-    var emptyMsg = 'Belum Ada Pemberitahuan';
-    if (typeof notifFilter !== 'undefined') {
-      if (notifFilter === 'progress') emptyMsg = 'Belum Ada Update Progress';
-      if (notifFilter === 'busy') emptyMsg = 'Tidak Ada Teknisi Sibuk';
-    }
-    listEl.innerHTML =
-      '<div style="text-align:center;padding:40px 20px;">' +
-      '<i class="fas fa-bell-slash" style="font-size:40px;color:#374151;"></i>' +
-      '<p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">' + emptyMsg + '</p>' +
-      '<p style="color:#6b7280;margin-top:6px;font-size:12px;">Notifikasi akan muncul di sini</p>' +
-      '</div>';
-    return;
-  }
-
-  listEl.innerHTML = filtered.map(function(n) {
-    var isRead = n.time <= lastRead; // ✅ berdasarkan waktu
-    return '<div class="glass fade-in" onclick="handleNotifClick(\'' + n.key + '\',\'' + n.id + '\')" ' +
-      'style="border-radius: 10px; padding: 12px; cursor: pointer; border-left: 4px solid ' + n.color + ';' +
-      (isRead ? 'opacity: 0.55;' : '') +
-      ' display: flex; gap: 10px; margin-bottom: 8px;">' +
-      '<div style="width: 32px; height: 32px; border-radius: 8px; background: ' + n.color + '22; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
-      '<i class="fas ' + n.icon + '" style="color: ' + n.color + ';"></i></div>' +
-      '<div style="flex: 1; min-width: 0;">' +
-      '<p style="font-weight: 600; font-size: 13px;">' + escapeHtml(n.title) + '</p>' +
-      '<p style="font-size: 11px; color: #9ca3af; margin-top: 2px;" class="line-clamp-2">' + escapeHtml(n.body) + '</p>' +
-      '<p style="font-size: 10px; color: #6b7280; margin-top: 4px;">' + timeAgo(n.time) + '</p>' +
-      '</div>' +
-      (isRead ? '' : '<span style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0;align-self:center;"></span>') +
-      '</div>';
-  }).join('');
-}
-
-// Handler klik notif item
-function handleNotifClick(key, ticketId) {
-  try { localStorage.setItem(key, '1'); } catch (e) {}
-  // Tutup panel & buka ticket detail
-  var p = document.getElementById('notifPanel');
-  if (p) p.classList.remove('show');
-  if (typeof openTicketDetail === 'function') {
-    openTicketDetail(ticketId);
-  }
-}
-
-function markNotifReadKey(key, ticketId) {
-  try { localStorage.setItem(key, '1'); } catch (e) {}
-  renderNotifFiltered();
-}
-
-// Pastikan renderNotif selalu panggil versi terbaru
-if (typeof window !== 'undefined') {
-  window.renderNotif = renderNotifFiltered;
-}
-
-/* ═══════ CHAT HISTORY ═══════ */
 function openChatHistory(e) {
   if (e) e.stopPropagation();
   var m = $('chatHistoryModal'); if (!m) return;
@@ -2841,7 +2350,7 @@ function renderChatHistory() {
     });
 
     if (mineIds.length === 0) {
-      list.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-comment-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">Belum Ada Percakapan</p><p style="color:#6b7280;margin-top:6px;font-size:12px;">Chat akan muncul di sini.</p></div>';
+      list.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-comment-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">Belum Ada Percakapan</p></div>';
       if (count) count.textContent = '0 percakapan';
       return;
     }
@@ -2866,24 +2375,22 @@ function renderChatHistory() {
         preview = lc.msg;
       }
       var timeText = lc.ts ? timeAgo(lc.ts) : '-';
-      return '<div class="chat-history-item" onclick="closeChatHistory(); showView(\'Chat\',\'' + id + '\')" style="border-left-color: ' + statusColor + ';">' +
-        '<div class="chat-history-avatar" style="background: linear-gradient(135deg, ' + statusColor + ', #7c3aed);"><i class="fas fa-ticket-alt"></i></div>' +
-        '<div style="flex: 1; min-width: 0;">' +
-        '<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">' +
-        '<p style="font-weight: 600; font-size: 13.5px; color: #e5e7eb;" class="line-clamp-1">' + escapeHtml(t.kategori || 'Chat') + '</p>' +
-        '<span style="font-size: 10px; color: #6b7280; white-space: nowrap;">' + timeText + '</span></div>' +
-        '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">' +
-        '<span class="badge ' + statusBadgeClass(t.status) + '" style="font-size: 9px; padding: 1px 6px;">' + escapeHtml(t.status || '-') + '</span>' +
-        '<span style="font-family: ui-monospace, monospace; font-size: 10px; color: #6b7280;">#' + safeSub(id, 1, 6).toUpperCase() + '</span></div>' +
-        '<div class="chat-history-preview">' + (icon ? icon + ' ' : '') + (senderLabel ? senderLabel + ': ' : '') + '<span style="color: #9ca3af;">' + escapeHtml(preview) + '</span></div>' +
+      return '<div class="chat-list-item" onclick="closeChatHistory(); showView(\'Chat\',\'' + id + '\')" style="border-left: 4px solid ' + statusColor + '; padding-left: 10px;">' +
+        '<div class="chat-list-avatar" style="background: linear-gradient(135deg, ' + statusColor + ', #7c3aed);"><i class="fas fa-ticket-alt"></i></div>' +
+        '<div class="chat-list-content">' +
+        '<div class="chat-list-name"><span class="line-clamp-1">' + escapeHtml(t.kategori || 'Chat') + '</span><span class="time">' + timeText + '</span></div>' +
+        '<div class="chat-list-preview">' + (icon ? icon + ' ' : '') + (senderLabel ? senderLabel + ': ' : '') + '<span class="text">' + escapeHtml(preview) + '</span></div>' +
+        '<div style="font-size:10px;color:#6b7280;font-family:ui-monospace,monospace;margin-top:2px;">#' + safeSub(id, 1, 6).toUpperCase() + ' · ' + escapeHtml(t.status || '-') + '</div>' +
         '</div>' +
-        (unread > 0 ? '<span style="background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0 6px;">' + unread + '</span>' : '') +
+        (unread > 0 ? '<span class="chat-list-badge">' + (unread > 99 ? '99+' : unread) + '</span>' : '') +
         '</div>';
     }).join('');
   } catch (err) { logErr('renderChatHistory error', err); }
 }
 
-/* ═══════ PERFORMANCE ═══════ */
+/* ═══════════════════════════════════════════════
+   PERFORMANCE
+═══════════════════════════════════════════════ */
 function renderPerformance() {
   var mine = allTickets;
   var done = mine.filter(function(t) { return t.status === 'Selesai'; });
@@ -2938,7 +2445,9 @@ function renderPerformance() {
   }
 }
 
-/* ═══════ PROFILE ═══════ */
+/* ═══════════════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════════════ */
 function loadProfileForm() {
   if (!currentUserData) return;
   var pn = $('profNama'); if (pn) pn.value = currentUserData.nama || '';
@@ -2959,94 +2468,120 @@ async function saveProfile() {
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════ NOTIF ═══════ */
+/* ═══════════════════════════════════════════════
+   NOTIFIKASI
+═══════════════════════════════════════════════ */
+function getNotifLastReadAt() {
+  try { return parseInt(localStorage.getItem('lks_notif_lastReadAt') || '0', 10); } catch (e) { return 0; }
+}
+function markAllNotifsRead() {
+  try { localStorage.setItem('lks_notif_lastReadAt', String(Date.now())); } catch (e) {}
+}
+function setNotifFilter(mode) {
+  notifFilter = mode;
+  document.querySelectorAll('.notif-tab').forEach(function(b) {
+    if (b.dataset.nfilter === mode) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderNotif();
+}
 function renderNotif() {
   try {
-    var notifs = [];
+    var lastRead = getNotifLastReadAt();
+    var allNotifs = [];
+
     allTickets.forEach(function(t) {
-      if (t.updatedAt > Date.now() - 7 * 24 * 3600000) {
-        var key = 'tech_notif_' + t.id + '_' + t.status + '_' + t.updatedAt;
-        notifs.push({
-          id: t.id,
-          title: t.kategori + ' - ' + (t.customerName || '-'),
-          body: 'Status: ' + t.status + ((t.priority === 'Critical' || t.isEmergency) ? ' • 🚨 PRIORITAS' : ''),
-          time: t.updatedAt,
-          isRead: !!localStorage.getItem(key)
+      if (t.isEmergency && t.status !== 'Selesai') {
+        allNotifs.push({ id: t.id, category: 'info', title: '🚨 SOS EMERGENCY', body: (t.customerName || '-') + ' - ' + (t.alamat || '-'), time: t.createdAt || Date.now(), color: '#ef4444', icon: 'fa-exclamation-circle', key: 'notif_info_sos_' + t.id });
+      }
+      if (t.status !== 'Selesai' && (t.slaDeadline || 0) < Date.now()) {
+        allNotifs.push({ id: t.id, category: 'info', title: '⚠️ SLA Lewat', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.slaDeadline || Date.now(), color: '#f59e0b', icon: 'fa-exclamation-triangle', key: 'notif_info_sla_' + t.id });
+      }
+    });
+
+    allPoolTickets.forEach(function(t) {
+      allNotifs.push({ id: t.id, category: 'info', title: '📥 Tiket Baru di Pool', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.createdAt || Date.now(), color: '#00d4ff', icon: 'fa-inbox', key: 'notif_info_pool_' + t.id });
+    });
+
+    allTickets.forEach(function(t) {
+      var ph = t.progressHistory;
+      if (!ph) return;
+      Object.keys(ph).forEach(function(k) {
+        var p = ph[k] || {};
+        if (!p.at) return;
+        allNotifs.push({
+          id: t.id, category: 'progress',
+          title: '📋 ' + (p.status || 'Progress') + ' — ' + (t.customerName || '-'),
+          body: (p.note ? p.note : 'Estimasi: ' + (p.durationMinutes || 0) + ' menit') + ' · oleh ' + (p.updatedByName || '-'),
+          time: p.at, color: '#c084fc', icon: 'fa-tasks', key: 'notif_progress_' + t.id + '_' + k
+        });
+      });
+    });
+
+    allTickets.forEach(function(t) {
+      if ((t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan') && t.teknisiName) {
+        allNotifs.push({
+          id: t.id, category: 'busy',
+          title: '🔧 Teknisi Menangani Tiket',
+          body: (t.teknisiName || '-') + ' menangani: ' + (t.customerName || '-'),
+          time: t.updatedAt || Date.now(), color: '#f59e0b', icon: 'fa-tools', key: 'notif_busy_' + t.id + '_' + (t.status || '')
         });
       }
     });
-    allPoolTickets.forEach(function(t) {
-      var key = 'tech_notif_pool_' + t.id;
-      notifs.push({
-        id: t.id,
-        title: 'Tiket Baru di Pool: ' + t.kategori,
-        body: (t.customerName || '-') + ' - ' + (t.alamat || ''),
-        time: t.createdAt || Date.now(),
-        isRead: !!localStorage.getItem(key)
-      });
-    });
-    notifs.sort(function(a, b) { return b.time - a.time; });
-    var unread = notifs.filter(function(n) { return !n.isRead; }).length;
+
+    var filtered = allNotifs;
+    if (notifFilter !== 'all') filtered = allNotifs.filter(function(n) { return n.category === notifFilter; });
+    filtered.sort(function(a, b) { return b.time - a.time; });
+
+    var unread = filtered.filter(function(n) { return n.time > lastRead; }).length;
     var badge = $('notifBadge');
     if (badge) {
       if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.style.display = 'flex'; }
       else badge.style.display = 'none';
     }
-    var nl = $('notifList');
-    if (nl) {
-      if (notifs.length === 0) {
-        nl.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-bell-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">Belum Ada Pemberitahuan</p><p style="color:#6b7280;margin-top:6px;font-size:12px;">Notifikasi akan muncul saat ada tiket baru</p></div>';
-      } else {
-        nl.innerHTML = notifs.map(function(n) {
-          return '<div class="glass" onclick="markNotifRead(\'' + n.id + '\'); toggleNotif(event); openTicketDetail(\'' + n.id + '\')" style="border-radius:10px;padding:12px;cursor:pointer;' + (n.isRead ? 'opacity:0.6;' : '') + 'margin-bottom:8px;">' +
-            '<p style="font-weight:600;font-size:13px;">' + escapeHtml(n.title) + '</p>' +
-            '<p style="font-size:11px;color:#9ca3af;margin-top:4px;">' + escapeHtml(n.body) + '</p>' +
-            '<p style="font-size:11px;color:#6b7280;margin-top:4px;">' + timeAgo(n.time) + '</p>' +
-            '</div>';
-        }).join('');
-      }
-    }
     var cl = $('notifCountLabel');
     if (cl) cl.textContent = unread > 0 ? unread + ' belum dibaca' : 'Belum ada pemberitahuan';
+
+    var listEl = $('notifList');
+    if (!listEl) return;
+    if (filtered.length === 0) {
+      var emptyMsg = 'Belum Ada Pemberitahuan';
+      if (notifFilter === 'progress') emptyMsg = 'Belum Ada Update Progress';
+      if (notifFilter === 'busy') emptyMsg = 'Tidak Ada Teknisi Sibuk';
+      listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-bell-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">' + emptyMsg + '</p></div>';
+      return;
+    }
+    listEl.innerHTML = filtered.map(function(n) {
+      var isRead = n.time <= lastRead;
+      return '<div class="glass fade-in" onclick="handleNotifClick(\'' + n.key + '\',\'' + n.id + '\')" style="border-radius: 10px; padding: 12px; cursor: pointer; border-left: 4px solid ' + n.color + ';' + (isRead ? 'opacity: 0.55;' : '') + ' display: flex; gap: 10px; margin-bottom: 8px;">' +
+        '<div style="width: 32px; height: 32px; border-radius: 8px; background: ' + n.color + '22; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fas ' + n.icon + '" style="color: ' + n.color + ';"></i></div>' +
+        '<div style="flex: 1; min-width: 0;">' +
+        '<p style="font-weight: 600; font-size: 13px;">' + escapeHtml(n.title) + '</p>' +
+        '<p style="font-size: 11px; color: #9ca3af; margin-top: 2px;" class="line-clamp-2">' + escapeHtml(n.body) + '</p>' +
+        '<p style="font-size: 10px; color: #6b7280; margin-top: 4px;">' + timeAgo(n.time) + '</p>' +
+        '</div>' +
+        (isRead ? '' : '<span style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0;align-self:center;"></span>') +
+        '</div>';
+    }).join('');
   } catch (err) { logErr('renderNotif error', err); }
 }
-function markNotifRead(id) {
-  var t = ticketsCache[id];
-  if (t) localStorage.setItem('tech_notif_' + t.id + '_' + t.status + '_' + t.updatedAt, '1');
-  localStorage.setItem('tech_notif_pool_' + id, '1');
-  renderNotif();
-}
-/* ═══════════════════════════════════════════════
-   NOTIF READ TRACKER — Badge hilang setelah dibuka
-═══════════════════════════════════════════════ */
 
-// Ambil waktu terakhir panel notif dibuka
-function getNotifLastReadAt() {
-  try { return parseInt(localStorage.getItem('lks_notif_lastReadAt') || '0', 10); }
-  catch (e) { return 0; }
+function handleNotifClick(key, ticketId) {
+  try { localStorage.setItem(key, '1'); } catch (e) {}
+  var p = $('notifPanel'); if (p) p.classList.remove('show');
+  openTicketDetail(ticketId);
 }
 
-// Tandai semua notif lama sebagai sudah dibaca
-function markAllNotifsRead() {
-  try { localStorage.setItem('lks_notif_lastReadAt', String(Date.now())); } catch (e) {}
-}
-
-// Toggle panel — saat buka, tandai semua read
 function toggleNotif(e) {
   if (e) e.stopPropagation();
-  var p = document.getElementById('notifPanel');
-  if (!p) return;
-  if (p.classList.contains('show')) {
-    p.classList.remove('show');
-  } else {
-    // ✅ Tandai semua notif LAMA sebagai sudah dibaca
-    markAllNotifsRead();
-    p.classList.add('show');
-    if (typeof renderNotif === 'function') renderNotif();
-  }
+  var p = $('notifPanel'); if (!p) return;
+  if (p.classList.contains('show')) p.classList.remove('show');
+  else { markAllNotifsRead(); p.classList.add('show'); renderNotif(); }
 }
 
-/* ═══════ VIEW ═══════ */
+/* ═══════════════════════════════════════════════
+   VIEW NAV
+═══════════════════════════════════════════════ */
 function showView(name, ticketId) {
   document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
   var view = $('view' + name); if (view) view.classList.add('active');
@@ -3067,7 +2602,9 @@ function showView(name, ticketId) {
   window.scrollTo(0, 0);
 }
 
-/* ═══════ SUCCESS / LOGOUT ═══════ */
+/* ═══════════════════════════════════════════════
+   SUCCESS / LOGOUT
+═══════════════════════════════════════════════ */
 function showSuccessModal(title, msg) {
   var t = $('successTitle'); if (t) t.textContent = title;
   var m = $('successMsg'); if (m) m.textContent = msg;
@@ -3102,7 +2639,9 @@ async function forceLogout() {
   showLoginPage();
 }
 
-/* ═══════ RESPONSIVE ═══════ */
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
 function applyResponsive() {
   var isDesktop = window.innerWidth >= 1024;
   var s = $('sidebar'), bn = $('bottomNav'), ma = $('mainApp');
@@ -3116,10 +2655,11 @@ function applyResponsive() {
     if (ma) ma.style.paddingBottom = '80px';
   }
 }
-
-/* ═══════ EVENTS ═══════ */
 window.addEventListener('resize', applyResponsive);
 
+/* ═══════════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════════ */
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     var lp = $('loginPage');
@@ -3132,7 +2672,9 @@ window.addEventListener('beforeunload', function() {
   if (currentUid) { try { db.ref('users/' + currentUid + '/tersedia').set(false); } catch (e) {} }
 });
 
-/* ═══════ INIT ═══════ */
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     setupFileInputs();
