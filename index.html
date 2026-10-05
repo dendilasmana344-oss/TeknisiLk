@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a0e1a">
 <title>Lakso Global - Teknisi</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +12,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; min-height: 100%; }
@@ -25,7 +23,7 @@ a { color: inherit; text-decoration: none; }
 .view.active { display: block !important; }
 .hidden-important { display: none !important; }
 #splashLoader { display: flex; }
-#loginPage, #mainApp, #notifPanel, #acceptModal, #progressModal, #finishModal, #pendingModal, #escalateModal, #chatHistoryModal, #maintenancePopup, #successModal, #logoutModal, #toast { display: none; }
+#loginPage, #mainApp, #notifPanel, #acceptModal, #progressModal, #finishModal, #pendingModal, #escalateModal, #chatHistoryModal, #maintenancePopup, #successModal, #logoutModal, #toast, #backupModal, #notifDetailModal, #targetModal, #absensiModal, #uploadFotoModal, #ruteModal, #offlineBanner { display: none; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #111827; }
 ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
@@ -43,6 +41,8 @@ a { color: inherit; text-decoration: none; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 .slide-right { animation: slideRight 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes slideRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.slide-down { animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .spin { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
@@ -84,14 +84,12 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) { input, textarea, select { font-size: 16px !important; } }
 .badge-pulse { animation: badgePulse 0.6s ease-out; }
 @keyframes badgePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
-.filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid #1f2937; color: #9ca3af; background: rgba(17, 24, 39, 0.5); transition: all 0.2s; }
+.filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; border: 1px solid #1f2937; color: #9ca3af; background: rgba(17, 24, 39, 0.5); transition: all 0.2s; cursor: pointer; }
 .filter-chip.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
 .photo-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
 .photo-item { position: relative; aspect-ratio: 1; }
 .photo-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #1f2937; }
 .photo-remove { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; background: #ef4444; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #0a0e1a; }
-
-/* Neon Seekbar */
 .neon-seekbar { position: relative; height: 10px; background: rgba(10, 14, 26, 0.8); border-radius: 999px; overflow: hidden; border: 1px solid rgba(0, 212, 255, 0.25); box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5); }
 .neon-seekbar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff 0%, #7c3aed 50%, #00ff88 100%); border-radius: 999px; box-shadow: 0 0 8px #00d4ff, 0 0 16px rgba(124, 58, 237, 0.6), 0 0 24px rgba(0, 255, 136, 0.4); transition: width 1s linear; position: relative; overflow: hidden; }
 .neon-seekbar-fill::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%); animation: neonSweep 2.5s ease-in-out infinite; }
@@ -102,8 +100,6 @@ a { color: inherit; text-decoration: none; }
 .neon-seekbar-label .seek-left { color: #00d4ff; }
 .neon-seekbar-label .seek-right { color: #7c3aed; }
 .neon-seekbar-label .seek-pct { color: #00ff88; font-weight: 700; }
-
-/* Maintenance Popup */
 .maint-popup { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 300; display: none; align-items: center; justify-content: center; padding: 16px; }
 .maint-popup.show { display: flex; }
 .maint-box { background: rgba(17, 24, 39, 0.98); border-radius: 20px; padding: 24px; width: 100%; max-width: 440px; border: 2px solid; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -114,8 +110,6 @@ a { color: inherit; text-decoration: none; }
 .maint-timer-top { display: flex; justify-content: space-between; font-size: 11px; color: #9ca3af; margin-bottom: 10px; }
 .maint-info { text-align: center; font-size: 11px; color: #6b7280; line-height: 1.5; }
 .maint-info i { color: #f59e0b; }
-
-/* Progress Card */
 .progress-card { background: rgba(17, 24, 39, 0.6); border-radius: 10px; padding: 12px; border-left: 4px solid #00d4ff; margin-bottom: 8px; position: relative; transition: all 0.2s; }
 .progress-card.expired { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
 .progress-card.confirmed { border-left-color: #34d399; background: rgba(16, 185, 129, 0.08); }
@@ -124,27 +118,28 @@ a { color: inherit; text-decoration: none; }
 .countdown-expired { background: rgba(245, 158, 11, 0.2); color: #fbbf24; animation: pulseWarn 1.5s infinite; }
 .countdown-confirmed { background: rgba(16, 185, 129, 0.15); color: #34d399; }
 @keyframes pulseWarn { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-.progress-edit-btn { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.3); color: #00d4ff; }
-.progress-confirm-btn { padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; margin-top: 6px; width: 100%; }
-.duration-btn { padding: 10px 6px; border-radius: 8px; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #e5e7eb; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.progress-edit-btn { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 600; background: rgba(0, 212, 255, 0.12); border: 1px solid rgba(0, 212, 255, 0.3); color: #00d4ff; cursor: pointer; }
+.progress-confirm-btn { padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; margin-top: 6px; width: 100%; cursor: pointer; }
+.duration-btn { padding: 10px 6px; border-radius: 8px; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #e5e7eb; font-size: 12px; font-weight: 600; transition: all 0.2s; cursor: pointer; }
 .duration-btn:hover { border-color: #00d4ff; }
 .duration-btn.active { border: 2px solid #00d4ff; background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
-
-/* Notif Tabs */
 .notif-tabs { display: flex; gap: 4px; padding: 10px 12px; border-bottom: 1px solid #1f2937; overflow-x: auto; background: rgba(11, 15, 25, 0.5); scrollbar-width: none; }
 .notif-tabs::-webkit-scrollbar { display: none; }
-.notif-tab { padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #9ca3af; white-space: nowrap; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+.notif-tab { padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); color: #9ca3af; white-space: nowrap; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
 .notif-tab.active { background: linear-gradient(135deg, #00d4ff, #0091ff); color: #fff; border-color: transparent; }
 .notif-tab i { font-size: 10px; }
 
-/* Chat Layout */
+/* ============================================
+   CHAT LAYOUT FIX — single panel mobile, dual desktop
+============================================ */
+.chat-shell { position: relative; }
 .chat-layout { display: flex; height: calc(100vh - 180px); min-height: 500px; border-radius: 16px; overflow: hidden; border: 1px solid #1f2937; background: rgba(17, 24, 39, 0.5); }
 .chat-sidebar { width: 340px; flex-shrink: 0; border-right: 1px solid #1f2937; display: flex; flex-direction: column; background: rgba(11, 15, 25, 0.5); }
 .chat-sidebar-header { padding: 14px 16px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; justify-content: space-between; }
 .chat-sidebar-search { padding: 10px 12px; border-bottom: 1px solid #1f2937; }
 .chat-sidebar-search input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #1f2937; border-radius: 20px; padding: 9px 14px; color: #e5e7eb; outline: none; font-size: 13px; }
 .chat-list { flex: 1; overflow-y: auto; }
-.chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid rgba(31, 41, 55, 0.5); transition: background 0.15s; position: relative; }
+.chat-list-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid rgba(31, 41, 55, 0.5); transition: background 0.15s; position: relative; cursor: pointer; }
 .chat-list-item:hover { background: rgba(0, 212, 255, 0.05); }
 .chat-list-item.active { background: rgba(0, 212, 255, 0.12); border-left: 3px solid #00d4ff; padding-left: 11px; }
 .chat-list-avatar { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; position: relative; }
@@ -158,7 +153,8 @@ a { color: inherit; text-decoration: none; }
 .chat-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.05)); }
 .chat-panel-header { padding: 14px 18px; border-bottom: 1px solid #1f2937; background: rgba(0, 212, 255, 0.05); display: flex; align-items: center; gap: 12px; }
 .chat-panel-header .back-btn { display: none; width: 36px; height: 36px; border-radius: 50%; background: rgba(17,24,39,0.6); border: 1px solid #1f2937; align-items: center; justify-content: center; color: #9ca3af; margin-right: 4px; flex-shrink: 0; }
-.chat-panel-header .avatar-panel { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+.chat-panel-header .avatar-panel { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; overflow: hidden; }
+.chat-panel-header .avatar-panel img { width: 100%; height: 100%; object-fit: cover; }
 .chat-panel-header .panel-info { flex: 1; min-width: 0; }
 .chat-panel-header .panel-name { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-panel-header .panel-status { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -169,7 +165,8 @@ a { color: inherit; text-decoration: none; }
 .chat-empty .empty-title { font-size: 15px; font-weight: 700; color: #9ca3af; margin-bottom: 6px; }
 .msg-wrapper { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; width: 100%; }
 .msg-wrapper.mine { flex-direction: row-reverse; }
-.msg-avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; }
+.msg-avatar { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; overflow: hidden; }
+.msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .msg-avatar.admin { background: linear-gradient(135deg, #c084fc, #7c3aed); }
 .msg-avatar.teknisi { background: linear-gradient(135deg, #34d399, #059669); }
 .msg-avatar.customer { background: linear-gradient(135deg, #00d4ff, #0091ff); }
@@ -188,16 +185,87 @@ a { color: inherit; text-decoration: none; }
 .msg-time { font-size: 10px; opacity: 0.6; margin-top: 3px; padding: 0 4px; color: #9ca3af; }
 .msg-system { display: flex; justify-content: center; margin: 6px 0; }
 .msg-system .msg-bubble { background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 999px; font-size: 11.5px; padding: 5px 14px; max-width: 85%; text-align: center; }
-@media (max-width: 768px) {
+
+/* MOBILE: single panel — chat list OR chat panel */
+@media (max-width: 1023px) {
   .chat-layout { height: calc(100vh - 200px); position: relative; }
   .chat-sidebar { width: 100%; position: absolute; inset: 0; z-index: 5; }
   .chat-panel { width: 100%; position: absolute; inset: 0; z-index: 6; display: none; }
   .chat-layout.mobile-open .chat-panel { display: flex; }
+  .chat-layout.mobile-open .chat-sidebar { visibility: hidden; }
   .chat-panel-header .back-btn { display: flex; }
 }
+/* DESKTOP: side by side, full width, spacious */
+@media (min-width: 1024px) {
+  .chat-layout { height: calc(100vh - 160px); }
+  .chat-sidebar { width: 360px; }
+  .chat-panel-messages { padding: 24px 28px; }
+  .msg-content { max-width: 70%; }
+}
+
+/* ============================================
+   NOTIF TOP POPUP — muncul atas, ada close
+============================================ */
+#notifTopStack { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); z-index: 250; width: 100%; max-width: 420px; padding: 0 12px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.notif-top-item { background: rgba(17, 24, 39, 0.98); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); display: flex; gap: 10px; pointer-events: auto; cursor: pointer; animation: notifSlideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-left: 4px solid #00d4ff; }
+@keyframes notifSlideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+.notif-top-item.fade-out { animation: notifFadeOut 0.3s ease-out forwards; }
+@keyframes notifFadeOut { to { opacity: 0; transform: translateY(-20px); } }
+.notif-top-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+.notif-top-body { flex: 1; min-width: 0; }
+.notif-top-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.notif-top-msg { font-size: 11.5px; color: #d1d5db; line-height: 1.4; }
+.notif-top-close { width: 24px; height: 24px; border-radius: 50%; background: rgba(107,114,128,0.2); display: flex; align-items: center; justify-content: center; color: #9ca3af; flex-shrink: 0; font-size: 11px; }
+
+/* ============================================
+   RESPONSIVE DESKTOP — clamp font & spacing
+============================================ */
+@media (min-width: 1024px) {
+  main { max-width: 1200px !important; padding: 20px 24px 32px !important; }
+  #viewDashboard > div:first-child { padding: 22px !important; }
+  #dashName { font-size: clamp(20px, 1.6vw, 26px) !important; }
+  header > div { padding: 14px 24px !important; }
+  header h1 { font-size: 17px !important; }
+  header #headerSubtitle { font-size: 12px !important; }
+  header button i { font-size: 18px !important; }
+  .glass { border-radius: 16px; }
+  #ticketList > div { padding: 18px !important; }
+  .chat-layout { max-height: 780px; }
+}
+@media (min-width: 1400px) {
+  main { max-width: 1400px !important; }
+}
+/* Desktop-only grid columns */
+@media (min-width: 1024px) {
+  #viewDashboard .dash-stats-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  #viewPerformance .perf-stats-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}
+/* Offline banner */
+#offlineBanner { position: fixed; top: 0; left: 0; right: 0; z-index: 210; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; text-align: center; padding: 6px; font-size: 12px; font-weight: 600; }
+/* Komisi card */
+.komisi-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(0, 212, 255, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 14px; }
+/* Leaderboard */
+.lb-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; margin-bottom: 6px; background: rgba(17, 24, 39, 0.6); border-left: 4px solid #374151; }
+.lb-item.rank-1 { border-left-color: #facc15; background: linear-gradient(90deg, rgba(250, 204, 21, 0.12), transparent); }
+.lb-item.rank-2 { border-left-color: #cbd5e1; background: linear-gradient(90deg, rgba(203, 213, 225, 0.1), transparent); }
+.lb-item.rank-3 { border-left-color: #fb923c; background: linear-gradient(90deg, rgba(251, 146, 60, 0.1), transparent); }
+/* Chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 140px; padding: 8px 0; }
+.bar-chart .bar { flex: 1; background: linear-gradient(180deg, #00d4ff, #7c3aed); border-radius: 6px 6px 0 0; min-height: 4px; position: relative; transition: all 0.3s; cursor: pointer; }
+.bar-chart .bar:hover { filter: brightness(1.3); }
+.bar-chart .bar-label { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #6b7280; white-space: nowrap; }
+.bar-chart .bar-count { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #9ca3af; font-weight: 600; }
 </style>
 </head>
 <body>
+
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner" class="hidden-important">
+  <i class="fas fa-wifi"></i> Mode Offline — Data akan disinkronkan saat online
+</div>
+
+<!-- NOTIF TOP STACK (popup dari atas) -->
+<div id="notifTopStack"></div>
 
 <!-- SPLASH -->
 <div id="splashLoader">
@@ -260,6 +328,10 @@ a { color: inherit; text-decoration: none; }
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 4px;">
+        <button onclick="toggleAbsensi()" id="absensiBtn" style="padding: 6px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(107, 114, 128, 0.3); background: rgba(107, 114, 128, 0.15); color: #9ca3af;">
+          <i class="fas fa-user-clock"></i>
+          <span id="absensiText">Belum Absen</span>
+        </button>
         <button onclick="toggleAvailability()" id="availBtn" style="padding: 6px 10px; border-radius: 8px; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.15); color: #34d399;">
           <span style="width: 7px; height: 7px; border-radius: 50%; background: #34d399;"></span>
           <span id="availText">Tersedia</span>
@@ -292,6 +364,9 @@ a { color: inherit; text-decoration: none; }
         <button onclick="showView('Performance')" class="sidebar-item" data-sidebar="Performance" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px; text-align: left; width: 100%;">
           <i class="fas fa-chart-line" style="width: 20px;"></i><span>Performa</span>
         </button>
+        <button onclick="showView('Leaderboard')" class="sidebar-item" data-sidebar="Leaderboard" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px; text-align: left; width: 100%;">
+          <i class="fas fa-trophy" style="width: 20px;"></i><span>Leaderboard</span>
+        </button>
         <button onclick="showView('Profile')" class="sidebar-item" data-sidebar="Profile" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: #9ca3af; font-size: 14px; text-align: left; width: 100%;">
           <i class="fas fa-user" style="width: 20px;"></i><span>Profil</span>
         </button>
@@ -310,6 +385,34 @@ a { color: inherit; text-decoration: none; }
     <main style="flex: 1; min-width: 0; padding: 12px 10px 20px;">
       <!-- DASHBOARD -->
       <div id="viewDashboard" class="view active">
+        <!-- Absensi & Target widget -->
+        <div class="glass slide-up" style="border-radius: 14px; padding: 14px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(124, 58, 237, 0.05));">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <i class="fas fa-user-clock" style="color: #00d4ff;"></i>
+                <span style="font-size: 12px; font-weight: 700; color: #00d4ff;">ABSENSI HARI INI</span>
+              </div>
+              <p id="absensiStatusText" style="font-size: 13px; font-weight: 600;">Belum check-in</p>
+              <p id="absensiDetailText" style="font-size: 11px; color: #6b7280; margin-top: 2px;">Klik tombol untuk memulai kerja</p>
+            </div>
+            <button onclick="toggleAbsensi()" id="absensiMainBtn" class="btn-primary" style="padding: 10px 16px; border-radius: 10px; font-size: 12px; font-weight: 700;">
+              <i class="fas fa-sign-in-alt"></i> Mulai Kerja
+            </button>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(31, 41, 55, 0.5);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 11px; color: #9ca3af;"><i class="fas fa-bullseye" style="margin-right: 4px;"></i>Target Harian: <b id="targetLabel" style="color: #00d4ff;">5 tiket</b></span>
+              <span style="font-size: 11px; font-weight: 700; color: #34d399;"><span id="targetProgressNum">0</span>/<span id="targetProgressTotal">5</span></span>
+            </div>
+            <div class="neon-seekbar" style="height: 8px;">
+              <div id="targetSeekFill" class="neon-seekbar-fill" style="width: 0%;"></div>
+            </div>
+            <button onclick="openTargetModal()" style="margin-top: 8px; font-size: 11px; color: #6b7280;"><i class="fas fa-edit"></i> Ubah Target</button>
+          </div>
+        </div>
+
+        <!-- Greeting -->
         <div class="glass slide-up" style="border-radius: 14px; padding: 14px; margin-bottom: 12px;">
           <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 0;">
@@ -331,7 +434,8 @@ a { color: inherit; text-decoration: none; }
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+        <!-- Stats -->
+        <div class="dash-stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
           <div class="glass" style="border-radius: 10px; padding: 10px;">
             <i class="fas fa-inbox" style="color: #60a5fa; font-size: 16px;"></i>
             <p id="statNew" style="font-size: 20px; font-weight: 700; margin-top: 4px; color: #fff;">0</p>
@@ -354,6 +458,17 @@ a { color: inherit; text-decoration: none; }
           </div>
         </div>
 
+        <!-- Quick Actions -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <button onclick="openRuteModal()" class="glass" style="padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 12px; font-weight: 600; color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3);">
+            <i class="fas fa-route" style="font-size: 14px;"></i> Rute Hari Ini
+          </button>
+          <button onclick="exportLaporanHarian()" class="glass" style="padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 12px; font-weight: 600; color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3);">
+            <i class="fas fa-file-csv" style="font-size: 14px;"></i> Export Harian
+          </button>
+        </div>
+
+        <!-- Filter -->
         <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 8px;">
           <button onclick="setFilter('all')" data-filter="all" class="filter-chip active" style="font-size: 12px; padding: 6px 12px;">Semua</button>
           <button onclick="setFilter('new')" data-filter="new" class="filter-chip" style="font-size: 12px; padding: 6px 12px;">Baru</button>
@@ -380,60 +495,62 @@ a { color: inherit; text-decoration: none; }
         <div id="ticketDetailContent"></div>
       </div>
 
-      <!-- CHAT -->
+      <!-- CHAT (FIXED: single panel mobile, dual desktop) -->
       <div id="viewChat" class="view">
-        <div class="chat-layout" id="chatLayout">
-          <div class="chat-sidebar">
-            <div class="chat-sidebar-header">
-              <div>
-                <h3 style="font-size: 14px; font-weight: 700;"><i class="fas fa-comments" style="color: #00d4ff; margin-right: 6px;"></i>Chat</h3>
-                <p id="chatListCount" style="font-size: 11px; color: #6b7280;">0 percakapan</p>
-              </div>
-              <button onclick="renderChatList()" style="padding: 6px; color: #9ca3af; border-radius: 6px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;">
-                <i class="fas fa-sync-alt" style="font-size: 12px;"></i>
-              </button>
-            </div>
-            <div class="chat-sidebar-search">
-              <input type="text" id="chatListSearch" oninput="renderChatList()" placeholder="🔍 Cari nama / tiket...">
-            </div>
-            <div class="chat-list" id="chatListSidebar"></div>
-          </div>
-          <div class="chat-panel" id="chatPanel">
-            <div id="chatPanelEmpty" class="chat-empty">
-              <i class="fas fa-comments"></i>
-              <div class="empty-title">Pilih Percakapan</div>
-              <div style="font-size: 12px; color: #6b7280; margin-top: 6px;">Klik salah satu chat di kiri</div>
-            </div>
-            <div id="chatPanelActive" style="display: none; flex: 1; flex-direction: column;">
-              <div class="chat-panel-header">
-                <button class="back-btn" onclick="closeMobileChat()"><i class="fas fa-arrow-left"></i></button>
-                <div class="avatar-panel"><i class="fas fa-user"></i></div>
-                <div class="panel-info">
-                  <p class="panel-name" id="chatPanelName">-</p>
-                  <p class="panel-status" id="chatPanelStatus">-</p>
+        <div class="chat-shell">
+          <div class="chat-layout" id="chatLayout">
+            <div class="chat-sidebar" id="chatSidebar">
+              <div class="chat-sidebar-header">
+                <div>
+                  <h3 style="font-size: 14px; font-weight: 700;"><i class="fas fa-comments" style="color: #00d4ff; margin-right: 6px;"></i>Chat</h3>
+                  <p id="chatListCount" style="font-size: 11px; color: #6b7280;">0 percakapan</p>
                 </div>
-                <button onclick="openTicketDetailFromChat()" style="padding: 6px; color: #9ca3af; border-radius: 8px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;" title="Detail">
-                  <i class="fas fa-info-circle"></i>
+                <button onclick="renderChatList()" style="padding: 6px; color: #9ca3af; border-radius: 6px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;">
+                  <i class="fas fa-sync-alt" style="font-size: 12px;"></i>
                 </button>
               </div>
-              <div class="chat-panel-messages" id="chatMessages"></div>
-              <div class="chat-panel-input">
-                <div style="display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 4px;">
-                  <button onclick="sendQuickMsg('Saya sedang dalam perjalanan ke lokasi Anda.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
-                    <i class="fas fa-truck" style="color: #facc15; margin-right: 4px;"></i>OTW
-                  </button>
-                  <button onclick="sendQuickMsg('Saya sudah tiba di lokasi.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
-                    <i class="fas fa-map-marker-alt" style="color: #34d399; margin-right: 4px;"></i>Tiba
-                  </button>
-                  <button onclick="sendQuickMsg('Sedang saya kerjakan, mohon tunggu.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
-                    <i class="fas fa-tools" style="color: #fb923c; margin-right: 4px;"></i>Dikerjakan
+              <div class="chat-sidebar-search">
+                <input type="text" id="chatListSearch" oninput="renderChatList()" placeholder="🔍 Cari nama / tiket...">
+              </div>
+              <div class="chat-list" id="chatListSidebar"></div>
+            </div>
+            <div class="chat-panel" id="chatPanel">
+              <div id="chatPanelEmpty" class="chat-empty">
+                <i class="fas fa-comments"></i>
+                <div class="empty-title">Pilih Percakapan</div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 6px;">Klik salah satu chat di kiri</div>
+              </div>
+              <div id="chatPanelActive" style="display: none; flex: 1; flex-direction: column;">
+                <div class="chat-panel-header">
+                  <button class="back-btn" onclick="closeMobileChat()"><i class="fas fa-arrow-left"></i></button>
+                  <div class="avatar-panel" id="chatPanelAvatar"><i class="fas fa-user"></i></div>
+                  <div class="panel-info">
+                    <p class="panel-name" id="chatPanelName">-</p>
+                    <p class="panel-status" id="chatPanelStatus">-</p>
+                  </div>
+                  <button onclick="openTicketDetailFromChat()" style="padding: 6px; color: #9ca3af; border-radius: 8px; background: rgba(17,24,39,0.6); border: 1px solid #1f2937;" title="Detail">
+                    <i class="fas fa-info-circle"></i>
                   </button>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" id="chatInput" placeholder="Tulis pesan..." maxlength="500" style="flex: 1; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 22px; padding: 11px 16px; color: #e5e7eb; outline: none; font-size: 14px;">
-                  <button onclick="sendChat()" class="btn-primary" style="width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="fas fa-paper-plane"></i>
-                  </button>
+                <div class="chat-panel-messages" id="chatMessages"></div>
+                <div class="chat-panel-input">
+                  <div style="display: flex; gap: 6px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 4px;">
+                    <button onclick="sendQuickMsg('Saya sedang dalam perjalanan ke lokasi Anda.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                      <i class="fas fa-truck" style="color: #facc15; margin-right: 4px;"></i>OTW
+                    </button>
+                    <button onclick="sendQuickMsg('Saya sudah tiba di lokasi.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                      <i class="fas fa-map-marker-alt" style="color: #34d399; margin-right: 4px;"></i>Tiba
+                    </button>
+                    <button onclick="sendQuickMsg('Sedang saya kerjakan, mohon tunggu.')" style="background: rgba(17,24,39,0.7); border: 1px solid #1f2937; border-radius: 8px; padding: 5px 10px; font-size: 11px; color: #e5e7eb; white-space: nowrap;">
+                      <i class="fas fa-tools" style="color: #fb923c; margin-right: 4px;"></i>Dikerjakan
+                    </button>
+                  </div>
+                  <div style="display: flex; gap: 8px;">
+                    <input type="text" id="chatInput" placeholder="Tulis pesan..." maxlength="500" style="flex: 1; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 22px; padding: 11px 16px; color: #e5e7eb; outline: none; font-size: 14px;">
+                    <button onclick="sendChat()" class="btn-primary" style="width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <i class="fas fa-paper-plane"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -448,7 +565,7 @@ a { color: inherit; text-decoration: none; }
         </button>
         <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
           <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;"><i class="fas fa-chart-line" style="color: #00d4ff; margin-right: 8px;"></i>Performa Saya</h2>
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+          <div class="perf-stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
             <div class="glass" style="border-radius: 10px; padding: 12px; text-align: center;">
               <p id="perfTotalDone" style="font-size: 24px; font-weight: 700; color: #34d399;">0</p>
               <p style="font-size: 10px; color: #6b7280; margin-top: 2px;">Total Selesai</p>
@@ -467,13 +584,69 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
+
+        <!-- Komisi Tracker -->
         <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
-          <h3 style="font-weight: 700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-calendar-week" style="color: #00d4ff; margin-right: 6px;"></i>Selesai 7 Hari Terakhir</h3>
-          <div id="perfChart" style="display: flex; align-items: flex-end; gap: 8px; height: 140px;"></div>
+          <h3 style="font-weight: 700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-money-bill-wave" style="color: #10b981; margin-right: 6px;"></i>Komisi & Insentif</h3>
+          <div class="komisi-card" style="margin-bottom: 12px;">
+            <p style="font-size: 11px; color: #d1fae5;">Estimasi Pendapatan Bulan Ini</p>
+            <p id="komisiTotal" style="font-size: 26px; font-weight: 800; color: #34d399; margin-top: 4px; font-family: ui-monospace, monospace;">Rp 0</p>
+            <p id="komisiDetail" style="font-size: 11px; color: #9ca3af; margin-top: 4px;">0 tiket × Rp 0 + bonus</p>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="glass" style="border-radius: 10px; padding: 10px;">
+              <p style="font-size: 10px; color: #6b7280;">Komisi Bulan Ini</p>
+              <p id="komisiMonth" style="font-size: 16px; font-weight: 700; color: #34d399; margin-top: 4px;">Rp 0</p>
+            </div>
+            <div class="glass" style="border-radius: 10px; padding: 10px;">
+              <p style="font-size: 10px; color: #6b7280;">Bonus Rating</p>
+              <p id="komisiBonus" style="font-size: 16px; font-weight: 700; color: #facc15; margin-top: 4px;">Rp 0</p>
+            </div>
+          </div>
+          <p style="font-size: 10px; color: #6b7280; margin-top: 10px; text-align: center;"><i class="fas fa-info-circle"></i> Komisi = (jumlah tiket selesai × rate) + (rating ≥ 4.5 → bonus)</p>
         </div>
+
+        <!-- Grafik 30 Hari -->
+        <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <h3 style="font-weight: 700; font-size: 14px;"><i class="fas fa-calendar-alt" style="color: #00d4ff; margin-right: 6px;"></i>Selesai 30 Hari Terakhir</h3>
+            <div style="display: flex; gap: 4px;">
+              <button onclick="switchChart('7')" class="filter-chip" data-chart="7" style="font-size: 10px; padding: 4px 10px;">7 Hari</button>
+              <button onclick="switchChart('14')" class="filter-chip" data-chart="14" style="font-size: 10px; padding: 4px 10px;">14 Hari</button>
+              <button onclick="switchChart('30')" class="filter-chip active" data-chart="30" style="font-size: 10px; padding: 4px 10px;">30 Hari</button>
+            </div>
+          </div>
+          <div id="perfChartWrap" style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 24px;">
+            <div id="perfChart" class="bar-chart" style="min-width: 500px;"></div>
+          </div>
+        </div>
+
+        <!-- Breakdown Rating per Bulan -->
+        <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+          <h3 style="font-weight: 700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-star-half-alt" style="color: #facc15; margin-right: 6px;"></i>Breakdown Rating Bulanan</h3>
+          <div id="ratingBreakdown"></div>
+        </div>
+
+        <!-- Ulasan Terbaru -->
         <div class="glass" style="border-radius: 16px; padding: 16px;">
-          <h3 style="font-weight: 700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-star" style="color: #facc15; margin-right: 6px;"></i>Ulasan Customer</h3>
+          <h3 style="font-weight: 700; margin-bottom: 12px; font-size: 14px;"><i class="fas fa-star" style="color: #facc15; margin-right: 6px;"></i>Ulasan Terbaru</h3>
           <div id="perfReviews"></div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div id="viewLeaderboard" class="view">
+        <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-size: 13px;">
+          <i class="fas fa-arrow-left"></i>Kembali
+        </button>
+        <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+          <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;"><i class="fas fa-trophy" style="color: #facc15; margin-right: 8px;"></i>Leaderboard Teknisi</h2>
+          <div style="display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap;">
+            <button onclick="switchLeaderboard('week')" class="filter-chip active" data-lb="week" style="font-size: 11px; padding: 6px 12px;">7 Hari</button>
+            <button onclick="switchLeaderboard('month')" class="filter-chip" data-lb="month" style="font-size: 11px; padding: 6px 12px;">30 Hari</button>
+            <button onclick="switchLeaderboard('all')" class="filter-chip" data-lb="all" style="font-size: 11px; padding: 6px 12px;">All Time</button>
+          </div>
+          <div id="leaderboardList"></div>
         </div>
       </div>
 
@@ -482,8 +655,23 @@ a { color: inherit; text-decoration: none; }
         <button onclick="showView('Dashboard')" style="color: #9ca3af; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-size: 13px;">
           <i class="fas fa-arrow-left"></i>Kembali
         </button>
-        <div class="glass" style="border-radius: 16px; padding: 16px;">
+        <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
           <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;"><i class="fas fa-user" style="color: #00d4ff; margin-right: 8px;"></i>Profil Teknisi</h2>
+
+          <!-- Avatar Upload -->
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #1f2937;">
+            <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00d4ff, #7c3aed); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 32px; flex-shrink: 0; overflow: hidden; border: 3px solid #1f2937;">
+              <i class="fas fa-user"></i>
+            </div>
+            <div style="flex: 1;">
+              <p style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Foto Profil</p>
+              <p style="font-size: 11px; color: #6b7280; margin-bottom: 8px;">Foto ini akan tampil di chat & rating customer</p>
+              <button onclick="openUploadFotoModal()" class="btn-primary" style="padding: 8px 14px; border-radius: 8px; font-size: 12px;">
+                <i class="fas fa-camera"></i> Ganti Foto
+              </button>
+            </div>
+          </div>
+
           <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">UID</label>
           <div style="display: flex; gap: 8px; margin-bottom: 14px;">
             <input type="text" id="profUid" disabled style="flex: 1; background: rgba(10, 14, 26, 0.5); border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #6b7280; font-family: ui-monospace, monospace; outline: none; box-sizing: border-box;">
@@ -508,24 +696,51 @@ a { color: inherit; text-decoration: none; }
             <i class="fas fa-save" style="margin-right: 8px;"></i>Simpan Perubahan
           </button>
         </div>
+
+        <!-- Push Notification Setting -->
+        <div class="glass" style="border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+          <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;"><i class="fas fa-bell" style="color: #facc15; margin-right: 6px;"></i>Notifikasi Browser</h3>
+          <p style="font-size: 12px; color: #9ca3af; margin-bottom: 12px;">Aktifkan untuk menerima notifikasi tiket baru walau tab tertutup.</p>
+          <button onclick="requestPushPermission()" id="pushNotifBtn" class="btn-warn" style="width: 100%; padding: 12px; border-radius: 10px; font-size: 13px;">
+            <i class="fas fa-bell"></i> Aktifkan Push Notification
+          </button>
+        </div>
+
+        <!-- Live Tracking Setting -->
+        <div class="glass" style="border-radius: 16px; padding: 16px;">
+          <h3 style="font-size: 14px; font-weight: 700; margin-bottom: 12px;"><i class="fas fa-map-marker-alt" style="color: #00d4ff; margin-right: 6px;"></i>Live Tracking</h3>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <div style="flex: 1;">
+              <p style="font-size: 13px; font-weight: 600;">Bagikan Lokasi</p>
+              <p style="font-size: 11px; color: #6b7280; margin-top: 2px;">Customer bisa lihat posisi Anda real-time saat OTW</p>
+            </div>
+            <button onclick="toggleLiveTracking()" id="trackingToggle" style="width: 52px; height: 28px; border-radius: 999px; background: #374151; position: relative; transition: background 0.2s;">
+              <span id="trackingDot" style="position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: left 0.2s;"></span>
+            </button>
+          </div>
+          <p id="trackingStatus" style="font-size: 11px; color: #6b7280; margin-top: 10px;"><i class="fas fa-info-circle"></i> Lokasi tidak dibagikan</p>
+        </div>
       </div>
     </main>
   </div>
 
   <!-- BOTTOM NAV -->
   <nav class="glass" id="bottomNav" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; border-top: 1px solid #1f2937; border-left: none; border-right: none; border-bottom: none;">
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr);">
-      <button onclick="showView('Dashboard')" class="bottom-nav-item active" data-nav="Dashboard" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #00d4ff;">
+    <div style="display: grid; grid-template-columns: repeat(5, 1fr);">
+      <button onclick="showView('Dashboard')" class="bottom-nav-item active" data-nav="Dashboard" style="padding: 10px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #00d4ff;">
         <i class="fas fa-home" style="font-size: 16px;"></i><span style="font-size: 10px;">Beranda</span>
       </button>
-      <button onclick="showView('Chat')" class="bottom-nav-item" data-nav="Chat" style="position: relative; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+      <button onclick="showView('Chat')" class="bottom-nav-item" data-nav="Chat" style="position: relative; padding: 10px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
         <i class="fas fa-comments" style="font-size: 16px;"></i><span style="font-size: 10px;">Chat</span>
         <span id="chatBadge" style="display: none; position: absolute; top: 4px; right: 25%; min-width: 18px; height: 18px; background: #ef4444; color: #fff; border-radius: 999px; font-size: 10px; font-weight: 700; align-items: center; justify-content: center; padding: 0 4px;">0</span>
       </button>
-      <button onclick="showView('Performance')" class="bottom-nav-item" data-nav="Performance" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+      <button onclick="showView('Performance')" class="bottom-nav-item" data-nav="Performance" style="padding: 10px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
         <i class="fas fa-chart-line" style="font-size: 16px;"></i><span style="font-size: 10px;">Performa</span>
       </button>
-      <button onclick="showView('Profile')" class="bottom-nav-item" data-nav="Profile" style="padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+      <button onclick="showView('Leaderboard')" class="bottom-nav-item" data-nav="Leaderboard" style="padding: 10px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
+        <i class="fas fa-trophy" style="font-size: 16px;"></i><span style="font-size: 10px;">Rank</span>
+      </button>
+      <button onclick="showView('Profile')" class="bottom-nav-item" data-nav="Profile" style="padding: 10px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #9ca3af;">
         <i class="fas fa-user" style="font-size: 16px;"></i><span style="font-size: 10px;">Profil</span>
       </button>
     </div>
@@ -557,7 +772,6 @@ a { color: inherit; text-decoration: none; }
       <span id="progressModalTitle">Update Progress</span>
     </h3>
     <p style="font-size: 12px; color: #9ca3af; margin-bottom: 16px;">Setiap progress wajib menyertakan estimasi waktu.</p>
-
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Status Progress <span style="color: #f87171;">*</span></label>
     <select id="progressStatus" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
       <option value="Ditugaskan">Ditugaskan</option>
@@ -566,12 +780,10 @@ a { color: inherit; text-decoration: none; }
       <option value="Pending">Pending</option>
       <option value="Selesai">Selesai</option>
     </select>
-
     <div id="progressDurationInfo" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 12px; font-size: 12px; color: #34d399; margin-bottom: 14px;">
       <i class="fas fa-check-circle" style="margin-right: 6px;"></i>
       <b>Selesai!</b> Tidak perlu isi waktu estimasi.
     </div>
-
     <div id="progressDurationLabel">
       <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Estimasi Waktu <span style="color: #f87171;">*</span></label>
     </div>
@@ -583,24 +795,16 @@ a { color: inherit; text-decoration: none; }
       <button type="button" onclick="selectDuration(240,this)" class="duration-btn" data-dur="240">4 jam</button>
       <button type="button" onclick="selectDuration(480,this)" class="duration-btn" data-dur="480">8 jam</button>
     </div>
-
-    <input type="number" id="progressDuration" min="1" placeholder="Atau custom (menit)"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 10px; box-sizing: border-box; font-family: ui-monospace, monospace;">
-
+    <input type="number" id="progressDuration" min="1" placeholder="Atau custom (menit)" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 10px; box-sizing: border-box; font-family: ui-monospace, monospace;">
     <div id="progressDeadlineLabel">
       <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Atau waktu spesifik (opsional)</label>
     </div>
-    <input type="datetime-local" id="progressDeadline"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
-
+    <input type="datetime-local" id="progressDeadline" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Catatan</label>
-    <textarea id="progressNote" rows="3" placeholder="Contoh: Teknisi sedang dalam perjalanan"
-      style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
-
+    <textarea id="progressNote" rows="3" placeholder="Contoh: Teknisi sedang dalam perjalanan" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
     <div id="progressEditInfo" style="display: none; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); border-radius: 10px; padding: 10px; font-size: 12px; color: #fbbf24; margin-bottom: 14px;">
       <i class="fas fa-edit" style="margin-right: 4px;"></i>Mode Edit
     </div>
-
     <div style="display: flex; gap: 10px;">
       <button onclick="closeProgressModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
       <button onclick="saveProgress()" id="saveProgressBtn" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
@@ -624,7 +828,6 @@ a { color: inherit; text-decoration: none; }
     </div>
     <input type="file" id="beforeInput" accept="image/*" multiple style="display: none;">
     <div id="beforePreview" class="photo-preview" style="margin-bottom: 16px;"></div>
-
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 8px;">Foto Sesudah <span style="color: #f87171;">*</span></label>
     <div onclick="document.getElementById('afterInput').click()" style="border: 2px dashed #1f2937; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; margin-bottom: 8px;">
       <i class="fas fa-camera" style="font-size: 22px; color: #6b7280;"></i>
@@ -632,7 +835,6 @@ a { color: inherit; text-decoration: none; }
     </div>
     <input type="file" id="afterInput" accept="image/*" multiple style="display: none;">
     <div id="afterPreview" class="photo-preview" style="margin-bottom: 16px;"></div>
-
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Penyebab <span style="color: #f87171;">*</span></label>
     <input type="text" id="lapPenyebab" placeholder="Contoh: Kabel fiber tertekuk" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 10px 14px; color: #e5e7eb; outline: none; margin-bottom: 14px; box-sizing: border-box;">
     <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Tindakan <span style="color: #f87171;">*</span></label>
@@ -672,6 +874,125 @@ a { color: inherit; text-decoration: none; }
   </div>
 </div>
 
+<!-- BACKUP MODAL -->
+<div id="backupModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 440px;">
+    <div style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.15); border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-hands-helping" style="color: #f59e0b; font-size: 28px;"></i>
+    </div>
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; text-align: center;">Request Backup Teknisi</h3>
+    <p style="font-size: 13px; color: #9ca3af; margin-bottom: 14px; text-align: center;">Butuh bantuan teknisi lain untuk tiket ini?</p>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Alasan / Kendala <span style="color: #f87171;">*</span></label>
+    <textarea id="backupReason" rows="3" placeholder="Contoh: Butuh alat fusion splicer, area berbahaya, dll" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 12px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+    <label style="font-size: 13px; color: #9ca3af; display: block; margin-bottom: 6px;">Prioritas Backup</label>
+    <select id="backupPriority" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; box-sizing: border-box;">
+      <option value="Normal">Normal</option>
+      <option value="Urgent">Urgent (segera)</option>
+      <option value="Emergency">Emergency (kritis)</option>
+    </select>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeBackupModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="submitBackup()" class="btn-warn" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-paper-plane" style="margin-right: 6px;"></i>Kirim
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF DETAIL MODAL -->
+<div id="notifDetailModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 440px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+      <h3 style="font-size: 17px; font-weight: 700;">Detail Notifikasi</h3>
+      <button onclick="closeNotifDetail()" style="padding: 6px; color: #9ca3af;"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="notifDetailIcon" style="width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 212, 255, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+      <i class="fas fa-bell" style="color: #00d4ff; font-size: 24px;"></i>
+    </div>
+    <h4 id="notifDetailTitle" style="font-size: 16px; font-weight: 700; margin-bottom: 8px;"></h4>
+    <p id="notifDetailBody" style="font-size: 13px; color: #d1d5db; line-height: 1.6; white-space: pre-wrap; margin-bottom: 14px;"></p>
+    <p id="notifDetailTime" style="font-size: 11px; color: #6b7280; margin-bottom: 16px;"></p>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeNotifDetail()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Tutup</button>
+      <button id="notifDetailAction" onclick="handleNotifAction()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">
+        <i class="fas fa-eye" style="margin-right: 6px;"></i>Buka Tiket
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TARGET MODAL -->
+<div id="targetModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-bullseye" style="color: #00d4ff; margin-right: 8px;"></i>Target Harian</h3>
+    <p style="font-size: 12px; color: #9ca3af; margin-bottom: 16px;">Berapa tiket yang ingin Anda selesaikan per hari?</p>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px;">
+      <button onclick="setTarget(3,this)" class="duration-btn" data-target="3">3 tiket</button>
+      <button onclick="setTarget(5,this)" class="duration-btn" data-target="5">5 tiket</button>
+      <button onclick="setTarget(8,this)" class="duration-btn" data-target="8">8 tiket</button>
+      <button onclick="setTarget(10,this)" class="duration-btn" data-target="10">10 tiket</button>
+      <button onclick="setTarget(12,this)" class="duration-btn" data-target="12">12 tiket</button>
+      <button onclick="setTarget(15,this)" class="duration-btn" data-target="15">15 tiket</button>
+    </div>
+    <input type="number" id="targetCustomInput" min="1" max="50" placeholder="Atau custom" style="width: 100%; background: #0a0e1a; border: 1px solid #1f2937; border-radius: 10px; padding: 12px 14px; color: #e5e7eb; outline: none; margin-bottom: 16px; box-sizing: border-box; font-family: ui-monospace, monospace;">
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeTargetModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="saveTarget()" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABSENSI MODAL -->
+<div id="absensiModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px; text-align: center;">
+    <div id="absensiModalIcon" style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.15); border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-user-clock" style="color: #34d399; font-size: 28px;"></i>
+    </div>
+    <h3 id="absensiModalTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Mulai Kerja?</h3>
+    <p id="absensiModalDesc" style="font-size: 13px; color: #9ca3af; margin-bottom: 14px; line-height: 1.6;"></p>
+    <div id="absensiGpsInfo" style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 10px; font-size: 11px; color: #9ca3af; margin-bottom: 16px; text-align: left;">
+      <i class="fas fa-map-marker-alt" style="color: #00d4ff; margin-right: 4px;"></i><span id="absensiGpsText">Mengambil lokasi...</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeAbsensiModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="confirmAbsensi()" id="absensiConfirmBtn" class="btn-success" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Konfirmasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD FOTO MODAL -->
+<div id="uploadFotoModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 400px;">
+    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 14px;"><i class="fas fa-camera" style="color: #00d4ff; margin-right: 8px;"></i>Ganti Foto Profil</h3>
+    <div onclick="document.getElementById('profileFotoInput').click()" style="border: 2px dashed #1f2937; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer;">
+      <i class="fas fa-cloud-upload-alt" style="font-size: 32px; color: #6b7280;"></i>
+      <p style="font-size: 13px; color: #9ca3af; margin-top: 8px;">Klik untuk pilih foto</p>
+      <p style="font-size: 10px; color: #4b5563; margin-top: 4px;">JPG/PNG max 5MB</p>
+    </div>
+    <input type="file" id="profileFotoInput" accept="image/*" style="display: none;">
+    <div id="profileFotoPreview" style="margin-top: 14px; text-align: center;"></div>
+    <div style="display: flex; gap: 10px; margin-top: 16px;">
+      <button onclick="closeUploadFotoModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #1f2937; color: #e5e7eb; font-size: 14px;">Batal</button>
+      <button onclick="saveFotoProfil()" id="saveFotoBtn" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 10px; font-size: 14px;">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- RUTE MODAL -->
+<div id="ruteModal" class="modal-overlay">
+  <div class="glass slide-up" style="border-radius: 20px; padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <h3 style="font-size: 18px; font-weight: 700;"><i class="fas fa-route" style="color: #60a5fa; margin-right: 8px;"></i>Rute Hari Ini</h3>
+      <button onclick="closeRuteModal()" style="color: #9ca3af;"><i class="fas fa-times"></i></button>
+    </div>
+    <p style="font-size: 12px; color: #9ca3af; margin-bottom: 12px;">Tiket aktif Anda hari ini (diurutkan berdasarkan prioritas).</p>
+    <div id="ruteList" style="margin-bottom: 14px;"></div>
+    <button onclick="openGoogleMapsRoute()" class="btn-primary" style="width: 100%; padding: 13px; border-radius: 12px; font-size: 14px;">
+      <i class="fas fa-directions" style="margin-right: 8px;"></i>Buka Rute di Google Maps
+    </button>
+  </div>
+</div>
+
 <!-- CHAT HISTORY MODAL -->
 <div id="chatHistoryModal" class="modal-overlay" onclick="closeChatHistory()">
   <div class="glass slide-right" onclick="event.stopPropagation()" style="position: absolute; right: 0; top: 0; bottom: 0; width: 100%; max-width: 420px; display: flex; flex-direction: column;">
@@ -693,7 +1014,7 @@ a { color: inherit; text-decoration: none; }
   </div>
 </div>
 
-<!-- NOTIF PANEL -->
+<!-- NOTIF PANEL (SIDEBAR) -->
 <div id="notifPanel" class="modal-overlay" onclick="toggleNotif(event)" style="padding: 0;">
   <div class="glass slide-right" onclick="event.stopPropagation()" style="position: absolute; right: 0; top: 0; bottom: 0; width: 100%; max-width: 400px; display: flex; flex-direction: column;">
     <div style="padding: 18px 16px; border-bottom: 1px solid #1f2937; display: flex; align-items: center; justify-content: space-between; background: rgba(0, 212, 255, 0.05);">
@@ -820,6 +1141,27 @@ var listenersStarted = false;
 var maintData = null;
 var maintTicker = null;
 var IMGBB_KEY = 'cdb1c90e037e9a74be4bb8d30de5d50f';
+var notifData = [];
+var notifDetailCurrentKey = null;
+var notifDetailTicketId = null;
+var dismissedNotifIds = [];
+var readNotifIds = [];
+var chartDays = 30;
+var leaderboardPeriod = 'week';
+var allTeknisi = [];
+var currentAbsensi = null;
+var absensiPendingAction = null;
+var absensiGps = null;
+var liveTrackingEnabled = false;
+var trackingInterval = null;
+var lastPosition = null;
+var targetHarian = 5;
+var komisiRate = 15000; // default, bisa dari settings
+var pendingFotoProfil = null;
+var offlineQueue = [];
+var isOnline = navigator.onLine;
+var notifListenerRef = null;
+var globalNotifListenerRef = null;
 
 /* ═══════════════════════════════════════════════
    UTILITIES
@@ -898,6 +1240,7 @@ function showMainApp() {
   var lp = $('loginPage'); if (lp) lp.style.display = 'none';
   var ma = $('mainApp'); if (ma) ma.style.display = 'block';
 }
+function formatRupiah(n) { return 'Rp ' + (n || 0).toLocaleString('id-ID'); }
 
 /* ═══════════════════════════════════════════════
    FIREBASE INIT
@@ -958,6 +1301,7 @@ function validateUid(uid) {
 ═══════════════════════════════════════════════ */
 async function boot() {
   log('Boot started');
+  loadLocalState();
   if (!initFirebase()) { toast('Firebase gagal dimuat', 'error'); setTimeout(showLoginPage, 1000); return; }
   updateSplash(15, 'Membuat device fingerprint...');
   deviceId = await generateDeviceId();
@@ -985,6 +1329,20 @@ async function boot() {
     updateSplash(100, 'Error: ' + err.message);
     setTimeout(function() { hideSplash(); showLoginPage(); toast('Gagal: ' + err.message, 'error'); }, 1500);
   }
+}
+
+function loadLocalState() {
+  try {
+    dismissedNotifIds = JSON.parse(localStorage.getItem('lks_dismissed_notifs') || '[]');
+    readNotifIds = JSON.parse(localStorage.getItem('lks_read_notifs') || '[]');
+  } catch (e) { dismissedNotifIds = []; readNotifIds = []; }
+}
+
+function saveDismissedNotifs() {
+  try { localStorage.setItem('lks_dismissed_notifs', JSON.stringify(dismissedNotifIds.slice(-200))); } catch (e) {}
+}
+function saveReadNotifs() {
+  try { localStorage.setItem('lks_read_notifs', JSON.stringify(readNotifIds.slice(-500))); } catch (e) {}
 }
 
 /* ═══════════════════════════════════════════════
@@ -1033,12 +1391,18 @@ async function afterLoginSuccess(uid, userData, isAutoLogin) {
   showMainApp();
   updateUserUI(userData);
   updateAvailabilityUI();
+  loadAbsensiToday();
+  loadTargetHarian();
+  loadLiveTrackingSetting();
   if (!listenersStarted) {
     listenUser();
     listenTickets();
     listenPool();
     startGlobalChatIndex();
     startMaintenancePopupListener();
+    listenAdminNotifications();
+    listenGlobalNotifications();
+    setupNetworkListeners();
     listenersStarted = true;
   }
   $('sidebarUid').textContent = uid;
@@ -1052,6 +1416,664 @@ function updateUserUI(u) {
   var da = $('dashArea'); if (da) da.innerHTML = '<i class="fas fa-map-marker-alt" style="margin-right: 4px;"></i>' + (u.area || 'Area belum diset');
   var ds = $('dashShift'); if (ds) ds.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i>' + (u.shift || 'On Call');
   var pu = $('profUid'); if (pu) pu.value = u.uid;
+  // Avatar profil
+  renderProfileAvatar(u.fotoProfil);
+}
+
+function renderProfileAvatar(url) {
+  var el = $('profileAvatar'); if (!el) return;
+  if (url) {
+    el.innerHTML = '<img src="' + url + '" style="width: 100%; height: 100%; object-fit: cover;">';
+  } else {
+    el.innerHTML = '<i class="fas fa-user"></i>';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   ABSENSI SYSTEM
+═══════════════════════════════════════════════ */
+async function loadAbsensiToday() {
+  var todayKey = new Date().toISOString().slice(0, 10);
+  try {
+    var snap = await db.ref('absensi/' + currentUid + '/' + todayKey).once('value');
+    currentAbsensi = snap.val();
+    renderAbsensiUI();
+  } catch (e) { logErr('loadAbsensiToday', e); }
+}
+
+function renderAbsensiUI() {
+  var statusText = $('absensiStatusText');
+  var detailText = $('absensiDetailText');
+  var mainBtn = $('absensiMainBtn');
+  var headerBtn = $('absensiBtn');
+  var headerText = $('absensiText');
+
+  if (!currentAbsensi) {
+    if (statusText) statusText.textContent = 'Belum check-in';
+    if (detailText) detailText.textContent = 'Klik tombol untuk memulai kerja';
+    if (mainBtn) mainBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Mulai Kerja';
+    if (mainBtn) mainBtn.className = 'btn-primary';
+    if (headerText) headerText.textContent = 'Belum Absen';
+    if (headerBtn) {
+      headerBtn.style.borderColor = 'rgba(107, 114, 128, 0.3)';
+      headerBtn.style.background = 'rgba(107, 114, 128, 0.15)';
+      headerBtn.style.color = '#9ca3af';
+    }
+  } else if (currentAbsensi.checkIn && !currentAbsensi.checkOut) {
+    if (statusText) statusText.textContent = '✅ Sudah check-in';
+    if (detailText) detailText.textContent = 'Mulai: ' + fmtTime(currentAbsensi.checkIn) + ' • Durasi: ' + getAbsensiDuration();
+    if (mainBtn) mainBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Selesai Kerja';
+    if (mainBtn) mainBtn.className = 'btn-warn';
+    if (headerText) headerText.textContent = 'Aktif';
+    if (headerBtn) {
+      headerBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      headerBtn.style.background = 'rgba(16, 185, 129, 0.15)';
+      headerBtn.style.color = '#34d399';
+    }
+  } else {
+    var dur = (currentAbsensi.checkOut - currentAbsensi.checkIn) / 3600000;
+    if (statusText) statusText.textContent = '✅ Selesai kerja';
+    if (detailText) detailText.textContent = fmtTime(currentAbsensi.checkIn) + ' - ' + fmtTime(currentAbsensi.checkOut) + ' • ' + dur.toFixed(1) + ' jam';
+    if (mainBtn) mainBtn.innerHTML = '<i class="fas fa-check"></i> Sudah Selesai';
+    if (mainBtn) { mainBtn.className = 'btn-success'; mainBtn.disabled = true; }
+    if (headerText) headerText.textContent = dur.toFixed(1) + ' jam';
+    if (headerBtn) {
+      headerBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      headerBtn.style.background = 'rgba(16, 185, 129, 0.15)';
+      headerBtn.style.color = '#34d399';
+    }
+  }
+  // Re-enable jika belum selesai
+  if (mainBtn && !(currentAbsensi && currentAbsensi.checkOut)) mainBtn.disabled = false;
+}
+
+function getAbsensiDuration() {
+  if (!currentAbsensi || !currentAbsensi.checkIn) return '-';
+  var end = currentAbsensi.checkOut || Date.now();
+  var dur = (end - currentAbsensi.checkIn) / 3600000;
+  return dur.toFixed(1) + ' jam';
+}
+
+function toggleAbsensi() {
+  if (!currentAbsensi) {
+    openAbsensiModal('in');
+  } else if (currentAbsensi.checkIn && !currentAbsensi.checkOut) {
+    openAbsensiModal('out');
+  } else {
+    toast('Absensi hari ini sudah selesai', 'info');
+  }
+}
+
+function openAbsensiModal(action) {
+  absensiPendingAction = action;
+  var title = $('absensiModalTitle');
+  var desc = $('absensiModalDesc');
+  var icon = $('absensiModalIcon');
+  var btn = $('absensiConfirmBtn');
+  var gpsText = $('absensiGpsText');
+  var gpsBox = $('absensiGpsInfo');
+
+  if (action === 'in') {
+    if (title) title.textContent = 'Mulai Kerja?';
+    if (desc) desc.textContent = 'Absen masuk akan dicatat dengan timestamp & lokasi GPS Anda.';
+    if (icon) icon.innerHTML = '<i class="fas fa-sign-in-alt" style="color: #34d399; font-size: 28px;"></i>';
+    if (btn) btn.textContent = 'Mulai Kerja';
+  } else {
+    if (title) title.textContent = 'Selesai Kerja?';
+    if (desc) desc.textContent = 'Absen keluar akan menutup shift hari ini.';
+    if (icon) icon.innerHTML = '<i class="fas fa-sign-out-alt" style="color: #f59e0b; font-size: 28px;"></i>';
+    if (btn) btn.textContent = 'Selesai Kerja';
+  }
+
+  if (gpsText) gpsText.textContent = 'Mengambil lokasi...';
+  var m = $('absensiModal'); if (m) m.classList.add('show');
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(p) {
+        absensiGps = p.coords.latitude.toFixed(6) + ', ' + p.coords.longitude.toFixed(6);
+        if (gpsText) gpsText.textContent = 'Lokasi: ' + absensiGps;
+      },
+      function(err) {
+        absensiGps = null;
+        if (gpsText) gpsText.textContent = 'Lokasi tidak tersedia (izin ditolak)';
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  } else {
+    if (gpsText) gpsText.textContent = 'GPS tidak didukung';
+  }
+}
+
+function closeAbsensiModal() {
+  var m = $('absensiModal'); if (m) m.classList.remove('show');
+  absensiPendingAction = null;
+}
+
+async function confirmAbsensi() {
+  if (!absensiPendingAction) return;
+  var action = absensiPendingAction;
+  var btn = $('absensiConfirmBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Menyimpan...'; }
+
+  var todayKey = new Date().toISOString().slice(0, 10);
+  var now = Date.now();
+
+  try {
+    if (action === 'in') {
+      var checkInData = { checkIn: now, checkInGps: absensiGps || null, checkInAt: now };
+      await db.ref('absensi/' + currentUid + '/' + todayKey).set(checkInData);
+      currentAbsensi = checkInData;
+      toast('✅ Check-in berhasil!', 'success');
+    } else {
+      await db.ref('absensi/' + currentUid + '/' + todayKey).update({ checkOut: now, checkOutGps: absensiGps || null, checkOutAt: now });
+      currentAbsensi.checkOut = now;
+      currentAbsensi.checkOutGps = absensiGps;
+      toast('✅ Check-out berhasil!', 'success');
+    }
+    renderAbsensiUI();
+    closeAbsensiModal();
+  } catch (err) {
+    logErr('confirmAbsensi', err);
+    toast('Gagal: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = action === 'in' ? 'Mulai Kerja' : 'Selesai Kerja'; }
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   TARGET HARIAN
+═══════════════════════════════════════════════ */
+function loadTargetHarian() {
+  try {
+    targetHarian = parseInt(localStorage.getItem('lks_target_harian') || '5', 10);
+  } catch (e) { targetHarian = 5; }
+  var tl = $('targetLabel'); if (tl) tl.textContent = targetHarian + ' tiket';
+  var tt = $('targetProgressTotal'); if (tt) tt.textContent = targetHarian;
+  updateTargetProgress();
+}
+
+function updateTargetProgress() {
+  var doneToday = allTickets.filter(function(t) { return t.status === 'Selesai' && isToday(t.finishedAt || t.updatedAt); }).length;
+  var tp = $('targetProgressNum'); if (tp) tp.textContent = doneToday;
+  var pct = targetHarian > 0 ? Math.min(100, Math.round((doneToday / targetHarian) * 100)) : 0;
+  var fill = $('targetSeekFill'); if (fill) fill.style.width = pct + '%';
+}
+
+function openTargetModal() {
+  document.querySelectorAll('.duration-btn[data-target]').forEach(function(b) { b.classList.remove('active'); });
+  var current = document.querySelector('.duration-btn[data-target="' + targetHarian + '"]');
+  if (current) current.classList.add('active');
+  var customEl = $('targetCustomInput'); if (customEl) customEl.value = '';
+  var m = $('targetModal'); if (m) m.classList.add('show');
+}
+function closeTargetModal() { var m = $('targetModal'); if (m) m.classList.remove('show'); }
+
+function setTarget(val, btn) {
+  document.querySelectorAll('.duration-btn[data-target]').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var customEl = $('targetCustomInput'); if (customEl) customEl.value = '';
+}
+
+function saveTarget() {
+  var customEl = $('targetCustomInput');
+  var custom = customEl ? parseInt(customEl.value) : 0;
+  var val = custom > 0 && custom <= 50 ? custom : 0;
+  if (!val) {
+    var activeBtn = document.querySelector('.duration-btn[data-target].active');
+    if (activeBtn) val = parseInt(activeBtn.dataset.target);
+  }
+  if (!val || val < 1 || val > 50) return toast('Pilih target 1-50', 'warn');
+  targetHarian = val;
+  localStorage.setItem('lks_target_harian', String(val));
+  loadTargetHarian();
+  toast('Target harian: ' + val + ' tiket', 'success');
+  closeTargetModal();
+}
+
+/* ═══════════════════════════════════════════════
+   LIVE TRACKING
+═══════════════════════════════════════════════ */
+function loadLiveTrackingSetting() {
+  try {
+    liveTrackingEnabled = localStorage.getItem('lks_live_tracking') === '1';
+  } catch (e) { liveTrackingEnabled = false; }
+  renderTrackingUI();
+  if (liveTrackingEnabled) startTracking();
+}
+
+function renderTrackingUI() {
+  var btn = $('trackingToggle');
+  var dot = $('trackingDot');
+  var status = $('trackingStatus');
+  if (liveTrackingEnabled) {
+    if (btn) btn.style.background = '#10b981';
+    if (dot) dot.style.left = '27px';
+    if (status) status.innerHTML = '<i class="fas fa-check-circle" style="color: #34d399;"></i> Lokasi dibagikan ke customer';
+  } else {
+    if (btn) btn.style.background = '#374151';
+    if (dot) dot.style.left = '3px';
+    if (status) status.innerHTML = '<i class="fas fa-info-circle"></i> Lokasi tidak dibagikan';
+  }
+}
+
+function toggleLiveTracking() {
+  liveTrackingEnabled = !liveTrackingEnabled;
+  localStorage.setItem('lks_live_tracking', liveTrackingEnabled ? '1' : '0');
+  if (liveTrackingEnabled) {
+    startTracking();
+    toast('Live tracking aktif', 'success');
+  } else {
+    stopTracking();
+    toast('Live tracking nonaktif', 'info');
+  }
+  renderTrackingUI();
+}
+
+function startTracking() {
+  if (trackingInterval) return;
+  updatePosition();
+  trackingInterval = setInterval(updatePosition, 30000); // 30 detik
+}
+
+function stopTracking() {
+  if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+  if (currentUid) {
+    db.ref('users/' + currentUid + '/liveLocation').remove().catch(function() {});
+  }
+}
+
+function updatePosition() {
+  if (!liveTrackingEnabled || !navigator.geolocation || !currentUid) return;
+  navigator.geolocation.getCurrentPosition(
+    function(p) {
+      lastPosition = { lat: p.coords.latitude, lng: p.coords.longitude };
+      db.ref('users/' + currentUid + '/liveLocation').set({
+        lat: lastPosition.lat,
+        lng: lastPosition.lng,
+        updatedAt: Date.now()
+      }).catch(function() {});
+    },
+    function(err) { logErr('Position update failed', err); },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+  );
+}
+
+/* ═══════════════════════════════════════════════
+   NETWORK LISTENERS (Offline Mode)
+═══════════════════════════════════════════════ */
+function setupNetworkListeners() {
+  window.addEventListener('online', function() {
+    isOnline = true;
+    var b = $('offlineBanner'); if (b) b.classList.add('hidden-important');
+    toast('Online kembali', 'success');
+    syncOfflineQueue();
+  });
+  window.addEventListener('offline', function() {
+    isOnline = false;
+    var b = $('offlineBanner'); if (b) b.classList.remove('hidden-important');
+    toast('Mode offline', 'warn');
+  });
+  if (!isOnline) {
+    var b = $('offlineBanner'); if (b) b.classList.remove('hidden-important');
+  }
+  // Load queue
+  try { offlineQueue = JSON.parse(localStorage.getItem('lks_offline_queue') || '[]'); } catch (e) { offlineQueue = []; }
+}
+
+function queueOfflineWrite(path, data) {
+  offlineQueue.push({ path: path, data: data, at: Date.now() });
+  try { localStorage.setItem('lks_offline_queue', JSON.stringify(offlineQueue)); } catch (e) {}
+  toast('Disimpan offline, akan disinkronkan', 'info');
+}
+
+async function syncOfflineQueue() {
+  if (!offlineQueue.length) return;
+  var q = offlineQueue.slice();
+  offlineQueue = [];
+  try { localStorage.setItem('lks_offline_queue', '[]'); } catch (e) {}
+  for (var i = 0; i < q.length; i++) {
+    try { await db.ref(q[i].path).update(q[i].data); } catch (e) { offlineQueue.push(q[i]); }
+  }
+  if (offlineQueue.length) {
+    try { localStorage.setItem('lks_offline_queue', JSON.stringify(offlineQueue)); } catch (e) {}
+  }
+  if (q.length > 0) toast(q.length + ' data tersinkron', 'success');
+}
+
+/* ═══════════════════════════════════════════════
+   PUSH NOTIFICATION (Browser)
+═══════════════════════════════════════════════ */
+function requestPushPermission() {
+  if (!('Notification' in window)) return toast('Browser tidak mendukung notifikasi', 'warn');
+  Notification.requestPermission().then(function(perm) {
+    if (perm === 'granted') {
+      toast('✅ Push notification aktif', 'success');
+      var btn = $('pushNotifBtn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-check"></i> Aktif'; btn.className = 'btn-success'; }
+      new Notification('Lakso Global', { body: 'Push notification berhasil diaktifkan!', icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔧</text></svg>' });
+    } else {
+      toast('Izin notifikasi ditolak', 'warn');
+    }
+  });
+}
+
+function sendBrowserNotif(title, body) {
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔧</text></svg>',
+        tag: 'lakso-' + Date.now()
+      });
+    }
+  } catch (e) {}
+}
+
+/* ═══════════════════════════════════════════════
+   NOTIFIKASI SYSTEM (Redesigned)
+   - Popup atas dengan close
+   - Badge berkurang per-notif yang di-klik
+   - Klik notif → modal detail
+═══════════════════════════════════════════════ */
+function listenAdminNotifications() {
+  if (!currentUid) return;
+  if (notifListenerRef) notifListenerRef.off();
+  notifListenerRef = db.ref('notifications/user/' + currentUid);
+  notifListenerRef.on('value', function(snap) {
+    var list = [];
+    snap.forEach(function(c) {
+      var v = c.val() || {}; if (!v.id) v.id = c.key;
+      list.push(v);
+    });
+    mergeAndRenderNotifs(list);
+  });
+}
+
+function listenGlobalNotifications() {
+  if (globalNotifListenerRef) globalNotifListenerRef.off();
+  globalNotifListenerRef = db.ref('notifications/global');
+  globalNotifListenerRef.on('value', function(snap) {
+    var list = [];
+    snap.forEach(function(c) {
+      var v = c.val() || {}; if (!v.id) v.id = c.key;
+      // filter berdasarkan target role
+      if (v.target && v.target !== 'all' && v.target !== 'teknisi') return;
+      list.push(v);
+    });
+    window._globalNotifs = list;
+    mergeAndRenderNotifs(null);
+  });
+}
+
+function mergeAndRenderNotifs(userNotifs) {
+  if (userNotifs !== null) window._userNotifs = userNotifs;
+  var userList = window._userNotifs || [];
+  var globalList = window._globalNotifs || [];
+  var merged = userList.concat(globalList);
+  // dedupe by id
+  var seen = {}; var out = [];
+  merged.forEach(function(n) { if (!seen[n.id]) { seen[n.id] = 1; out.push(n); } });
+  notifData = out;
+  renderNotif();
+  processNewNotifPopup();
+}
+
+function processNewNotifPopup() {
+  notifData.sort(function(a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+  var latest = notifData[0];
+  if (!latest) return;
+  if (dismissedNotifIds.indexOf(latest.id) >= 0) return;
+  if (readNotifIds.indexOf(latest.id) >= 0) return;
+  if (window._lastShownNotifId === latest.id) return;
+  window._lastShownNotifId = latest.id;
+
+  showTopNotifPopup(latest);
+}
+
+function showTopNotifPopup(n) {
+  var stack = $('notifTopStack'); if (!stack) return;
+  var color = n.color || '#00d4ff';
+  var icon = n.icon || 'fa-bell';
+  var el = document.createElement('div');
+  el.className = 'notif-top-item';
+  el.style.borderLeftColor = color;
+  el.innerHTML =
+    '<div class="notif-top-icon" style="background: ' + color + '22; color: ' + color + ';">' +
+    '<i class="fas ' + icon + '"></i></div>' +
+    '<div class="notif-top-body" onclick="openNotifDetail(\'' + n.id + '\')">' +
+    '<div class="notif-top-title">' + escapeHtml(n.title || 'Notifikasi') + '</div>' +
+    '<div class="notif-top-msg line-clamp-2">' + escapeHtml(n.body || n.message || '') + '</div>' +
+    '</div>' +
+    '<button class="notif-top-close" onclick="event.stopPropagation(); dismissTopNotif(\'' + n.id + '\', this)">' +
+    '<i class="fas fa-times"></i></button>';
+  stack.appendChild(el);
+  // Auto dismiss 8 detik
+  setTimeout(function() { if (el.parentNode) { el.classList.add('fade-out'); setTimeout(function() { if (el.parentNode) el.remove(); }, 300); } }, 8000);
+  // Sound
+  playNotifSound();
+  // Browser push
+  sendBrowserNotif(n.title || 'Lakso Global', n.body || n.message || 'Notifikasi baru');
+}
+
+function dismissTopNotif(id, btn) {
+  if (dismissedNotifIds.indexOf(id) < 0) dismissedNotifIds.push(id);
+  saveDismissedNotifs();
+  var el = btn.closest('.notif-top-item');
+  if (el) {
+    el.classList.add('fade-out');
+    setTimeout(function() { if (el.parentNode) el.remove(); }, 300);
+  }
+}
+
+function playNotifSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var now = ctx.currentTime;
+    [880, 1320].forEach(function(freq, i) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, now + i * 0.12);
+      g.gain.linearRampToValueAtTime(0.15, now + i * 0.12 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(now + i * 0.12); o.stop(now + i * 0.12 + 0.35);
+    });
+  } catch (e) {}
+}
+
+// NOTIF LIST (gabungan admin + turunan dari tiket/progress)
+function buildNotifList() {
+  var lastRead = getNotifLastReadAt();
+  var allNotifs = [];
+
+  // 1. Dari admin (notifications node)
+  notifData.forEach(function(n) {
+    allNotifs.push({
+      id: n.id, category: 'info', title: n.title || 'Pemberitahuan',
+      body: n.body || n.message || '', time: n.createdAt || Date.now(),
+      color: n.color || '#00d4ff', icon: n.icon || 'fa-bell',
+      ticketId: n.ticketId || null, source: 'admin'
+    });
+  });
+
+  // 2. Derivasi dari tiket
+  allTickets.forEach(function(t) {
+    if (t.isEmergency && t.status !== 'Selesai') {
+      allNotifs.push({ id: 'sos_' + t.id, category: 'info', title: '🚨 SOS EMERGENCY', body: (t.customerName || '-') + ' - ' + (t.alamat || '-'), time: t.createdAt || Date.now(), color: '#ef4444', icon: 'fa-exclamation-circle', ticketId: t.id, source: 'derived' });
+    }
+    if (t.status !== 'Selesai' && (t.slaDeadline || 0) < Date.now()) {
+      allNotifs.push({ id: 'sla_' + t.id, category: 'info', title: '⚠️ SLA Lewat', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.slaDeadline || Date.now(), color: '#f59e0b', icon: 'fa-exclamation-triangle', ticketId: t.id, source: 'derived' });
+    }
+  });
+
+  allPoolTickets.forEach(function(t) {
+    allNotifs.push({ id: 'pool_' + t.id, category: 'info', title: '📥 Tiket Baru di Pool', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.createdAt || Date.now(), color: '#00d4ff', icon: 'fa-inbox', ticketId: t.id, source: 'derived' });
+  });
+
+  allTickets.forEach(function(t) {
+    var ph = t.progressHistory;
+    if (!ph) return;
+    Object.keys(ph).forEach(function(k) {
+      var p = ph[k] || {}; if (!p.at) return;
+      allNotifs.push({ id: 'prog_' + t.id + '_' + k, category: 'progress', title: '📋 ' + (p.status || 'Progress') + ' — ' + (t.customerName || '-'), body: (p.note ? p.note : 'Estimasi: ' + (p.durationMinutes || 0) + ' menit') + ' · oleh ' + (p.updatedByName || '-'), time: p.at, color: '#c084fc', icon: 'fa-tasks', ticketId: t.id, source: 'derived' });
+    });
+  });
+
+  allTickets.forEach(function(t) {
+    if ((t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan') && t.teknisiName && t.teknisiUid === currentUid) {
+      allNotifs.push({ id: 'busy_' + t.id + '_' + (t.status || ''), category: 'busy', title: '🔧 Sedang Anda Tangani', body: (t.customerName || '-') + ' · ' + (t.status || '-'), time: t.updatedAt || Date.now(), color: '#f59e0b', icon: 'fa-tools', ticketId: t.id, source: 'derived' });
+    }
+  });
+
+  // Sort desc
+  allNotifs.sort(function(a, b) { return b.time - a.time; });
+  // Dedupe
+  var seen = {}; var out = [];
+  allNotifs.forEach(function(n) { if (!seen[n.id]) { seen[n.id] = 1; out.push(n); } });
+  return out;
+}
+
+function getNotifLastReadAt() {
+  try { return parseInt(localStorage.getItem('lks_notif_lastReadAt') || '0', 10); } catch (e) { return 0; }
+}
+function markAllNotifsRead() {
+  try { localStorage.setItem('lks_notif_lastReadAt', String(Date.now())); } catch (e) {}
+}
+
+function setNotifFilter(mode) {
+  notifFilter = mode;
+  document.querySelectorAll('.notif-tab').forEach(function(b) {
+    if (b.dataset.nfilter === mode) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderNotif();
+}
+
+function isNotifRead(n) {
+  if (n.id && readNotifIds.indexOf(n.id) >= 0) return true;
+  return false;
+}
+
+function renderNotif() {
+  try {
+    var allNotifs = buildNotifList();
+    var filtered = allNotifs;
+    if (notifFilter !== 'all') filtered = allNotifs.filter(function(n) { return n.category === notifFilter; });
+
+    // Unread = yang belum di-read via readNotifIds
+    var unreadCount = allNotifs.filter(function(n) { return !isNotifRead(n); }).length;
+
+    var badge = $('notifBadge');
+    if (badge) {
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+        badge.style.display = 'flex';
+        badge.classList.add('badge-pulse');
+        setTimeout(function() { badge.classList.remove('badge-pulse'); }, 700);
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    var cl = $('notifCountLabel');
+    if (cl) cl.textContent = unreadCount > 0 ? unreadCount + ' belum dibaca' : 'Semua sudah dibaca';
+
+    var listEl = $('notifList');
+    if (!listEl) return;
+    if (filtered.length === 0) {
+      var emptyMsg = 'Belum Ada Pemberitahuan';
+      if (notifFilter === 'progress') emptyMsg = 'Belum Ada Update Progress';
+      if (notifFilter === 'busy') emptyMsg = 'Tidak Ada Tiket Sedang Ditangani';
+      listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-bell-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">' + emptyMsg + '</p></div>';
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(function(n) {
+      var isRead = isNotifRead(n);
+      return '<div class="glass fade-in" onclick="openNotifDetail(\'' + n.id + '\')" style="border-radius: 10px; padding: 12px; cursor: pointer; border-left: 4px solid ' + n.color + ';' + (isRead ? 'opacity: 0.5;' : '') + ' display: flex; gap: 10px; margin-bottom: 8px;">' +
+        '<div style="width: 32px; height: 32px; border-radius: 8px; background: ' + n.color + '22; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fas ' + n.icon + '" style="color: ' + n.color + ';"></i></div>' +
+        '<div style="flex: 1; min-width: 0;">' +
+        '<p style="font-weight: 600; font-size: 13px;">' + escapeHtml(n.title) + '</p>' +
+        '<p style="font-size: 11px; color: #9ca3af; margin-top: 2px;" class="line-clamp-2">' + escapeHtml(n.body) + '</p>' +
+        '<p style="font-size: 10px; color: #6b7280; margin-top: 4px;">' + timeAgo(n.time) + '</p>' +
+        '</div>' +
+        (isRead ? '<i class="fas fa-check-circle" style="color:#34d399;font-size:14px;align-self:center;"></i>' : '<span style="width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0;align-self:center;box-shadow:0 0 6px #ef4444;"></span>') +
+        '</div>';
+    }).join('');
+  } catch (err) { logErr('renderNotif error', err); }
+}
+
+function openNotifDetail(id) {
+  var n = null;
+  for (var i = 0; i < notifData.length; i++) if (notifData[i].id === id) { n = notifData[i]; break; }
+  if (!n) {
+    // cari di derived
+    var list = buildNotifList();
+    n = list.find(function(x) { return x.id === id; });
+  }
+  if (!n) return;
+
+  // Tandai read (badge berkurang)
+  if (readNotifIds.indexOf(n.id) < 0) {
+    readNotifIds.push(n.id);
+    saveReadNotifs();
+  }
+
+  notifDetailCurrentKey = n.id;
+  notifDetailTicketId = n.ticketId || null;
+
+  var icon = $('notifDetailIcon');
+  var title = $('notifDetailTitle');
+  var body = $('notifDetailBody');
+  var time = $('notifDetailTime');
+  var action = $('notifDetailAction');
+  var color = n.color || '#00d4ff';
+  var iconCls = n.icon || 'fa-bell';
+
+  if (icon) { icon.style.background = color + '22'; icon.innerHTML = '<i class="fas ' + iconCls + '" style="color: ' + color + '; font-size: 24px;"></i>'; }
+  if (title) title.textContent = n.title || 'Notifikasi';
+  if (body) body.textContent = n.body || '';
+  if (time) time.innerHTML = '<i class="fas fa-clock"></i> ' + fmtDate(n.time || Date.now());
+  if (action) {
+    if (n.ticketId) {
+      action.style.display = 'block';
+      action.innerHTML = '<i class="fas fa-eye" style="margin-right: 6px;"></i>Buka Tiket';
+    } else {
+      action.style.display = 'none';
+    }
+  }
+
+  var m = $('notifDetailModal'); if (m) m.classList.add('show');
+
+  // Update badge + panel
+  renderNotif();
+  // Tutup panel notif
+  var p = $('notifPanel'); if (p) p.classList.remove('show');
+}
+
+function closeNotifDetail() {
+  var m = $('notifDetailModal'); if (m) m.classList.remove('show');
+  notifDetailCurrentKey = null;
+  notifDetailTicketId = null;
+}
+
+function handleNotifAction() {
+  if (notifDetailTicketId) {
+    closeNotifDetail();
+    openTicketDetail(notifDetailTicketId);
+  } else {
+    closeNotifDetail();
+  }
+}
+
+function toggleNotif(e) {
+  if (e) e.stopPropagation();
+  var p = $('notifPanel'); if (!p) return;
+  if (p.classList.contains('show')) p.classList.remove('show');
+  else {
+    p.classList.add('show');
+    renderNotif();
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -1105,6 +2127,7 @@ function listenUser() {
       if (rcEl) rcEl.textContent = '0';
     }
     updateUserUI(data);
+    renderPerformance();
   });
 }
 
@@ -1122,9 +2145,10 @@ function listenTickets() {
     updateStats();
     renderNotif();
     renderChatList();
-    if (selectedTicketId && ticketsCache[selectedTicketId]) {
-      var vd = $('viewTicketDetail');
-      if (vd && vd.classList.contains('active')) loadTicketDetail(selectedTicketId);
+    updateTargetProgress();
+    var vd = $('viewTicketDetail');
+    if (selectedTicketId && ticketsCache[selectedTicketId] && vd && vd.classList.contains('active')) {
+      loadTicketDetail(selectedTicketId);
     }
   });
 }
@@ -1220,6 +2244,7 @@ function updateStats() {
   var s2 = $('statProgress'); if (s2) s2.textContent = mine.filter(function(t) { return t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan'; }).length;
   var s3 = $('statDoneToday'); if (s3) s3.textContent = mine.filter(function(t) { return t.status === 'Selesai' && isToday(t.finishedAt || t.updatedAt); }).length;
   var s4 = $('statEmergency'); if (s4) s4.textContent = mine.filter(function(t) { return t.isEmergency && t.status !== 'Selesai'; }).length;
+  updateTargetProgress();
 }
 
 /* ═══════════════════════════════════════════════
@@ -1344,16 +2369,19 @@ function loadTicketDetail(id) {
       actions = '<button onclick="openAcceptModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-hand-holding-heart" style="margin-right:8px;"></i>Ambil & Terima Tiket</button>';
     } else if (isMine) {
       if (t.status === 'Ditugaskan') {
-        actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-warn" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-truck" style="margin-right:8px;"></i>Mulai OTW (dengan ETA)</button>';
+        actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-warn" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-truck" style="margin-right:8px;"></i>Mulai OTW (dengan ETA)</button>' +
+          '<button onclick="openBackupModal(\'' + t.id + '\')" class="glass" style="width:100%;padding:11px;border-radius:10px;font-size:13px;margin-top:8px;border:1px solid rgba(245,158,11,0.3);color:#f59e0b;"><i class="fas fa-hands-helping" style="margin-right:6px;"></i>Request Backup</button>';
       } else if (t.status === 'Teknisi OTW') {
-        actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-play" style="margin-right:8px;"></i>Update Progress</button>';
+        actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-play" style="margin-right:8px;"></i>Update Progress</button>' +
+          '<button onclick="openBackupModal(\'' + t.id + '\')" class="glass" style="width:100%;padding:11px;border-radius:10px;font-size:13px;margin-top:8px;border:1px solid rgba(245,158,11,0.3);color:#f59e0b;"><i class="fas fa-hands-helping" style="margin-right:6px;"></i>Request Backup</button>';
       } else if (t.status === 'Dalam Pengerjaan') {
         actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-plus-circle" style="margin-right:8px;"></i>Tambah Progress Baru</button>' +
           '<button onclick="openFinishModal(\'' + t.id + '\')" class="btn-success" style="width:100%;padding:14px;border-radius:12px;font-size:14px;margin-top:8px;"><i class="fas fa-check-circle" style="margin-right:8px;"></i>Selesaikan Tiket</button>' +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">' +
           '<button onclick="openPendingModal(\'' + t.id + '\')" class="btn-warn" style="padding:10px;border-radius:10px;font-size:13px;"><i class="fas fa-pause"></i> Pending</button>' +
           '<button onclick="openEscalateModal(\'' + t.id + '\')" class="btn-danger" style="padding:10px;border-radius:10px;font-size:13px;"><i class="fas fa-arrow-up"></i> Eskalasi</button>' +
-          '</div>';
+          '</div>' +
+          '<button onclick="openBackupModal(\'' + t.id + '\')" class="glass" style="width:100%;padding:11px;border-radius:10px;font-size:13px;margin-top:8px;border:1px solid rgba(245,158,11,0.3);color:#f59e0b;"><i class="fas fa-hands-helping" style="margin-right:6px;"></i>Request Backup</button>';
       } else if (t.status === 'Pending') {
         actions = '<button onclick="openProgressModal(\'' + t.id + '\')" class="btn-primary" style="width:100%;padding:14px;border-radius:12px;font-size:14px;"><i class="fas fa-play" style="margin-right:8px;"></i>Lanjutkan Pengerjaan</button>';
       }
@@ -1406,7 +2434,6 @@ function loadTicketDetail(id) {
       html += '</div></div>';
     }
 
-    // Progress & Waktu
     html += '<div class="glass" style="border-radius:16px;padding:16px;margin-bottom:12px;">';
     html += '<h3 style="font-weight:700;margin-bottom:10px;font-size:14px;"><i class="fas fa-tasks" style="color:#00d4ff;margin-right:6px;"></i>Progress & Waktu</h3>';
     html += '<div id="progressHistoryContainer" style="margin-bottom:10px;"></div>';
@@ -1623,14 +2650,9 @@ async function saveProgress() {
 
   var isEdit = !!editingProgressKey;
   var btn = $('saveProgressBtn');
-  var originalHTML = btn ? btn.innerHTML : '';
-  if (btn) {
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span> Menyimpan...';
-  }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Menyimpan...'; }
 
   try {
-    var t = ticketsCache[ticketId];
     var user = currentUserData || {};
     var userName = user.nama || currentUid;
     var role = user.role || 'teknisi';
@@ -1680,7 +2702,12 @@ async function saveProgress() {
       updates['tickets/' + ticketId + '/currentProgressKey'] = key;
     }
 
-    await db.ref().update(updates);
+    if (!isOnline) {
+      queueOfflineWrite('tickets/' + ticketId, updates['tickets/' + ticketId]);
+      queueOfflineWrite('tickets/' + ticketId + '/progressHistory/' + key, item);
+    } else {
+      await db.ref().update(updates);
+    }
 
     var chatMsg = (isEdit ? '✏️ Progress diedit: ' : '📋 Progress: ') + status;
     if (isDone) {
@@ -1690,13 +2717,17 @@ async function saveProgress() {
     }
     if (note) chatMsg += '\n📝 ' + note;
 
-    await db.ref('chats/' + ticketId).push({
-      senderId: currentUid,
-      senderName: userName,
-      senderRole: role,
-      message: chatMsg,
-      timestamp: now
-    });
+    if (isOnline) {
+      await db.ref('chats/' + ticketId).push({
+        senderId: currentUid,
+        senderName: userName,
+        senderRole: role,
+        message: chatMsg,
+        timestamp: now
+      });
+    } else {
+      queueOfflineWrite('chats/' + ticketId, { senderId: currentUid, senderName: userName, senderRole: role, message: chatMsg, timestamp: now });
+    }
 
     toast(isEdit ? 'Progress diupdate' : 'Progress disimpan', 'success');
     closeProgressModal();
@@ -1814,7 +2845,6 @@ function renderProgressHistory(ticketId) {
         editBtn = '<button class="progress-edit-btn" onclick="openProgressModal(\'' + ticketId + '\',\'' + p.id + '\')"><i class="fas fa-pen"></i> Edit</button>';
       }
 
-      // ✅ FIX: Ternary lengkap dengan : ''
       var seekbarHtml = '';
       if (!isDone) {
         var now2 = Date.now();
@@ -1998,7 +3028,7 @@ async function submitFinish() {
     var laporan = 'PENYEBAB: ' + penyebab + '\n\nTINDAKAN: ' + tindakan + (sparepart ? '\n\nSPAREPART: ' + sparepart : '');
     var allPhotos = [].concat(uploadedBefore, uploadedAfter);
 
-    await db.ref('tickets/' + selectedTicketId).update({
+    var ticketUpdate = {
       status: 'Selesai',
       fotoPengerjaan: allPhotos,
       laporanTeknisi: laporan,
@@ -2008,15 +3038,22 @@ async function submitFinish() {
       finishedAt: now,
       updatedAt: now,
       'timeline/Selesai': now
-    });
+    };
+    if (!isOnline) {
+      queueOfflineWrite('tickets/' + selectedTicketId, ticketUpdate);
+    } else {
+      await db.ref('tickets/' + selectedTicketId).update(ticketUpdate);
+    }
 
-    await db.ref('chats/' + selectedTicketId).push({
-      senderId: currentUid,
-      senderName: currentUserData.nama || currentUid,
-      senderRole: 'teknisi',
-      message: '✅ Pengerjaan selesai.\nPenyebab: ' + penyebab + '\nTindakan: ' + tindakan + (sparepart ? '\nSparepart: ' + sparepart : ''),
-      timestamp: now
-    });
+    if (isOnline) {
+      await db.ref('chats/' + selectedTicketId).push({
+        senderId: currentUid,
+        senderName: currentUserData.nama || currentUid,
+        senderRole: 'teknisi',
+        message: '✅ Pengerjaan selesai.\nPenyebab: ' + penyebab + '\nTindakan: ' + tindakan + (sparepart ? '\nSparepart: ' + sparepart : ''),
+        timestamp: now
+      });
+    }
 
     showSuccessModal('Tiket Selesai!', 'Customer akan diberi notifikasi untuk rating.');
     toast('Tiket selesai!', 'success');
@@ -2094,6 +3131,74 @@ async function submitEscalate() {
     toast('Tiket dieskalasi', 'success');
     closeEscalateModal();
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+}
+
+/* ═══════════════════════════════════════════════
+   BACKUP REQUEST
+═══════════════════════════════════════════════ */
+function openBackupModal(id) {
+  selectedTicketId = id;
+  var br = $('backupReason'); if (br) br.value = '';
+  var bp = $('backupPriority'); if (bp) bp.value = 'Normal';
+  var m = $('backupModal'); if (m) m.classList.add('show');
+}
+function closeBackupModal() { var m = $('backupModal'); if (m) m.classList.remove('show'); }
+
+async function submitBackup() {
+  var br = $('backupReason');
+  var bp = $('backupPriority');
+  var reason = br ? br.value.trim() : '';
+  var priority = bp ? bp.value : 'Normal';
+  if (!reason) return toast('Isi alasan backup', 'error');
+
+  try {
+    var now = Date.now();
+    var t = ticketsCache[selectedTicketId];
+    var ref = db.ref('backup_requests').push();
+
+    await ref.set({
+      id: ref.key,
+      ticketId: selectedTicketId,
+      ticketKategori: t ? t.kategori : '',
+      customerName: t ? t.customerName : '',
+      alamat: t ? t.alamat : '',
+      requestedBy: currentUid,
+      requestedByName: currentUserData.nama || currentUid,
+      reason: reason,
+      priority: priority,
+      status: 'pending',
+      createdAt: now,
+      area: currentUserData.area || ''
+    });
+
+    // Kirim notif ke semua teknisi lain & admin
+    await db.ref('notifications/global').push({
+      id: 'bk_' + ref.key,
+      title: '🆘 Request Backup Teknisi',
+      body: (currentUserData.nama || currentUid) + ' butuh bantuan di tiket ' + (t ? t.kategori : '-') + '.\nAlasan: ' + reason,
+      type: 'backup',
+      color: priority === 'Emergency' ? '#dc2626' : '#f59e0b',
+      icon: 'fa-hands-helping',
+      ticketId: selectedTicketId,
+      target: 'teknisi',
+      createdAt: now
+    });
+
+    await db.ref('chats/' + selectedTicketId).push({
+      senderId: currentUid,
+      senderName: currentUserData.nama || currentUid,
+      senderRole: 'teknisi',
+      message: '🆘 Request backup ke tim.\nPrioritas: ' + priority + '\nAlasan: ' + reason,
+      timestamp: now
+    });
+
+    showSuccessModal('Request Backup Terkirim!', 'Tim akan segera merespons.\nPrioritas: ' + priority);
+    toast('Request backup terkirim', 'success');
+    closeBackupModal();
+  } catch (err) {
+    logErr('submitBackup error', err);
+    toast('Gagal: ' + err.message, 'error');
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -2244,9 +3349,21 @@ function openChatPanel(ticketId) {
   var ne = $('chatPanelName'); if (ne) ne.textContent = t.customerName || 'Customer';
   var se = $('chatPanelStatus'); if (se) se.textContent = '#' + safeSub(ticketId, 1, 8).toUpperCase() + ' · ' + (t.kategori || 'Chat') + ' · ' + (t.status || '-');
 
+  // Avatar panel
+  var av = $('chatPanelAvatar');
+  if (av) {
+    av.innerHTML = '<i class="fas fa-user"></i>';
+    if (t.uid) {
+      db.ref('users/' + t.uid + '/fotoProfil').once('value').then(function(snap) {
+        var url = snap.val();
+        if (url) av.innerHTML = '<img src="' + url + '">';
+      }).catch(function() {});
+    }
+  }
+
   loadChatMessages(ticketId);
   renderChatList();
-  if (window.innerWidth < 768) {
+  if (window.innerWidth < 1024) {
     var cl = $('chatLayout'); if (cl) cl.classList.add('mobile-open');
   }
   setTimeout(function() { var i = $('chatInput'); if (i) i.focus(); }, 200);
@@ -2309,13 +3426,18 @@ async function sendChat() {
   if (msg.length > 500) return toast('Pesan terlalu panjang', 'warn');
   input.value = '';
   try {
-    await db.ref('chats/' + activeChatTicketId).push({
+    var msgData = {
       senderId: currentUid,
       senderName: currentUserData.nama || currentUid,
       senderRole: 'teknisi',
       message: msg,
       timestamp: Date.now()
-    });
+    };
+    if (!isOnline) {
+      queueOfflineWrite('chats/' + activeChatTicketId, msgData);
+    } else {
+      await db.ref('chats/' + activeChatTicketId).push(msgData);
+    }
   } catch (err) { toast('Gagal kirim: ' + err.message, 'error'); }
 }
 
@@ -2389,8 +3511,17 @@ function renderChatHistory() {
 }
 
 /* ═══════════════════════════════════════════════
-   PERFORMANCE
+   PERFORMANCE (30 hari + komisi + breakdown rating)
 ═══════════════════════════════════════════════ */
+function switchChart(days) {
+  chartDays = parseInt(days);
+  document.querySelectorAll('.filter-chip[data-chart]').forEach(function(b) {
+    if (b.dataset.chart === String(days)) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderPerformance();
+}
+
 function renderPerformance() {
   var mine = allTickets;
   var done = mine.filter(function(t) { return t.status === 'Selesai'; });
@@ -2406,28 +3537,38 @@ function renderPerformance() {
     if (p4) p4.textContent = avgMin < 60 ? Math.round(avgMin) + 'm' : (avgMin / 60).toFixed(1) + 'j';
   } else if (p4) p4.textContent = '-';
 
+  // Komisi
+  renderKomisi(done);
+
+  // Chart
   var chart = $('perfChart');
   if (chart) {
     var days = [];
-    for (var i = 6; i >= 0; i--) {
+    for (var i = chartDays - 1; i >= 0; i--) {
       var d = new Date();
       d.setDate(d.getDate() - i);
       d.setHours(0, 0, 0, 0);
       var next = new Date(d);
       next.setDate(next.getDate() + 1);
       var count = done.filter(function(t) { return (t.finishedAt || t.updatedAt) >= d.getTime() && (t.finishedAt || t.updatedAt) < next.getTime(); }).length;
-      days.push({ label: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'][d.getDay()], count: count });
+      var dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+      days.push({ label: chartDays <= 14 ? dayNames[d.getDay()] : (d.getDate() + '/' + (d.getMonth() + 1)), count: count, date: d });
     }
     var max = Math.max.apply(null, days.map(function(d) { return d.count; }).concat([1]));
+    chart.style.minWidth = Math.max(500, chartDays * 18) + 'px';
     chart.innerHTML = days.map(function(d) {
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;">' +
-        '<span style="font-size:11px;color:#9ca3af;">' + d.count + '</span>' +
-        '<div style="width:100%;background:linear-gradient(180deg,#00d4ff,#7c3aed);border-radius:6px 6px 0 0;height:' + ((d.count / max) * 100) + '%;min-height:4px;"></div>' +
-        '<span style="font-size:11px;color:#6b7280;">' + d.label + '</span>' +
+      var h = max > 0 ? (d.count / max) * 100 : 0;
+      return '<div class="bar" style="height:' + Math.max(h, 3) + '%;" title="' + d.label + ': ' + d.count + ' tiket">' +
+        (d.count > 0 ? '<span class="bar-count">' + d.count + '</span>' : '') +
+        '<span class="bar-label">' + d.label + '</span>' +
         '</div>';
     }).join('');
   }
 
+  // Breakdown rating bulanan
+  renderRatingBreakdown(done);
+
+  // Reviews
   var reviews = done.filter(function(t) { return t.rating > 0 && t.ulasan; }).sort(function(a, b) { return (b.ratedAt || b.updatedAt) - (a.ratedAt || a.updatedAt); }).slice(0, 10);
   var pEl = $('perfReviews');
   if (pEl) {
@@ -2445,6 +3586,247 @@ function renderPerformance() {
   }
 }
 
+function renderKomisi(done) {
+  // Komisi = tiket selesai bulan ini × rate + bonus jika rating >= 4.5
+  var thisMonth = new Date().getMonth();
+  var thisYear = new Date().getFullYear();
+  var monthDone = done.filter(function(t) {
+    var d = new Date(t.finishedAt || t.updatedAt);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  });
+  var total = monthDone.length * komisiRate;
+  var avgRating = monthDone.filter(function(t) { return t.rating > 0; });
+  var avg = avgRating.length ? avgRating.reduce(function(s, t) { return s + t.rating; }, 0) / avgRating.length : 0;
+  var bonus = avg >= 4.5 ? monthDone.length * 5000 : 0;
+
+  var kt = $('komisiTotal'); if (kt) kt.textContent = formatRupiah(total + bonus);
+  var kd = $('komisiDetail'); if (kd) kd.textContent = monthDone.length + ' tiket × ' + formatRupiah(komisiRate) + (bonus ? ' + bonus rating ' + formatRupiah(bonus) : '');
+  var km = $('komisiMonth'); if (km) km.textContent = formatRupiah(total);
+  var kb = $('komisiBonus'); if (kb) kb.textContent = formatRupiah(bonus);
+}
+
+function renderRatingBreakdown(done) {
+  var container = $('ratingBreakdown');
+  if (!container) return;
+  var rated = done.filter(function(t) { return t.rating > 0; });
+  if (rated.length === 0) {
+    container.innerHTML = '<p style="color:#6b7280;font-size:13px;text-align:center;padding:16px 0;">Belum ada rating</p>';
+    return;
+  }
+  // Group by month
+  var months = {};
+  rated.forEach(function(t) {
+    var d = new Date(t.ratedAt || t.updatedAt);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    if (!months[key]) months[key] = { total: 0, count: 0, year: d.getFullYear(), month: d.getMonth() };
+    months[key].total += t.rating;
+    months[key].count++;
+  });
+  var keys = Object.keys(months).sort().reverse().slice(0, 6);
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  container.innerHTML = keys.map(function(k) {
+    var m = months[k];
+    var avg = (m.total / m.count).toFixed(1);
+    var pct = (m.total / m.count / 5) * 100;
+    var stars = '★'.repeat(Math.round(m.total / m.count)) + '☆'.repeat(5 - Math.round(m.total / m.count));
+    return '<div style="margin-bottom: 12px;">' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">' +
+      '<span style="font-weight:600;">' + monthNames[m.month] + ' ' + m.year + '</span>' +
+      '<span style="color:#facc15;">' + stars + ' <b>' + avg + '</b> <span style="color:#6b7280;">(' + m.count + ')</span></span>' +
+      '</div>' +
+      '<div style="background:#0a0e1a;border-radius:999px;height:8px;overflow:hidden;">' +
+      '<div style="height:100%;background:linear-gradient(90deg,#facc15,#f59e0b);border-radius:999px;width:' + pct + '%;"></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   LEADERBOARD
+═══════════════════════════════════════════════ */
+function switchLeaderboard(period) {
+  leaderboardPeriod = period;
+  document.querySelectorAll('.filter-chip[data-lb]').forEach(function(b) {
+    if (b.dataset.lb === period) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  var container = $('leaderboardList');
+  if (!container) return;
+
+  db.ref('users').orderByChild('role').equalTo('teknisi').once('value').then(function(snap) {
+    var techs = [];
+    snap.forEach(function(c) {
+      var u = c.val(); if (u) { if (!u.uid) u.uid = c.key; techs.push(u); }
+    });
+
+    // Fetch all tickets
+    db.ref('tickets').once('value').then(function(tSnap) {
+      var tickets = [];
+      tSnap.forEach(function(c) { var t = c.val(); if (t) { if (!t.id) t.id = c.key; tickets.push(t); } });
+
+      var now = Date.now();
+      var start = 0;
+      if (leaderboardPeriod === 'week') start = now - 7 * 86400000;
+      else if (leaderboardPeriod === 'month') start = now - 30 * 86400000;
+
+      var stats = techs.map(function(tk) {
+        var doneT = tickets.filter(function(t) {
+          return t.teknisiUid === tk.uid && t.status === 'Selesai' && (t.finishedAt || t.updatedAt || 0) >= start;
+        });
+        var rated = doneT.filter(function(t) { return t.rating > 0; });
+        var avg = rated.length ? rated.reduce(function(s, t) { return s + t.rating; }, 0) / rated.length : 0;
+        return {
+          uid: tk.uid,
+          nama: tk.nama || tk.uid,
+          foto: tk.fotoProfil,
+          done: doneT.length,
+          avgRating: avg,
+          score: doneT.length * 10 + avg * 5
+        };
+      }).filter(function(s) { return s.done > 0 || s.avgRating > 0; })
+        .sort(function(a, b) { return b.score - a.score; });
+
+      if (stats.length === 0) {
+        container.innerHTML = '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">Belum ada data untuk periode ini</p>';
+        return;
+      }
+
+      container.innerHTML = stats.map(function(s, i) {
+        var rank = i + 1;
+        var rankCls = rank <= 3 ? 'rank-' + rank : '';
+        var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '#' + rank;
+        var isMe = s.uid === currentUid;
+        var avatarHtml = s.foto ? '<img src="' + s.foto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">' : escapeHtml(s.nama.charAt(0).toUpperCase());
+        return '<div class="lb-item ' + rankCls + '"' + (isMe ? ' style="border: 1px solid #00d4ff;"' : '') + '>' +
+          '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;overflow:hidden;">' + avatarHtml + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+          '<p style="font-size:13px;font-weight:600;" class="line-clamp-1">' + medal + ' ' + escapeHtml(s.nama) + (isMe ? ' <span style="color:#00d4ff;font-size:10px;">(Anda)</span>' : '') + '</p>' +
+          '<p style="font-size:11px;color:#9ca3af;margin-top:2px;"><i class="fas fa-check-circle" style="color:#34d399;"></i> ' + s.done + ' tiket · <i class="fas fa-star" style="color:#facc15;"></i> ' + (s.avgRating ? s.avgRating.toFixed(1) : '-') + '</p>' +
+          '</div>' +
+          '<div style="text-align:right;">' +
+          '<p style="font-size:14px;font-weight:700;color:#00d4ff;">' + Math.round(s.score) + '</p>' +
+          '<p style="font-size:9px;color:#6b7280;">score</p>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    });
+  }).catch(function(err) { logErr('renderLeaderboard error', err); });
+}
+
+/* ═══════════════════════════════════════════════
+   RUTE MULTI-STOP
+═══════════════════════════════════════════════ */
+function openRuteModal() {
+  var active = allTickets.filter(function(t) {
+    return t.status !== 'Selesai' && t.teknisiUid === currentUid;
+  }).sort(function(a, b) {
+    var pa = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 }[a.priority || 'Medium'] || 2;
+    var pb = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 }[b.priority || 'Medium'] || 2;
+    if (pa !== pb) return pa - pb;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+
+  var list = $('ruteList');
+  if (!list) return;
+
+  if (active.length === 0) {
+    list.innerHTML = '<p style="color:#6b7280;font-size:13px;text-align:center;padding:20px 0;">Tidak ada tiket aktif</p>';
+    var m = $('ruteModal'); if (m) m.classList.add('show');
+    return;
+  }
+
+  var withoutCoord = active.filter(function(t) { return !t.koordinat; }).length;
+
+  list.innerHTML = active.map(function(t, i) {
+    return '<div class="glass" style="border-radius:10px;padding:10px;margin-bottom:8px;border-left:4px solid ' + (t.koordinat ? '#34d399' : '#f59e0b') + ';">' +
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+      '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">' + (i + 1) + '</div>' +
+      '<div style="flex:1;min-width:0;">' +
+      '<p style="font-size:12px;font-weight:600;" class="line-clamp-1">' + escapeHtml(t.kategori) + ' · ' + escapeHtml(t.customerName || '-') + '</p>' +
+      '<p style="font-size:10px;color:#9ca3af;margin-top:2px;" class="line-clamp-1">' + escapeHtml(t.alamat || '-') + '</p>' +
+      '</div>' +
+      '<span class="prio-badge-' + (t.priority || 'Medium') + '" style="padding:2px 6px;border-radius:999px;font-size:9px;font-weight:600;">' + escapeHtml(t.priority || 'Medium') + '</span>' +
+      '</div></div>';
+  }).join('') + (withoutCoord ? '<p style="font-size:11px;color:#f59e0b;margin-top:8px;text-align:center;"><i class="fas fa-info-circle"></i> ' + withoutCoord + ' tiket tanpa koordinat (pakai alamat)</p>' : '');
+
+  var m = $('ruteModal'); if (m) m.classList.add('show');
+}
+function closeRuteModal() { var m = $('ruteModal'); if (m) m.classList.remove('show'); }
+
+function openGoogleMapsRoute() {
+  var active = allTickets.filter(function(t) {
+    return t.status !== 'Selesai' && t.teknisiUid === currentUid;
+  }).sort(function(a, b) {
+    var pa = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 }[a.priority || 'Medium'] || 2;
+    var pb = { 'Critical': 0, 'High': 1, 'Medium': 2, 'Low': 3 }[b.priority || 'Medium'] || 2;
+    if (pa !== pb) return pa - pb;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+
+  if (active.length === 0) return toast('Tidak ada tiket aktif', 'warn');
+
+  var withCoord = active.filter(function(t) { return t.koordinat && t.koordinat.indexOf(',') > 0; });
+  if (withCoord.length === 0) return toast('Tidak ada tiket dengan koordinat GPS', 'warn');
+
+  // Google Maps URL (max 10 waypoints)
+  var points = withCoord.slice(0, 10).map(function(t) {
+    var parts = t.koordinat.split(',').map(function(s) { return s.trim(); });
+    return parts[0] + ',' + parts[1];
+  });
+
+  var url = 'https://www.google.com/maps/dir/' + points.join('/');
+  window.open(url, '_blank');
+  closeRuteModal();
+}
+
+/* ═══════════════════════════════════════════════
+   EXPORT LAPORAN HARIAN
+═══════════════════════════════════════════════ */
+function exportLaporanHarian() {
+  var today = allTickets.filter(function(t) {
+    return isToday(t.finishedAt || t.updatedAt) || isToday(t.createdAt);
+  });
+  if (today.length === 0) return toast('Belum ada aktivitas hari ini', 'info');
+
+  var rows = [['LAPORAN HARIAN TEKNISI LAKSO'], ['Nama', currentUserData.nama || currentUid], ['UID', currentUid], ['Tanggal', new Date().toLocaleDateString('id-ID')], []];
+
+  var doneToday = today.filter(function(t) { return t.status === 'Selesai' && isToday(t.finishedAt); });
+  var activeToday = today.filter(function(t) { return t.status !== 'Selesai'; });
+  rows.push(['RINGKASAN']);
+  rows.push(['Total Selesai Hari Ini', doneToday.length]);
+  rows.push(['Total Aktif', activeToday.length]);
+  rows.push(['Absensi Masuk', currentAbsensi ? fmtTime(currentAbsensi.checkIn) : '-']);
+  rows.push(['Absensi Keluar', currentAbsensi && currentAbsensi.checkOut ? fmtTime(currentAbsensi.checkOut) : '-']);
+  rows.push(['Durasi Kerja', getAbsensiDuration()]);
+  rows.push([]);
+
+  rows.push(['TIKET SELESAI HARI INI']);
+  rows.push(['ID', 'Customer', 'Alamat', 'Kategori', 'Penyebab', 'Tindakan', 'Rating', 'Selesai']);
+  doneToday.forEach(function(t) {
+    rows.push([safeSub(t.id, 1, 8).toUpperCase(), t.customerName || '', t.alamat || '', t.kategori || '', t.penyebab || '', t.tindakan || '', t.rating || 0, t.finishedAt ? new Date(t.finishedAt).toLocaleString('id-ID') : '-']);
+  });
+  rows.push([]);
+
+  if (activeToday.length) {
+    rows.push(['TIKET MASIH AKTIF']);
+    rows.push(['ID', 'Customer', 'Kategori', 'Status', 'Prioritas']);
+    activeToday.forEach(function(t) {
+      rows.push([safeSub(t.id, 1, 8).toUpperCase(), t.customerName || '', t.kategori || '', t.status || '', t.priority || '']);
+    });
+  }
+
+  var csv = rows.map(function(r) { return r.map(function(c) { return '"' + String(c || '').replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'lakso-teknisi-' + new Date().toISOString().slice(0, 10) + '.csv';
+  link.click();
+  toast('Laporan harian diunduh', 'success');
+}
+
 /* ═══════════════════════════════════════════════
    PROFILE
 ═══════════════════════════════════════════════ */
@@ -2454,6 +3836,7 @@ function loadProfileForm() {
   var ph = $('profHp'); if (ph) ph.value = currentUserData.noHp || '';
   var pa = $('profArea'); if (pa) pa.value = currentUserData.area || '';
   var ps = $('profShift'); if (ps) ps.value = currentUserData.shift || 'On Call';
+  renderProfileAvatar(currentUserData.fotoProfil);
 }
 async function saveProfile() {
   var pn = $('profNama'), ph = $('profHp'), pa = $('profArea'), ps = $('profShift');
@@ -2468,115 +3851,45 @@ async function saveProfile() {
   } catch (err) { toast('Gagal: ' + err.message, 'error'); }
 }
 
-/* ═══════════════════════════════════════════════
-   NOTIFIKASI
-═══════════════════════════════════════════════ */
-function getNotifLastReadAt() {
-  try { return parseInt(localStorage.getItem('lks_notif_lastReadAt') || '0', 10); } catch (e) { return 0; }
+function openUploadFotoModal() {
+  pendingFotoProfil = null;
+  var prev = $('profileFotoPreview'); if (prev) prev.innerHTML = '';
+  var inp = $('profileFotoInput'); if (inp) inp.value = '';
+  var m = $('uploadFotoModal'); if (m) m.classList.add('show');
 }
-function markAllNotifsRead() {
-  try { localStorage.setItem('lks_notif_lastReadAt', String(Date.now())); } catch (e) {}
-}
-function setNotifFilter(mode) {
-  notifFilter = mode;
-  document.querySelectorAll('.notif-tab').forEach(function(b) {
-    if (b.dataset.nfilter === mode) b.classList.add('active');
-    else b.classList.remove('active');
-  });
-  renderNotif();
-}
-function renderNotif() {
-  try {
-    var lastRead = getNotifLastReadAt();
-    var allNotifs = [];
+function closeUploadFotoModal() { var m = $('uploadFotoModal'); if (m) m.classList.remove('show'); pendingFotoProfil = null; }
 
-    allTickets.forEach(function(t) {
-      if (t.isEmergency && t.status !== 'Selesai') {
-        allNotifs.push({ id: t.id, category: 'info', title: '🚨 SOS EMERGENCY', body: (t.customerName || '-') + ' - ' + (t.alamat || '-'), time: t.createdAt || Date.now(), color: '#ef4444', icon: 'fa-exclamation-circle', key: 'notif_info_sos_' + t.id });
-      }
-      if (t.status !== 'Selesai' && (t.slaDeadline || 0) < Date.now()) {
-        allNotifs.push({ id: t.id, category: 'info', title: '⚠️ SLA Lewat', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.slaDeadline || Date.now(), color: '#f59e0b', icon: 'fa-exclamation-triangle', key: 'notif_info_sla_' + t.id });
-      }
-    });
-
-    allPoolTickets.forEach(function(t) {
-      allNotifs.push({ id: t.id, category: 'info', title: '📥 Tiket Baru di Pool', body: (t.customerName || '-') + ' - ' + (t.kategori || '-'), time: t.createdAt || Date.now(), color: '#00d4ff', icon: 'fa-inbox', key: 'notif_info_pool_' + t.id });
-    });
-
-    allTickets.forEach(function(t) {
-      var ph = t.progressHistory;
-      if (!ph) return;
-      Object.keys(ph).forEach(function(k) {
-        var p = ph[k] || {};
-        if (!p.at) return;
-        allNotifs.push({
-          id: t.id, category: 'progress',
-          title: '📋 ' + (p.status || 'Progress') + ' — ' + (t.customerName || '-'),
-          body: (p.note ? p.note : 'Estimasi: ' + (p.durationMinutes || 0) + ' menit') + ' · oleh ' + (p.updatedByName || '-'),
-          time: p.at, color: '#c084fc', icon: 'fa-tasks', key: 'notif_progress_' + t.id + '_' + k
-        });
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'profileFotoInput') {
+    var file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return toast('Bukan gambar', 'error');
+    if (file.size > 5 * 1024 * 1024) return toast('Terlalu besar', 'error');
+    var prev = $('profileFotoPreview');
+    if (prev) prev.innerHTML = '<span class="spin"></span> Mengompres...';
+    compressImage(file, 600, 0.85).then(function(blob) {
+      return uploadToImgbb(blob).then(function(url) {
+        pendingFotoProfil = url;
+        if (prev) prev.innerHTML = '<img src="' + url + '" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #00d4ff;">';
       });
+    }).catch(function(err) {
+      if (prev) prev.innerHTML = '<p style="color: #f87171; font-size: 12px;">Gagal: ' + err.message + '</p>';
     });
+  }
+});
 
-    allTickets.forEach(function(t) {
-      if ((t.status === 'Teknisi OTW' || t.status === 'Dalam Pengerjaan') && t.teknisiName) {
-        allNotifs.push({
-          id: t.id, category: 'busy',
-          title: '🔧 Teknisi Menangani Tiket',
-          body: (t.teknisiName || '-') + ' menangani: ' + (t.customerName || '-'),
-          time: t.updatedAt || Date.now(), color: '#f59e0b', icon: 'fa-tools', key: 'notif_busy_' + t.id + '_' + (t.status || '')
-        });
-      }
-    });
-
-    var filtered = allNotifs;
-    if (notifFilter !== 'all') filtered = allNotifs.filter(function(n) { return n.category === notifFilter; });
-    filtered.sort(function(a, b) { return b.time - a.time; });
-
-    var unread = filtered.filter(function(n) { return n.time > lastRead; }).length;
-    var badge = $('notifBadge');
-    if (badge) {
-      if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.style.display = 'flex'; }
-      else badge.style.display = 'none';
-    }
-    var cl = $('notifCountLabel');
-    if (cl) cl.textContent = unread > 0 ? unread + ' belum dibaca' : 'Belum ada pemberitahuan';
-
-    var listEl = $('notifList');
-    if (!listEl) return;
-    if (filtered.length === 0) {
-      var emptyMsg = 'Belum Ada Pemberitahuan';
-      if (notifFilter === 'progress') emptyMsg = 'Belum Ada Update Progress';
-      if (notifFilter === 'busy') emptyMsg = 'Tidak Ada Teknisi Sibuk';
-      listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;"><i class="fas fa-bell-slash" style="font-size:40px;color:#374151;"></i><p style="color:#9ca3af;margin-top:12px;font-size:14px;font-weight:600;">' + emptyMsg + '</p></div>';
-      return;
-    }
-    listEl.innerHTML = filtered.map(function(n) {
-      var isRead = n.time <= lastRead;
-      return '<div class="glass fade-in" onclick="handleNotifClick(\'' + n.key + '\',\'' + n.id + '\')" style="border-radius: 10px; padding: 12px; cursor: pointer; border-left: 4px solid ' + n.color + ';' + (isRead ? 'opacity: 0.55;' : '') + ' display: flex; gap: 10px; margin-bottom: 8px;">' +
-        '<div style="width: 32px; height: 32px; border-radius: 8px; background: ' + n.color + '22; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fas ' + n.icon + '" style="color: ' + n.color + ';"></i></div>' +
-        '<div style="flex: 1; min-width: 0;">' +
-        '<p style="font-weight: 600; font-size: 13px;">' + escapeHtml(n.title) + '</p>' +
-        '<p style="font-size: 11px; color: #9ca3af; margin-top: 2px;" class="line-clamp-2">' + escapeHtml(n.body) + '</p>' +
-        '<p style="font-size: 10px; color: #6b7280; margin-top: 4px;">' + timeAgo(n.time) + '</p>' +
-        '</div>' +
-        (isRead ? '' : '<span style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0;align-self:center;"></span>') +
-        '</div>';
-    }).join('');
-  } catch (err) { logErr('renderNotif error', err); }
-}
-
-function handleNotifClick(key, ticketId) {
-  try { localStorage.setItem(key, '1'); } catch (e) {}
-  var p = $('notifPanel'); if (p) p.classList.remove('show');
-  openTicketDetail(ticketId);
-}
-
-function toggleNotif(e) {
-  if (e) e.stopPropagation();
-  var p = $('notifPanel'); if (!p) return;
-  if (p.classList.contains('show')) p.classList.remove('show');
-  else { markAllNotifsRead(); p.classList.add('show'); renderNotif(); }
+async function saveFotoProfil() {
+  if (!pendingFotoProfil) return toast('Pilih foto dulu', 'warn');
+  var btn = $('saveFotoBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Menyimpan...'; }
+  try {
+    await db.ref('users/' + currentUid + '/fotoProfil').set(pendingFotoProfil);
+    currentUserData.fotoProfil = pendingFotoProfil;
+    renderProfileAvatar(pendingFotoProfil);
+    toast('Foto profil disimpan', 'success');
+    closeUploadFotoModal();
+  } catch (err) { toast('Gagal: ' + err.message, 'error'); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = 'Simpan'; } }
 }
 
 /* ═══════════════════════════════════════════════
@@ -2593,11 +3906,20 @@ function showView(name, ticketId) {
     if (b.dataset.sidebar === name) b.classList.add('active');
     else b.classList.remove('active');
   });
-  var titles = { Dashboard: 'Teknisi Portal', Chat: 'Chat', Performance: 'Performa', Profile: 'Profil', TicketDetail: 'Detail Tiket' };
+  var titles = { Dashboard: 'Teknisi Portal', Chat: 'Chat', Performance: 'Performa', Leaderboard: 'Leaderboard', Profile: 'Profil', TicketDetail: 'Detail Tiket' };
   var sub = $('headerSubtitle'); if (sub) sub.textContent = titles[name] || 'Teknisi Portal';
   if (name === 'TicketDetail' && ticketId) loadTicketDetail(ticketId);
-  if (name === 'Chat') { renderChatList(); if (ticketId) setTimeout(function() { openChatPanel(ticketId); }, 100); }
+  if (name === 'Chat') {
+    renderChatList();
+    if (ticketId) setTimeout(function() { openChatPanel(ticketId); }, 100);
+    else {
+      // Desktop: tampilkan empty panel (user pilih chat)
+      var cl = $('chatLayout');
+      if (cl && window.innerWidth >= 1024) cl.classList.remove('mobile-open');
+    }
+  }
   if (name === 'Performance') renderPerformance();
+  if (name === 'Leaderboard') renderLeaderboard();
   if (name === 'Profile') loadProfileForm();
   window.scrollTo(0, 0);
 }
@@ -2616,11 +3938,14 @@ function closeLogoutModal() { var m = $('logoutModal'); if (m) m.classList.remov
 async function confirmLogout(deleteDevice) {
   try {
     if (currentUid) await db.ref('users/' + currentUid + '/tersedia').set(false);
+    stopTracking();
     if (deleteDevice && currentUid) {
       await db.ref('users/' + currentUid + '/deviceIds/' + deviceId).remove();
       await db.ref('device_registry/' + deviceId).remove();
     }
     if (userListener) userListener.off();
+    if (notifListenerRef) notifListenerRef.off();
+    if (globalNotifListenerRef) globalNotifListenerRef.off();
     currentUid = null; currentUserData = null;
     listenersStarted = false;
     var ma = $('mainApp'); if (ma) ma.style.display = 'none';
@@ -2632,7 +3957,10 @@ async function confirmLogout(deleteDevice) {
 }
 async function forceLogout() {
   if (currentUid) { try { await db.ref('users/' + currentUid + '/tersedia').set(false); } catch (e) {} }
+  stopTracking();
   if (userListener) userListener.off();
+  if (notifListenerRef) notifListenerRef.off();
+  if (globalNotifListenerRef) globalNotifListenerRef.off();
   currentUid = null; currentUserData = null;
   listenersStarted = false;
   var ma = $('mainApp'); if (ma) ma.style.display = 'none';
@@ -2653,6 +3981,16 @@ function applyResponsive() {
     if (s) s.style.display = 'none';
     if (bn) bn.style.display = 'block';
     if (ma) ma.style.paddingBottom = '80px';
+  }
+  // Re-apply chat layout
+  var cl = $('chatLayout');
+  if (cl) {
+    if (!isDesktop) {
+      // Mobile: reset ke list kalau belum buka chat
+      // Biarkan state saat ini
+    } else {
+      cl.classList.remove('mobile-open');
+    }
   }
 }
 window.addEventListener('resize', applyResponsive);
